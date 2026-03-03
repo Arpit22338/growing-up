@@ -17,11 +17,11 @@ const dbReady = connectDB();
 // Ensure DB is connected before handling any request (critical for serverless)
 app.use(async (req, res, next) => {
   try {
-    await dbReady;
+    await connectDB();
     next();
   } catch (err) {
     console.error('DB connection failed:', err.message);
-    res.status(500).send('Database connection failed');
+    res.status(500).send('Database connection failed: ' + err.message);
   }
 });
 
