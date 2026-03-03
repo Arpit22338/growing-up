@@ -172,3 +172,6 @@ app.listen(PORT, () => {
   console.log(`Growing Up server running on port ${PORT}`);
   console.log(`Visit: http://localhost:${PORT}`);
 });
+
+// Export for Vercel serverless
+module.exports = app;
