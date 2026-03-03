@@ -327,4 +327,31 @@ router.get('/admin/earnings', isSuperAdmin, async (req, res) => {
   }
 });
 
+// POST - Reset everything to zero (Super Admin only)
+router.post('/admin/reset-everything', isSuperAdmin, async (req, res) => {
+  try {
+    // Delete all payments
+    await Payment.deleteMany({});
+
+    // Reset all users: earnings to 0, deactivate, clear purchased courses & referredUsers
+    await User.updateMany(
+      { role: 'user' },
+      {
+        $set: {
+          totalEarnings: 0,
+          isActive: false,
+          purchasedCourses: [],
+          referredUsers: []
+        }
+      }
+    );
+
+    console.log('RESET: Everything reset to zero by superadmin', req.session.userId);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Reset error:', err);
+    res.status(500).json({ error: 'Reset failed' });
+  }
+});
+
 module.exports = router;

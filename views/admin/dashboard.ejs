@@ -15,48 +15,58 @@
     <div class="admin-content">
       <div class="admin-topbar">
         <button class="hamburger" id="hamBtn"><i class='bx bx-menu'></i></button>
-        <div>
+        <div style="flex: 1;">
           <h1 style="margin-bottom: 2px;"><i class='bx bx-grid-alt'></i> Dashboard</h1>
           <p style="color: var(--gray-500); font-size: 13px; margin: 0;">Welcome back, Admin</p>
         </div>
       </div>
 
       <!-- Stats Grid -->
-      <div class="admin-stats-grid">
-        <div class="admin-stat-card admin-stat-blue">
-          <div class="admin-stat-left">
-            <div class="admin-stat-value">₹<%= totalBalance %></div>
-            <div class="admin-stat-label">Platform Balance (35%)</div>
+      <div class="dash-stats-grid">
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">
+            <i class='bx bx-wallet'></i>
           </div>
-          <div class="admin-stat-icon-bg"><i class='bx bx-wallet'></i></div>
+          <div class="dash-stat-info">
+            <span class="dash-stat-value">₹<%= totalBalance %></span>
+            <span class="dash-stat-label">Platform Balance (35%)</span>
+          </div>
         </div>
-        <div class="admin-stat-card admin-stat-gold">
-          <div class="admin-stat-left">
-            <div class="admin-stat-value">₹<%= totalRevenue %></div>
-            <div class="admin-stat-label">Total Revenue</div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="background: linear-gradient(135deg, #D4A843, #B8902E);">
+            <i class='bx bx-trending-up'></i>
           </div>
-          <div class="admin-stat-icon-bg"><i class='bx bx-trending-up'></i></div>
+          <div class="dash-stat-info">
+            <span class="dash-stat-value">₹<%= totalRevenue %></span>
+            <span class="dash-stat-label">Total Revenue</span>
+          </div>
         </div>
-        <div class="admin-stat-card admin-stat-green">
-          <div class="admin-stat-left">
-            <div class="admin-stat-value"><%= totalUsers %></div>
-            <div class="admin-stat-label">Total Users</div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
+            <i class='bx bx-group'></i>
           </div>
-          <div class="admin-stat-icon-bg"><i class='bx bx-group'></i></div>
+          <div class="dash-stat-info">
+            <span class="dash-stat-value"><%= totalUsers %></span>
+            <span class="dash-stat-label">Total Users</span>
+          </div>
         </div>
-        <div class="admin-stat-card admin-stat-teal">
-          <div class="admin-stat-left">
-            <div class="admin-stat-value"><%= activeUsers %></div>
-            <div class="admin-stat-label">Active Users</div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="background: linear-gradient(135deg, #14B8A6, #0D9488);">
+            <i class='bx bx-user-check'></i>
           </div>
-          <div class="admin-stat-icon-bg"><i class='bx bx-user-check'></i></div>
+          <div class="dash-stat-info">
+            <span class="dash-stat-value"><%= activeUsers %></span>
+            <span class="dash-stat-label">Active Users</span>
+          </div>
         </div>
-        <div class="admin-stat-card admin-stat-orange">
-          <div class="admin-stat-left">
-            <div class="admin-stat-value"><%= pendingPayments %></div>
-            <div class="admin-stat-label">Pending Payments</div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+            <i class='bx bx-time-five'></i>
           </div>
-          <div class="admin-stat-icon-bg"><i class='bx bx-time-five'></i></div>
+          <div class="dash-stat-info">
+            <span class="dash-stat-value"><%= pendingPayments %></span>
+            <span class="dash-stat-label">Pending Payments</span>
+          </div>
         </div>
       </div>
 
@@ -91,11 +101,77 @@
           <% } %>
         </div>
       </div>
+
+      <% if (role === 'superadmin') { %>
+      <!-- Danger Zone -->
+      <div class="card" style="margin-top: 20px; border: 2px solid var(--danger); border-radius: 12px;">
+        <h3 style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px; color: var(--danger);">
+          <i class='bx bx-error-circle'></i> Danger Zone
+        </h3>
+        <p style="color: var(--gray-500); font-size: 13px; margin-bottom: 16px;">
+          This will permanently delete <strong>all payments</strong>, reset <strong>all user earnings to ₹0</strong>, deactivate all users, and clear purchased courses. This action <strong>cannot be undone</strong>.
+        </p>
+        <button class="btn btn-danger" onclick="resetEverything()" id="resetBtn">
+          <i class='bx bx-reset'></i> Reset Everything to Zero
+        </button>
+      </div>
+      <% } %>
     </div>
   </div>
 
   <div class="toast-container" id="toastContainer"></div>
   <script>
+    function showToast(msg, type) {
+      type = type || 'success';
+      var c = document.getElementById('toastContainer');
+      var t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.innerHTML = '<i class="bx ' + (type === 'success' ? 'bx-check-circle' : 'bx-error-circle') + '"></i> ' + msg;
+      c.appendChild(t);
+      setTimeout(function(){ t.remove(); }, 4000);
+    }
+
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var CSRF = csrfMeta ? csrfMeta.content : '';
+
+    async function resetEverything() {
+      var c1 = confirm('⚠️ WARNING: This will delete ALL payments, reset all earnings to ₹0, deactivate all users, and clear purchased courses.\n\nAre you absolutely sure?');
+      if (!c1) return;
+      var c2 = prompt('Type "RESET" to confirm:');
+      if (c2 !== 'RESET') {
+        showToast('Reset cancelled — you must type RESET exactly.', 'error');
+        return;
+      }
+      var btn = document.getElementById('resetBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Resetting...';
+      try {
+        var res = await fetch('/admin/reset-everything', {
+          method: 'POST',
+          headers: { 'X-CSRF-Token': CSRF },
+          credentials: 'same-origin'
+        });
+        if (res.status === 401) {
+          showToast('Session expired. Please login again.', 'error');
+          setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
+          return;
+        }
+        var data = await res.json();
+        if (data.success) {
+          showToast('Everything has been reset to zero!');
+          setTimeout(function(){ location.reload(); }, 1500);
+        } else {
+          showToast(data.error || 'Reset failed', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-reset"></i> Reset Everything to Zero';
+        }
+      } catch (err) {
+        showToast('Error: ' + (err.message || 'Connection failed'), 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bx bx-reset"></i> Reset Everything to Zero';
+      }
+    }
+
     document.getElementById('hamBtn').addEventListener('click', function() {
       document.getElementById('adminSidebar').classList.toggle('open');
     });

@@ -10,11 +10,11 @@ const courses = {
     borderColor: '#3B82F6',
     thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=340&fit=crop',
     content: [
-      { emoji: '📱', text: 'Social Media Basics & Personal Branding' },
-      { emoji: '💬', text: 'Communication Skills for Online Work' },
-      { emoji: '🧠', text: 'Mindset & Goal Setting' },
-      { emoji: '💰', text: 'Introduction to Online Earning Methods' },
-      { emoji: '🔗', text: 'How Referral Networks Work' }
+      { icon: 'bx-mobile-alt', text: 'Social Media Basics & Personal Branding' },
+      { icon: 'bx-chat', text: 'Communication Skills for Online Work' },
+      { icon: 'bx-brain', text: 'Mindset & Goal Setting' },
+      { icon: 'bx-wallet', text: 'Introduction to Online Earning Methods' },
+      { icon: 'bx-link', text: 'How Referral Networks Work' }
     ],
     features: [
       'Social Media Basics & Personal Branding',
@@ -35,11 +35,11 @@ const courses = {
     borderColor: '#8B5CF6',
     thumbnail: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=340&fit=crop',
     content: [
-      { emoji: '📈', text: 'Advanced Referral Strategies' },
-      { emoji: '🎯', text: 'Target Audience & Marketing Basics' },
-      { emoji: '🛠️', text: 'Free Tools for Digital Workers' },
-      { emoji: '📊', text: 'Tracking Your Growth & Earnings' },
-      { emoji: '🤝', text: 'Building Your Team & Network' }
+      { icon: 'bx-trending-up', text: 'Advanced Referral Strategies' },
+      { icon: 'bx-target-lock', text: 'Target Audience & Marketing Basics' },
+      { icon: 'bx-wrench', text: 'Free Tools for Digital Workers' },
+      { icon: 'bx-bar-chart-alt-2', text: 'Tracking Your Growth & Earnings' },
+      { icon: 'bx-group', text: 'Building Your Team & Network' }
     ],
     features: [
       'Advanced Referral Strategies',
@@ -60,12 +60,12 @@ const courses = {
     borderColor: '#D4A843',
     thumbnail: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&h=340&fit=crop',
     content: [
-      { emoji: '🏆', text: 'Leadership & Team Management' },
-      { emoji: '📣', text: 'Content Creation & Video Marketing' },
-      { emoji: '💼', text: 'Building a Personal Brand Online' },
-      { emoji: '📲', text: 'WhatsApp & Social Media Funnels' },
-      { emoji: '🧮', text: 'Financial Planning for Online Earners' },
-      { emoji: '🔐', text: 'Online Safety & Scam Awareness' }
+      { icon: 'bx-trophy', text: 'Leadership & Team Management' },
+      { icon: 'bx-megaphone', text: 'Content Creation & Video Marketing' },
+      { icon: 'bx-briefcase', text: 'Building a Personal Brand Online' },
+      { icon: 'bx-phone', text: 'WhatsApp & Social Media Funnels' },
+      { icon: 'bx-calculator', text: 'Financial Planning for Online Earners' },
+      { icon: 'bx-shield', text: 'Online Safety & Scam Awareness' }
     ],
     features: [
       'Leadership & Team Management',
@@ -88,10 +88,10 @@ const courses = {
     thumbnail: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=340&fit=crop',
     badge: 'BEST VALUE',
     content: [
-      { emoji: '✅', text: 'Everything in Starter + Prime + Master' },
-      { emoji: '🎁', text: 'Bonus: Exclusive community group access' },
-      { emoji: '📞', text: 'Priority WhatsApp support' },
-      { emoji: '🚀', text: 'Early access to new course content' }
+      { icon: 'bx-check-double', text: 'Everything in Starter + Prime + Master' },
+      { icon: 'bx-gift', text: 'Bonus: Exclusive community group access' },
+      { icon: 'bxl-whatsapp', text: 'Priority WhatsApp support' },
+      { icon: 'bx-rocket', text: 'Early access to new course content' }
     ],
     features: [
       'Everything in Starter + Prime + Master',

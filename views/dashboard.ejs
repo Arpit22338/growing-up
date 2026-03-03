@@ -12,7 +12,7 @@
         <% } %>
       </div>
       <div>
-        <h1>Welcome back, <%= user.firstName %> 👋</h1>
+        <h1>Welcome back, <%= user.firstName %> <i class='bx bx-hand' style="color: var(--gold);"></i></h1>
         <p style="opacity: 0.8;">Your referral code: <strong style="color: var(--gold); background: rgba(212,168,67,0.15); padding: 2px 10px; border-radius: 20px; font-size: 14px;"><%= user.referralCode %></strong></p>
       </div>
     </div>
@@ -149,7 +149,9 @@
 <script>
   function copyLink(id) {
     var input = document.getElementById(id);
+    if (!input) return;
     var text = input.value;
+    // Try modern clipboard API first
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(text).then(function() {
         showToast('Link copied to clipboard!');
@@ -165,11 +167,18 @@
     ta.value = text;
     ta.style.position = 'fixed';
     ta.style.left = '-9999px';
+    ta.style.top = '0';
+    ta.style.opacity = '0';
     document.body.appendChild(ta);
+    ta.focus();
     ta.select();
     try {
-      document.execCommand('copy');
-      showToast('Link copied to clipboard!');
+      var ok = document.execCommand('copy');
+      if (ok) {
+        showToast('Link copied to clipboard!');
+      } else {
+        showToast('Failed to copy link', 'error');
+      }
     } catch (e) {
       showToast('Failed to copy link', 'error');
     }

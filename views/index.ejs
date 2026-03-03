@@ -91,7 +91,7 @@
             <!-- Content List -->
             <ul class="course-content-list">
               <% c.content.forEach(item => { %>
-                <li><span class="content-emoji"><%= item.emoji %></span> <%= item.text %></li>
+                <li><i class='bx <%= item.icon %>' style="color: var(--gold); font-size: 16px;"></i> <%= item.text %></li>
               <% }); %>
             </ul>
 

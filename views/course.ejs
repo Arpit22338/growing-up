@@ -32,7 +32,7 @@
         <ul class="course-detail-content">
           <% course.content.forEach(item => { %>
             <li>
-              <span class="content-emoji"><%= item.emoji %></span>
+              <i class='bx <%= item.icon %>' style="color: var(--gold); font-size: 18px; flex-shrink: 0;"></i>
               <span><%= item.text %></span>
             </li>
           <% }); %>
@@ -97,10 +97,36 @@
 })();
 function copyCourseLink() {
   const input = document.getElementById('courseRefLink');
-  if (input) {
-    navigator.clipboard.writeText(input.value).then(() => {
+  if (!input) return;
+  var text = input.value;
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(function() {
       showToast('Referral link copied!');
+    }).catch(function() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      ta.style.top = '0';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try { document.execCommand('copy'); showToast('Referral link copied!'); } catch(e) { showToast('Failed to copy', 'error'); }
+      document.body.removeChild(ta);
     });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    ta.style.top = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand('copy'); showToast('Referral link copied!'); } catch(e) { showToast('Failed to copy', 'error'); }
+    document.body.removeChild(ta);
   }
 }
 </script>
