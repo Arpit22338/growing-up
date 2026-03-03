@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
-const MongoStore = require('connect-mongo').default;
+const MongoStore = require('connect-mongo');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
@@ -168,10 +168,13 @@ app.use((err, req, res, next) => {
   res.status(500).send(message);
 });
 
-app.listen(PORT, () => {
-  console.log(`Growing Up server running on port ${PORT}`);
-  console.log(`Visit: http://localhost:${PORT}`);
-});
-
 // Export for Vercel serverless
 module.exports = app;
+
+// Only listen when running locally (not on Vercel)
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Growing Up server running on port ${PORT}`);
+    console.log(`Visit: http://localhost:${PORT}`);
+  });
+}
