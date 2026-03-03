@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payments — Admin — Growing Up</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="admin-layout">
+    <%- include('sidebar', { role, active: 'payments' }) %>
+
+    <div class="admin-content">
+      <h1><i class='bx bx-credit-card'></i> Payment Requests</h1>
+
+      <!-- Status Filter -->
+      <div style="display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap;">
+        <a href="/admin/payments?status=pending" class="btn btn-sm <%= status === 'pending' ? 'btn-primary' : 'btn-outline' %>">
+          Pending
+        </a>
+        <a href="/admin/payments?status=approved" class="btn btn-sm <%= status === 'approved' ? 'btn-success' : 'btn-outline' %>">
+          Approved
+        </a>
+        <a href="/admin/payments?status=rejected" class="btn btn-sm <%= status === 'rejected' ? 'btn-danger' : 'btn-outline' %>">
+          Rejected
+        </a>
+      </div>
+
+      <div class="card">
+        <% if (payments.length === 0) { %>
+          <p style="text-align: center; color: var(--gray-500); padding: 40px;">
+            No <%= status %> payments found.
+          </p>
+        <% } else { %>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Course</th>
+                  <th>Amount</th>
+                  <th>Screenshot</th>
+                  <th>Txn ID</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% payments.forEach(p => { %>
+                  <tr id="payment-<%= p._id %>">
+                    <td>
+                      <strong><%= p.user ? p.user.firstName + ' ' + p.user.lastName : 'Unknown' %></strong>
+                      <br><small style="color: var(--gray-500);"><%= p.user ? p.user.whatsapp : '' %></small>
+                    </td>
+                    <td><%= p.courseName %></td>
+                    <td><strong>₹<%= p.price %></strong></td>
+                    <td>
+                      <img src="<%= p.screenshot %>" class="screenshot-thumb"
+                        onclick="viewScreenshot('<%= p.screenshot %>')">
+                    </td>
+                    <td><%= p.transactionId || '-' %></td>
+                    <td><%= new Date(p.createdAt).toLocaleDateString() %></td>
+                    <td>
+                      <% if (status === 'pending') { %>
+                        <button class="btn btn-success btn-sm" onclick="approvePayment('<%= p._id %>')">
+                          <i class='bx bx-check'></i> Approve
+                        </button>
+                        <% if (role === 'superadmin') { %>
+                          <button class="btn btn-danger btn-sm" onclick="rejectPayment('<%= p._id %>')" style="margin-top: 4px;">
+                            <i class='bx bx-x'></i> Reject
+                          </button>
+                        <% } %>
+                      <% } else { %>
+                        <span class="badge badge-<%= status %>"><%= status %></span>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screenshot Modal -->
+  <div class="modal-overlay" id="screenshotModal">
+    <div class="modal" style="max-width: 600px; text-align: center;">
+      <h3>Payment Screenshot</h3>
+      <img id="screenshotFull" style="max-width: 100%; border-radius: 8px;">
+      <div class="modal-actions" style="justify-content: center;">
+        <button class="btn btn-outline" onclick="document.getElementById('screenshotModal').classList.remove('show')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script>
+    function showToast(msg, type='success') {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.innerHTML = '<i class="bx ' + (type === 'success' ? 'bx-check-circle' : 'bx-error-circle') + '"></i> ' + msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
+    }
+
+    function viewScreenshot(src) {
+      document.getElementById('screenshotFull').src = src;
+      document.getElementById('screenshotModal').classList.add('show');
+    }
+
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var CSRF = csrfMeta ? csrfMeta.content : '';
+
+    async function approvePayment(id) {
+      if (!confirm('Approve this payment?')) return;
+      try {
+        const res = await fetch('/admin/payments/' + id + '/approve', {
+          method: 'POST',
+          headers: { 'X-CSRF-Token': CSRF }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Payment approved successfully!');
+          document.getElementById('payment-' + id).remove();
+        } else {
+          showToast(data.error || 'Failed', 'error');
+        }
+      } catch (err) {
+        showToast('Error connecting to server', 'error');
+      }
+    }
+
+    async function rejectPayment(id) {
+      const reason = prompt('Rejection reason (optional):');
+      if (reason === null) return;
+      try {
+        const res = await fetch('/admin/payments/' + id + '/reject', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF },
+          body: JSON.stringify({ reason })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Payment rejected');
+          document.getElementById('payment-' + id).remove();
+        } else {
+          showToast(data.error || 'Failed', 'error');
+        }
+      } catch (err) {
+        showToast('Error connecting to server', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

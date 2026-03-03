@@ -1,0 +1,25 @@
+<%- include('partials/header') %>
+
+<section class="section" style="background: var(--white);">
+  <div class="container" style="max-width: 700px;">
+    <div class="card" style="text-align: center; padding: 48px 32px;">
+      <h2 style="color: var(--navy); font-size: 28px; margin-bottom: 8px;"><%= course.name %></h2>
+      <div class="price" style="font-size: 42px; font-weight: 800; color: var(--gold-dark); margin-bottom: 12px;">
+        <%= course.currency %><%= course.price %>
+      </div>
+      <p style="color: var(--gray-500); margin-bottom: 24px;"><%= course.description %></p>
+      <ul class="features" style="display: inline-block; text-align: left; margin-bottom: 32px;">
+        <% course.features.forEach(f => { %>
+          <li><i class='bx bx-check' style="color: var(--success);"></i> <%= f %></li>
+        <% }); %>
+      </ul>
+      <div>
+        <a href="/register?course=<%= course.key %><%= ref ? '&ref=' + ref : '' %>" class="btn btn-gold btn-lg">
+          <i class='bx bx-cart'></i> Enroll Now
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Growing Up</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="admin-layout">
+    <%- include('sidebar', { role, active: 'dashboard' }) %>
+
+    <div class="admin-content">
+      <button class="hamburger" onclick="document.getElementById('adminSidebar').classList.toggle('open')" style="display: none; margin-bottom: 16px;">
+        <i class='bx bx-menu' style="font-size: 24px;"></i>
+      </button>
+
+      <h1><i class='bx bx-grid-alt'></i> Dashboard</h1>
+
+      <div class="stats-grid" style="margin-top: 0;">
+        <div class="stat-card">
+          <i class='bx bx-wallet'></i>
+          <div class="stat-value">₹<%= totalBalance %></div>
+          <div class="stat-label">Platform Balance (35%)</div>
+        </div>
+        <div class="stat-card">
+          <i class='bx bx-money'></i>
+          <div class="stat-value">₹<%= totalRevenue %></div>
+          <div class="stat-label">Total Revenue</div>
+        </div>
+        <div class="stat-card">
+          <i class='bx bx-group'></i>
+          <div class="stat-value"><%= totalUsers %></div>
+          <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card">
+          <i class='bx bx-user-check'></i>
+          <div class="stat-value"><%= activeUsers %></div>
+          <div class="stat-label">Active Users</div>
+        </div>
+        <div class="stat-card">
+          <i class='bx bx-time-five'></i>
+          <div class="stat-value"><%= pendingPayments %></div>
+          <div class="stat-label">Pending Payments</div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card">
+        <h3 style="margin-bottom: 16px;"><i class='bx bx-zap' style="color: var(--gold);"></i> Quick Actions</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+          <a href="/admin/payments?status=pending" class="btn btn-primary">
+            <i class='bx bx-credit-card'></i> Review Payments (<%= pendingPayments %>)
+          </a>
+          <a href="/admin/users" class="btn btn-outline">
+            <i class='bx bx-group'></i> Manage Users
+          </a>
+          <% if (role === 'superadmin') { %>
+            <a href="/admin/settings" class="btn btn-outline">
+              <i class='bx bx-cog'></i> Update QR Codes
+            </a>
+            <a href="/admin/earnings" class="btn btn-outline">
+              <i class='bx bx-bar-chart-alt-2'></i> View Earnings
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script>
+    // Mobile sidebar toggle
+    if (window.innerWidth <= 768) {
+      document.querySelector('.hamburger').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

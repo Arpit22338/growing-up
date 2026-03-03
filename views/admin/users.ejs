@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Users — Admin — Growing Up</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="admin-layout">
+    <%- include('sidebar', { role, active: 'users' }) %>
+
+    <div class="admin-content">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+        <h1 style="margin-bottom: 0;"><i class='bx bx-group'></i> Users (<%= users.length %>)</h1>
+        <% if (role === 'superadmin') { %>
+          <button class="btn btn-gold" onclick="document.getElementById('addUserModal').classList.add('show')">
+            <i class='bx bx-plus'></i> Add User
+          </button>
+        <% } %>
+      </div>
+
+      <!-- Search -->
+      <div class="card" style="margin-bottom: 24px; padding: 16px;">
+        <input type="text" class="form-control" id="userSearch" placeholder="Search by name or email..."
+          oninput="filterUsers(this.value)">
+      </div>
+
+      <div class="card">
+        <% if (users.length === 0) { %>
+          <p style="text-align: center; color: var(--gray-500); padding: 40px;">No users found.</p>
+        <% } else { %>
+          <div class="table-container">
+            <table id="usersTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>WhatsApp</th>
+                  <th>Referral Code</th>
+                  <th>Referred By</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% users.forEach(u => { %>
+                  <tr class="user-row" data-search="<%= u.firstName.toLowerCase() %> <%= u.lastName.toLowerCase() %> <%= u.email %>">
+                    <td>
+                      <a href="/admin/users/<%= u._id %>" style="color: var(--navy); font-weight: 600;">
+                        <%= u.firstName %> <%= u.lastName %>
+                      </a>
+                    </td>
+                    <td><%= u.email %></td>
+                    <td><%= u.whatsapp %></td>
+                    <td><code style="background: var(--gray-100); padding: 2px 8px; border-radius: 4px;"><%= u.referralCode %></code></td>
+                    <td><%= u.referredBy ? u.referredBy.firstName + ' ' + u.referredBy.lastName : '-' %></td>
+                    <td>
+                      <span class="badge <%= u.isActive ? 'badge-active' : 'badge-inactive' %>">
+                        <%= u.isActive ? 'Active' : 'Inactive' %>
+                      </span>
+                    </td>
+                    <td>
+                      <a href="/admin/users/<%= u._id %>" class="btn btn-primary btn-sm">
+                        <i class='bx bx-show'></i>
+                      </a>
+                      <% if (role === 'superadmin') { %>
+                        <button class="btn btn-danger btn-sm" onclick="deleteUser('<%= u._id %>', '<%= u.firstName %>')">
+                          <i class='bx bx-trash'></i>
+                        </button>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add User Modal -->
+  <div class="modal-overlay" id="addUserModal">
+    <div class="modal">
+      <h3><i class='bx bx-user-plus' style="color: var(--gold);"></i> Add User Manually</h3>
+      <form id="addUserForm">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" class="form-control" name="firstName" required>
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" class="form-control" name="lastName" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" class="form-control" name="email" required>
+        </div>
+        <div class="form-group">
+          <label>WhatsApp</label>
+          <input type="text" class="form-control" name="whatsapp" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" class="form-control" name="password" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select class="form-control" name="role">
+            <option value="user">User</option>
+            <option value="financial_secretary">Financial Secretary</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" onclick="document.getElementById('addUserModal').classList.remove('show')">Cancel</button>
+          <button type="submit" class="btn btn-gold">Add User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script>
+    function showToast(msg, type='success') {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.innerHTML = '<i class="bx ' + (type === 'success' ? 'bx-check-circle' : 'bx-error-circle') + '"></i> ' + msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
+    }
+
+    function filterUsers(q) {
+      q = q.toLowerCase();
+      document.querySelectorAll('.user-row').forEach(row => {
+        row.style.display = row.dataset.search.includes(q) ? '' : 'none';
+      });
+    }
+
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var CSRF = csrfMeta ? csrfMeta.content : '';
+
+    async function deleteUser(id, name) {
+      if (!confirm('Delete user "' + name + '"? This cannot be undone.')) return;
+      try {
+        const res = await fetch('/admin/users/' + id + '/delete', {
+          method: 'POST',
+          headers: { 'X-CSRF-Token': CSRF }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('User deleted');
+          location.reload();
+        } else {
+          showToast(data.error || 'Failed', 'error');
+        }
+      } catch (err) {
+        showToast('Error', 'error');
+      }
+    }
+
+    document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const data = Object.fromEntries(fd.entries());
+
+      try {
+        const res = await fetch('/admin/users/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (result.success) {
+          showToast('User added!');
+          location.reload();
+        } else {
+          showToast(result.error || 'Failed', 'error');
+        }
+      } catch (err) {
+        showToast('Error', 'error');
+      }
+    });
+  </script>
+</body>
+</html>

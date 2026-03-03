@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title + ' — ' : '' %>Growing Up — Online Courses & Referral Earnings in Nepal</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : 'Growing Up is Nepal\'s leading referral-based course platform. Learn skills, earn 65% referral commission. Starter ₹499, Prime ₹699, Master ₹1599, Everything Bundle ₹1999.' %>">
+  <meta name="keywords" content="Growing Up Nepal, online courses Nepal, referral earnings Nepal, skill development, eSewa Khalti courses, learn and earn Nepal, Nepali education platform, digital skills Nepal">
+  <meta name="author" content="Growing Up">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#0B1D3A">
+  <link rel="canonical" href="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://growingup.vercel.app' %>">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://growingup.vercel.app' %>">
+  <meta property="og:title" content="<%= typeof title !== 'undefined' ? title + ' — ' : '' %>Growing Up — Learn & Earn in Nepal">
+  <meta property="og:description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : 'Join thousands of Nepali learners building skills and earning through referrals. Courses from ₹499.' %>">
+  <meta property="og:image" content="https://growingup.vercel.app/images/logo-512.png">
+  <meta property="og:site_name" content="Growing Up">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="<%= typeof title !== 'undefined' ? title + ' — ' : '' %>Growing Up — Learn & Earn in Nepal">
+  <meta name="twitter:description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : 'Nepal\'s leading referral-based course platform. Learn skills, earn commissions.' %>">
+  <meta name="twitter:image" content="https://growingup.vercel.app/images/logo-512.png">
+
+  <!-- Favicons (optimized sizes) -->
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="/images/logo-192.png">
+
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    "name": "Growing Up",
+    "url": "https://growingup.vercel.app",
+    "logo": "https://growingup.vercel.app/images/logo-512.png",
+    "description": "Nepal's leading referral-based online course platform. Learn digital skills and earn through referrals.",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+977-9808467028",
+      "contactType": "customer support",
+      "email": "arpitkafle468@gmail.com",
+      "availableLanguage": ["English", "Nepali"]
+    },
+    "sameAs": [],
+    "areaServed": {
+      "@type": "Country",
+      "name": "Nepal"
+    },
+    "offers": {
+      "@type": "AggregateOffer",
+      "lowPrice": "499",
+      "highPrice": "1999",
+      "priceCurrency": "INR",
+      "offerCount": "4"
+    }
+  }
+  </script>
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+</head>
+<body>
+  <!-- Google Translate Element (hidden) -->
+  <div id="google_translate_element" style="display:none;"></div>
+
+  <!-- Language Popup (first visit only) -->
+  <div class="lang-popup" id="langPopup" style="display:none;">
+    <span>🇳🇵 नेपालीमा हेर्नुहोस्?</span>
+    <button onclick="switchToNepali()">नेपाली</button>
+    <button onclick="dismissLang()">English</button>
+    <button class="close-lang" onclick="dismissLang()">&times;</button>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/" class="logo">
+      <img src="/images/logo-web.png" alt="Growing Up" class="logo-img" width="38" height="38">
+      Growing <span>Up</span>
+    </a>
+    <button class="hamburger" onclick="toggleNav()">
+      <i class='bx bx-menu'></i>
+    </button>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/#courses">Courses</a>
+      <% if (typeof session !== 'undefined' && session.userId) { %>
+        <% if (session.role === 'superadmin' || session.role === 'financial_secretary') { %>
+          <a href="/admin">Admin</a>
+        <% } else { %>
+          <a href="/dashboard">Dashboard</a>
+        <% } %>
+        <a href="/logout" class="btn-gold">Logout</a>
+      <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/register" class="btn-gold">Register</a>
+      <% } %>
+      <button class="lang-toggle-btn" id="langToggleBtn" onclick="toggleLanguage()" title="Switch Language">
+        <i class='bx bx-globe'></i> <span id="langLabel">NP</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Google Translate Script -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en',
+        includedLanguages: 'ne,en',
+        autoDisplay: false,
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+      }, 'google_translate_element');
+    }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /pending
+
+Sitemap: https://growingup.vercel.app/sitemap.xml

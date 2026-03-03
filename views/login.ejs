@@ -1,0 +1,74 @@
+<%- include('partials/header') %>
+
+<div class="section">
+  <div class="container" style="max-width: 440px;">
+    <div class="card" style="padding: 40px 32px;">
+      <h2 style="text-align: center; color: var(--navy); margin-bottom: 8px;">
+        <i class='bx bx-log-in' style="color: var(--gold);"></i> Welcome Back
+      </h2>
+      <p style="text-align: center; color: var(--gray-500); margin-bottom: 24px;">
+        Login to your Growing Up account
+      </p>
+
+      <div id="loginError" class="alert alert-danger" style="display:none;"></div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" class="form-control" name="email" required placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" class="form-control" name="password" required placeholder="Enter your password">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="loginBtn">
+          <i class='bx bx-log-in'></i> Login
+        </button>
+      </form>
+      <p style="text-align: center; margin-top: 16px; font-size: 14px; color: var(--gray-700);">
+        Don't have an account? <a href="/register" style="color: var(--gold); font-weight: 700; text-decoration: underline;">Register</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    const errDiv = document.getElementById('loginError');
+    errDiv.style.display = 'none';
+
+    const data = {
+      email: e.target.email.value,
+      password: e.target.password.value
+    };
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Logging in...';
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        window.location.href = result.redirect;
+      } else {
+        errDiv.textContent = result.error || 'Login failed';
+        errDiv.style.display = 'flex';
+      }
+    } catch (err) {
+      errDiv.textContent = 'Something went wrong. Please try again.';
+      errDiv.style.display = 'flex';
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bx bx-log-in"></i> Login';
+  });
+</script>
+
+<%- include('partials/footer') %>

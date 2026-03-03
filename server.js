@@ -1,0 +1,174 @@
+require('dotenv').config();
+const express = require('express');
+const session = require('express-session');
+const MongoStore = require('connect-mongo').default;
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const crypto = require('crypto');
+const path = require('path');
+const connectDB = require('./config/db');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Connect to MongoDB
+connectDB();
+
+// ── Security Headers (Helmet) ──
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://translate.google.com", "https://translate.googleapis.com", "https://translate-pa.googleapis.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://translate.googleapis.com"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      fontSrc: ["'self'", "https://unpkg.com", "data:"],
+      connectSrc: ["'self'", "https://translate.googleapis.com"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"]
+    }
+  },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  noSniff: true,
+  xssFilter: true,
+  hidePoweredBy: true,
+  ieNoOpen: true,
+  dnsPrefetchControl: { allow: false },
+  permittedCrossDomainPolicies: { permittedPolicies: 'none' }
+}));
+
+// ── Rate Limiting ──
+// Global: 200 requests per 15 min per IP
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: { error: 'Too many requests. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use(globalLimiter);
+
+// Strict limiter for login/register (brute-force protection)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many attempts. Please try again after 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use('/api/login', authLimiter);
+app.use('/api/register', authLimiter);
+
+// Admin routes: stricter limit
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+  message: { error: 'Too many admin requests. Slow down.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use('/admin', adminLimiter);
+
+// View engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.set('trust proxy', 1); // Trust first proxy (Vercel/Nginx)
+
+// Body parsing with size limits
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// Static files with cache headers
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '7d',
+  etag: true
+}));
+
+// Session — secure, httpOnly, sameSite
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    ttl: 24 * 60 * 60 // 1 day TTL in store
+  }),
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24, // 24 hours (not 7 days)
+    httpOnly: true,               // Prevents JS access to cookie
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
+    sameSite: 'lax',              // CSRF protection
+    path: '/'
+  },
+  name: 'gu_sid',                 // Custom session name (hide tech stack)
+  rolling: true                   // Reset expiry on activity
+}));
+
+// ── CSRF Token Middleware ──
+// Generate a per-session CSRF token
+app.use((req, res, next) => {
+  if (!req.session.csrfToken) {
+    req.session.csrfToken = crypto.randomBytes(32).toString('hex');
+  }
+  res.locals.csrfToken = req.session.csrfToken;
+  next();
+});
+
+// CSRF validation for all state-changing requests (POST/PUT/DELETE)
+app.use((req, res, next) => {
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
+
+  // Skip CSRF for file uploads (token sent as field) and API register steps
+  const skipPaths = ['/api/register/step2'];
+  if (skipPaths.some(p => req.path.startsWith(p))) return next();
+
+  const token = req.body._csrf || req.headers['x-csrf-token'];
+  if (!token || token !== req.session.csrfToken) {
+    return res.status(403).json({ error: 'Invalid or missing CSRF token. Refresh the page and try again.' });
+  }
+  next();
+});
+
+// Make session data available to views
+app.use((req, res, next) => {
+  res.locals.session = req.session;
+  next();
+});
+
+// ── Security headers for all responses ──
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  res.removeHeader('X-Powered-By');
+  next();
+});
+
+// Routes
+app.use('/', require('./routes/main'));
+app.use('/', require('./routes/admin'));
+
+// 404
+app.use((req, res) => {
+  res.status(404).render('404');
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  // Don't leak error details in production
+  const message = process.env.NODE_ENV === 'production' ? 'Something went wrong!' : err.message;
+  res.status(500).send(message);
+});
+
+app.listen(PORT, () => {
+  console.log(`Growing Up server running on port ${PORT}`);
+  console.log(`Visit: http://localhost:${PORT}`);
+});

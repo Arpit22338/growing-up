@@ -1,0 +1,34 @@
+<!-- Admin sidebar partial -->
+<div class="admin-sidebar" id="adminSidebar">
+  <div class="sidebar-logo">
+    <img src="/images/logo-web.png" alt="Growing Up" class="logo-img" width="38" height="38">
+    Growing <span>Up</span>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/admin" class="<%= typeof active !== 'undefined' && active === 'dashboard' ? 'active' : '' %>">
+      <i class='bx bx-grid-alt'></i> Dashboard
+    </a>
+    <a href="/admin/payments" class="<%= typeof active !== 'undefined' && active === 'payments' ? 'active' : '' %>">
+      <i class='bx bx-credit-card'></i> Payments
+    </a>
+    <a href="/admin/users" class="<%= typeof active !== 'undefined' && active === 'users' ? 'active' : '' %>">
+      <i class='bx bx-group'></i> Users
+    </a>
+    <% if (role === 'superadmin') { %>
+      <a href="/admin/earnings" class="<%= typeof active !== 'undefined' && active === 'earnings' ? 'active' : '' %>">
+        <i class='bx bx-bar-chart-alt-2'></i> Earnings
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="/admin/settings" class="<%= typeof active !== 'undefined' && active === 'settings' ? 'active' : '' %>">
+        <i class='bx bx-cog'></i> Settings
+      </a>
+    <% } %>
+    <div class="sidebar-divider"></div>
+    <a href="/">
+      <i class='bx bx-home'></i> View Site
+    </a>
+    <a href="/logout">
+      <i class='bx bx-log-out'></i> Logout
+    </a>
+  </nav>
+</div>

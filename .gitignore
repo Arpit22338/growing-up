@@ -1,0 +1,7 @@
+node_modules/
+.env
+uploads/qr/*
+!uploads/qr/.gitkeep
+uploads/screenshots/*
+!uploads/screenshots/.gitkeep
+.DS_Store

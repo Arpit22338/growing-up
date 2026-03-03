@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Earnings — Admin — Growing Up</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="admin-layout">
+    <%- include('sidebar', { role, active: 'earnings' }) %>
+
+    <div class="admin-content">
+      <h1><i class='bx bx-bar-chart-alt-2'></i> Earnings Overview</h1>
+
+      <div class="stats-grid" style="margin-top: 0;">
+        <div class="stat-card">
+          <i class='bx bx-money'></i>
+          <div class="stat-value">₹<%= totalRevenue %></div>
+          <div class="stat-label">Total Revenue</div>
+        </div>
+        <div class="stat-card">
+          <i class='bx bx-wallet'></i>
+          <div class="stat-value">₹<%= totalPlatform %></div>
+          <div class="stat-label">Platform Earnings (35%)</div>
+        </div>
+        <div class="stat-card">
+          <i class='bx bx-group'></i>
+          <div class="stat-value">₹<%= totalReferrer %></div>
+          <div class="stat-label">Referrer Commissions (65%)</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 16px;">Transaction History</h3>
+        <% if (payments.length === 0) { %>
+          <p style="text-align: center; color: var(--gray-500); padding: 40px;">No approved payments yet.</p>
+        <% } else { %>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Buyer</th>
+                  <th>Course</th>
+                  <th>Total</th>
+                  <th>Platform (35%)</th>
+                  <th>Referrer (65%)</th>
+                  <th>Referrer Name</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% payments.forEach(p => { %>
+                  <tr>
+                    <td><%= p.user ? p.user.firstName + ' ' + p.user.lastName : 'Unknown' %></td>
+                    <td><%= p.courseName %></td>
+                    <td><strong>₹<%= p.price %></strong></td>
+                    <td>₹<%= p.platformCommission %></td>
+                    <td>₹<%= p.referrerCommission %></td>
+                    <td><%= p.referrer ? p.referrer.firstName + ' ' + p.referrer.lastName : '-' %></td>
+                    <td><%= p.reviewedAt ? new Date(p.reviewedAt).toLocaleDateString() : '-' %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<%- include('partials/header') %>
+
+<div class="reg-container">
+  <h2 style="text-align: center; color: var(--navy); margin-bottom: 8px;">Create Your Account</h2>
+  <p style="text-align: center; color: var(--gray-500); margin-bottom: 32px;">Complete the steps below to join Growing Up</p>
+
+  <!-- Steps Indicator -->
+  <div class="steps-indicator">
+    <div class="step-item">
+      <div class="step-dot active" id="stepDot1">1</div>
+    </div>
+    <div class="step-line" id="stepLine1"></div>
+    <div class="step-item">
+      <div class="step-dot" id="stepDot2">2</div>
+    </div>
+    <div class="step-line" id="stepLine2"></div>
+    <div class="step-item">
+      <div class="step-dot" id="stepDot3">3</div>
+    </div>
+    <div class="step-line" id="stepLine3"></div>
+    <div class="step-item">
+      <div class="step-dot" id="stepDot4">4</div>
+    </div>
+  </div>
+
+  <!-- STEP 1: Account Info -->
+  <div class="step-panel active" id="step1">
+    <div class="card">
+      <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+        <i class='bx bx-user' style="color: var(--gold);"></i> Account Information
+      </h3>
+
+      <!-- Profile Picture -->
+      <div class="profile-upload">
+        <div class="profile-preview" onclick="document.getElementById('profileInput').click()">
+          <img id="profilePreview" style="display:none;">
+          <i class='bx bx-camera' id="profileIcon"></i>
+        </div>
+        <span>Upload Profile Picture</span>
+        <input type="file" id="profileInput" accept="image/*" style="display:none;" onchange="previewProfile(this)">
+      </div>
+
+      <form id="step1Form">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label>First Name <span class="required">*</span></label>
+            <input type="text" class="form-control" name="firstName" required placeholder="e.g. Ram">
+          </div>
+          <div class="form-group">
+            <label>Middle Name</label>
+            <input type="text" class="form-control" name="middleName" placeholder="Optional">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Last Name <span class="required">*</span></label>
+          <input type="text" class="form-control" name="lastName" required placeholder="e.g. Sharma">
+        </div>
+        <div class="form-group">
+          <label>WhatsApp Number <span class="required">*</span></label>
+          <input type="tel" class="form-control" name="whatsapp" required placeholder="e.g. 9841234567">
+        </div>
+        <div class="form-group">
+          <label>Email Address <span class="required">*</span></label>
+          <input type="email" class="form-control" name="email" required placeholder="e.g. ram@email.com">
+        </div>
+        <div class="form-group">
+          <label>Gender <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="gender" value="Male" required> Male
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="gender" value="Female"> Female
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Referral Code <span class="required">*</span></label>
+          <input type="text" class="form-control" name="referralCode" id="referralCodeInput"
+            value="<%= ref %>" <%= ref ? 'readonly' : '' %>
+            placeholder="Enter referral code" required>
+          <div class="referral-info" id="referralInfo"></div>
+          <% if (ref) { %>
+            <p class="form-text success"><i class='bx bx-check-circle'></i> Referral code auto-filled from link</p>
+          <% } %>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="step1Btn">
+          Continue to Payment <i class='bx bx-right-arrow-alt'></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- STEP 2: Payment -->
+  <div class="step-panel" id="step2">
+    <div class="card">
+      <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+        <i class='bx bx-wallet' style="color: var(--gold);"></i> Make Payment
+      </h3>
+
+      <!-- Course Selection -->
+      <div class="form-group">
+        <label>Select Course <span class="required">*</span></label>
+        <select class="form-control" id="courseSelect" name="courseKey">
+          <option value="">— Choose a package —</option>
+          <% Object.keys(courses).forEach(key => { %>
+            <option value="<%= key %>" <%= selectedCourse === key ? 'selected' : '' %>>
+              <%= courses[key].name %> — <%= courses[key].currency %><%= courses[key].price %>
+            </option>
+          <% }); %>
+        </select>
+      </div>
+
+      <div id="selectedCourseInfo" style="display: none;" class="alert alert-info">
+        <i class='bx bx-info-circle'></i>
+        <span id="selectedCourseText"></span>
+      </div>
+
+      <!-- QR Codes -->
+      <p style="font-weight: 600; margin-bottom: 8px; color: var(--navy);">Scan to Pay:</p>
+      <div class="payment-instructions" style="background: rgba(212,168,67,0.1); border: 1px solid var(--gold); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 20px;">
+        <h4 style="color: var(--navy); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+          <i class='bx bx-info-circle' style="color: var(--gold);"></i> Payment Instructions
+        </h4>
+        <ol style="color: var(--gray-700); font-size: 13px; line-height: 1.8; padding-left: 18px;">
+          <li><strong>Tap</strong> on the QR code below (eSewa or Khalti) to open it full screen</li>
+          <li><strong>Screenshot</strong> the QR code from your phone</li>
+          <li>Open your <strong>eSewa</strong> or <strong>Khalti</strong> app and scan the QR to pay</li>
+          <li>After payment, <strong>take a screenshot</strong> of the payment confirmation</li>
+          <li><strong>Upload</strong> the payment proof screenshot in the section below</li>
+        </ol>
+      </div>
+      <div class="qr-container" id="qrContainer">
+        <div class="qr-box">
+          <a href="/images/esewa-qr.png" target="_blank" title="Tap to open full size">
+            <img src="/images/esewa-qr.png" alt="eSewa QR Code" style="width: 100%; max-width: 220px; border-radius: 8px; cursor: pointer;">
+          </a>
+          <h4 style="margin-top: 8px;">eSewa</h4>
+          <p style="font-size: 11px; color: var(--gray-500);">Tap QR to enlarge</p>
+        </div>
+        <div class="qr-box">
+          <a href="/images/khalti-qr.png" target="_blank" title="Tap to open full size">
+            <img src="/images/khalti-qr.png" alt="Khalti QR Code" style="width: 100%; max-width: 220px; border-radius: 8px; cursor: pointer;">
+          </a>
+          <h4 style="margin-top: 8px;">Khalti</h4>
+          <p style="font-size: 11px; color: var(--gray-500);">Tap QR to enlarge</p>
+        </div>
+      </div>
+
+      <div style="background: rgba(239,68,68,0.08); border: 1px solid var(--danger); border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 20px;">
+        <p style="color: var(--danger); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+          <i class='bx bx-error'></i> Upload your payment proof screenshot below after paying
+        </p>
+      </div>
+
+      <form id="step2Form" enctype="multipart/form-data">
+        <div class="form-group">
+          <label>Payment Screenshot <span class="required">*</span></label>
+          <input type="file" class="form-control" name="screenshot" accept="image/*" required
+            id="screenshotInput">
+          <p class="form-text">Upload a clear screenshot of your payment confirmation</p>
+          <img id="screenshotPreview" style="display:none; max-width: 200px; margin-top: 10px; border-radius: 8px;">
+        </div>
+        <div class="form-group">
+          <label>Transaction ID <span style="color: var(--gray-500); font-weight: 400;">(Optional)</span></label>
+          <input type="text" class="form-control" name="transactionId" placeholder="e.g. TXN12345678">
+          <p class="form-text" style="color: var(--warning);">
+            <i class='bx bx-info-circle'></i> Adding Transaction ID speeds up verification
+          </p>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="step2Btn">
+          Continue to Set Password <i class='bx bx-right-arrow-alt'></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- STEP 3: Password -->
+  <div class="step-panel" id="step3">
+    <div class="card">
+      <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+        <i class='bx bx-lock-alt' style="color: var(--gold);"></i> Set Your Password
+      </h3>
+
+      <form id="step3Form">
+        <div class="form-group">
+          <label>Password <span class="required">*</span></label>
+          <input type="password" class="form-control" name="password" required minlength="6"
+            placeholder="Minimum 6 characters">
+        </div>
+        <div class="form-group">
+          <label>Confirm Password <span class="required">*</span></label>
+          <input type="password" class="form-control" name="confirmPassword" required
+            placeholder="Re-enter password">
+        </div>
+
+        <button type="submit" class="btn btn-gold btn-block btn-lg" id="step3Btn">
+          <i class='bx bx-check-circle'></i> Create Account
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- STEP 4: Pending -->
+  <div class="step-panel" id="step4">
+    <div class="pending-card" style="margin: 0 auto;">
+      <i class='bx bx-time-five'></i>
+      <h2>Payment Under Review</h2>
+      <p>Your payment is under review. You'll be contacted on WhatsApp once confirmed.</p>
+      <br>
+      <a href="/" class="btn btn-primary">Back to Home</a>
+    </div>
+  </div>
+</div>
+
+<script src="/js/register.js"></script>
+<%- include('partials/footer') %>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — Admin — Growing Up</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="admin-layout">
+    <%- include('sidebar', { role, active: 'settings' }) %>
+
+    <div class="admin-content">
+      <h1><i class='bx bx-cog'></i> Settings</h1>
+
+      <!-- QR Code Upload -->
+      <div class="card" style="margin-bottom: 24px;">
+        <h3 style="margin-bottom: 20px;"><i class='bx bx-qr' style="color: var(--gold);"></i> Payment QR Codes</h3>
+        <p style="color: var(--gray-500); margin-bottom: 20px; font-size: 14px;">
+          Upload your eSewa and Khalti QR code images. These will be shown to users during payment.
+        </p>
+
+        <form id="qrForm" enctype="multipart/form-data">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <div>
+              <h4 style="margin-bottom: 12px; color: var(--navy);">eSewa QR</h4>
+              <% if (settings.esewaQR) { %>
+                <img src="<%= settings.esewaQR %>" style="max-width: 200px; border-radius: 8px; margin-bottom: 12px; border: 2px solid var(--gray-200);">
+              <% } else { %>
+                <div class="qr-placeholder">No QR uploaded</div>
+              <% } %>
+              <input type="file" class="form-control" name="esewaQR" accept="image/*">
+            </div>
+            <div>
+              <h4 style="margin-bottom: 12px; color: var(--navy);">Khalti QR</h4>
+              <% if (settings.khaltiQR) { %>
+                <img src="<%= settings.khaltiQR %>" style="max-width: 200px; border-radius: 8px; margin-bottom: 12px; border: 2px solid var(--gray-200);">
+              <% } else { %>
+                <div class="qr-placeholder">No QR uploaded</div>
+              <% } %>
+              <input type="file" class="form-control" name="khaltiQR" accept="image/*">
+            </div>
+          </div>
+          <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-gold">
+              <i class='bx bx-upload'></i> Upload QR Codes
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Info -->
+      <div class="card">
+        <h3 style="margin-bottom: 12px;"><i class='bx bx-info-circle' style="color: var(--gold);"></i> System Info</h3>
+        <table style="width: 100%;">
+          <tr>
+            <td style="padding: 8px 0; color: var(--gray-500);">Last QR Update</td>
+            <td style="font-weight: 600;"><%= settings.updatedAt ? new Date(settings.updatedAt).toLocaleString() : 'Never' %></td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: var(--gray-500);">Platform</td>
+            <td>Growing Up v1.0</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script>
+    function showToast(msg, type='success') {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.innerHTML = '<i class="bx ' + (type === 'success' ? 'bx-check-circle' : 'bx-error-circle') + '"></i> ' + msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
+    }
+
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var CSRF = csrfMeta ? csrfMeta.content : '';
+
+    document.getElementById('qrForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      fd.append('_csrf', CSRF);
+      try {
+        const res = await fetch('/admin/settings/qr', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.success) {
+          showToast('QR codes updated!');
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          showToast(data.error || 'Failed', 'error');
+        }
+      } catch (err) {
+        showToast('Error uploading', 'error');
+      }
+    });
+  </script>
+</body>
+</html>
