@@ -139,7 +139,7 @@ app.use((req, res, next) => {
   const skipPaths = ['/api/register/step2'];
   if (skipPaths.some(p => req.path.startsWith(p))) return next();
 
-  const token = req.body._csrf || req.headers['x-csrf-token'];
+  const token = (req.body && req.body._csrf) || req.headers['x-csrf-token'];
   if (!token || token !== req.session.csrfToken) {
     return res.status(403).json({ error: 'Invalid or missing CSRF token. Refresh the page and try again.' });
   }
@@ -174,7 +174,11 @@ app.use((req, res) => {
 // Error handler
 app.use((err, req, res, next) => {
   console.error('ERROR:', err.stack || err.message || err);
-  res.status(500).send('Error: ' + (err.message || 'Something went wrong!'));
+  const msg = process.env.NODE_ENV === 'production' ? 'Something went wrong!' : (err.message || 'Something went wrong!');
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.status(500).json({ error: msg });
+  }
+  res.status(500).send('Error: ' + msg);
 });
 
 // Export for Vercel serverless

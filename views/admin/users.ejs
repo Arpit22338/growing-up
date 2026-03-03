@@ -13,13 +13,19 @@
     <%- include('sidebar', { role, active: 'users' }) %>
 
     <div class="admin-content">
-      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
-        <h1 style="margin-bottom: 0;"><i class='bx bx-group'></i> Users (<%= users.length %>)</h1>
-        <% if (role === 'superadmin') { %>
-          <button class="btn btn-gold" onclick="document.getElementById('addUserModal').classList.add('show')">
-            <i class='bx bx-plus'></i> Add User
-          </button>
-        <% } %>
+      <div class="admin-topbar">
+        <button class="hamburger" id="hamBtn"><i class='bx bx-menu'></i></button>
+        <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h1 style="margin-bottom: 2px;"><i class='bx bx-group'></i> Users (<%= users.length %>)</h1>
+            <p style="color: var(--gray-500); font-size: 13px; margin: 0;">Manage all platform users</p>
+          </div>
+          <% if (role === 'superadmin') { %>
+            <a href="/admin/add-user" class="btn btn-gold">
+              <i class='bx bx-user-plus'></i> Add User
+            </a>
+          <% } %>
+        </div>
       </div>
 
       <!-- Search -->
@@ -82,60 +88,6 @@
     </div>
   </div>
 
-  <!-- Add User Modal -->
-  <div class="modal-overlay" id="addUserModal">
-    <div class="modal">
-      <h3><i class='bx bx-user-plus' style="color: var(--gold);"></i> Add User Manually</h3>
-      <form id="addUserForm">
-        <div class="form-group">
-          <label>First Name</label>
-          <input type="text" class="form-control" name="firstName" required>
-        </div>
-        <div class="form-group">
-          <label>Last Name</label>
-          <input type="text" class="form-control" name="lastName" required>
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" class="form-control" name="email" required>
-        </div>
-        <div class="form-group">
-          <label>WhatsApp</label>
-          <input type="text" class="form-control" name="whatsapp" required placeholder="98XXXXXXXX">
-        </div>
-        <div class="form-group">
-          <label>Gender</label>
-          <select class="form-control" name="gender">
-            <option value="M">Male</option>
-            <option value="F">Female</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <div class="password-wrapper">
-            <input type="password" class="form-control" name="password" required minlength="6">
-            <button type="button" class="password-toggle" aria-label="Show password"><i class='bx bx-hide'></i></button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Referral Code <small style="color:var(--gray-500);">(optional — referrer's code)</small></label>
-          <input type="text" class="form-control" name="referralCode" placeholder="e.g. GURAMK4X2">
-        </div>
-        <div class="form-group">
-          <label>Role</label>
-          <select class="form-control" name="role">
-            <option value="user">User</option>
-            <option value="financial_secretary">Financial Secretary</option>
-          </select>
-        </div>
-        <div class="modal-actions">
-          <button type="button" class="btn btn-outline" onclick="document.getElementById('addUserModal').classList.remove('show')">Cancel</button>
-          <button type="submit" class="btn btn-gold">Add User</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <div class="toast-container" id="toastContainer"></div>
   <script>
     function showToast(msg, type='success') {
@@ -162,8 +114,14 @@
       try {
         const res = await fetch('/admin/users/' + id + '/delete', {
           method: 'POST',
-          headers: { 'X-CSRF-Token': CSRF }
+          headers: { 'X-CSRF-Token': CSRF },
+          credentials: 'same-origin'
         });
+        if (res.redirected || res.status === 401) {
+          showToast('Session expired. Please login again.', 'error');
+          setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
+          return;
+        }
         const data = await res.json();
         if (data.success) {
           showToast('User deleted');
@@ -172,46 +130,13 @@
           showToast(data.error || 'Failed', 'error');
         }
       } catch (err) {
-        showToast('Error', 'error');
+        showToast('Error: ' + (err.message || 'Connection failed'), 'error');
       }
     }
-
-    document.getElementById('addUserForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      const data = Object.fromEntries(fd.entries());
-
-      try {
-        const res = await fetch('/admin/users/add', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF },
-          body: JSON.stringify(data)
-        });
-        const result = await res.json();
-        if (result.success) {
-          showToast('User added! Referral code: ' + (result.referralCode || 'generated'));
-          location.reload();
-        } else {
-          showToast(result.error || 'Failed', 'error');
-        }
-      } catch (err) {
-        showToast('Error', 'error');
-      }
-    });
-
-    // Password show/hide toggle
-    document.querySelectorAll('.password-toggle').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        const input = this.parentElement.querySelector('input');
-        const icon = this.querySelector('i');
-        if (input.type === 'password') {
-          input.type = 'text';
-          icon.classList.replace('bx-hide', 'bx-show');
-        } else {
-          input.type = 'password';
-          icon.classList.replace('bx-show', 'bx-hide');
-        }
-      });
+  </script>
+  <script>
+    document.getElementById('hamBtn').addEventListener('click', function() {
+      document.getElementById('adminSidebar').classList.toggle('open');
     });
   </script>
 </body>

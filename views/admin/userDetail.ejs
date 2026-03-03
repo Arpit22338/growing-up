@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
   <title>User Detail — Admin — Growing Up</title>
   <link rel="stylesheet" href="/css/style.css">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
@@ -61,7 +62,6 @@
               <select class="form-control" id="roleSelect" style="width: auto; display: inline-block;">
                 <option value="user" <%= user.role === 'user' ? 'selected' : '' %>>User</option>
                 <option value="financial_secretary" <%= user.role === 'financial_secretary' ? 'selected' : '' %>>Financial Secretary</option>
-                <option value="superadmin" <%= user.role === 'superadmin' ? 'selected' : '' %>>Super Admin</option>
               </select>
               <button class="btn btn-primary btn-sm" onclick="changeRole()">Update</button>
             </div>
@@ -136,14 +136,23 @@
       setTimeout(() => t.remove(), 4000);
     }
 
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var CSRF = csrfMeta ? csrfMeta.content : '';
+
     async function changeRole() {
       const role = document.getElementById('roleSelect').value;
       try {
         const res = await fetch('/admin/users/<%= user._id %>/role', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF },
+          credentials: 'same-origin',
           body: JSON.stringify({ role })
         });
+        if (res.redirected || res.status === 401) {
+          showToast('Session expired. Please login again.', 'error');
+          setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
+          return;
+        }
         const data = await res.json();
         if (data.success) {
           showToast('Role updated!');
@@ -151,7 +160,7 @@
           showToast(data.error || 'Failed', 'error');
         }
       } catch (err) {
-        showToast('Error', 'error');
+        showToast('Error: ' + (err.message || 'Connection failed'), 'error');
       }
     }
   </script>

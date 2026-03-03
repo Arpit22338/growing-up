@@ -281,16 +281,24 @@ router.get('/admin/settings', isSuperAdmin, async (req, res) => {
 });
 
 // POST - Upload QR codes (stored as base64 in DB)
-router.post('/admin/settings/qr', isSuperAdmin, upload.fields([
-  { name: 'esewaQR', maxCount: 1 },
-  { name: 'khaltiQR', maxCount: 1 }
-]), async (req, res) => {
+router.post('/admin/settings/qr', isSuperAdmin, (req, res, next) => {
+  upload.fields([
+    { name: 'esewaQR', maxCount: 1 },
+    { name: 'khaltiQR', maxCount: 1 }
+  ])(req, res, (err) => {
+    if (err) {
+      console.error('Multer error:', err);
+      return res.status(400).json({ error: err.code === 'LIMIT_FILE_SIZE' ? 'File too large (max 2MB)' : 'Upload error: ' + err.message });
+    }
+    next();
+  });
+}, async (req, res) => {
   try {
     let settings = await Settings.findOne();
     if (!settings) settings = new Settings();
 
-    if (req.files.esewaQR) settings.esewaQR = fileToBase64(req.files.esewaQR[0]);
-    if (req.files.khaltiQR) settings.khaltiQR = fileToBase64(req.files.khaltiQR[0]);
+    if (req.files && req.files.esewaQR) settings.esewaQR = fileToBase64(req.files.esewaQR[0]);
+    if (req.files && req.files.khaltiQR) settings.khaltiQR = fileToBase64(req.files.khaltiQR[0]);
     settings.updatedAt = new Date();
     await settings.save();
 

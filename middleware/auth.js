@@ -14,15 +14,17 @@ function isAuthenticated(req, res, next) {
 async function isAdmin(req, res, next) {
   try {
     if (!req.session || !req.session.userId) {
+      if (req.method !== 'GET') return res.status(401).json({ error: 'Session expired. Please login again.' });
       return res.redirect('/admin/login');
     }
     const user = await User.findById(req.session.userId).select('role isActive');
     if (!user || !user.isActive) {
       req.session.destroy();
+      if (req.method !== 'GET') return res.status(401).json({ error: 'Session expired. Please login again.' });
       return res.redirect('/admin/login');
     }
     if (user.role !== 'superadmin' && user.role !== 'financial_secretary') {
-      return res.status(403).send('Access denied');
+      return res.status(403).json({ error: 'Access denied' });
     }
     // Sync session role with DB (prevents stale session escalation)
     req.session.role = user.role;
@@ -35,6 +37,7 @@ async function isAdmin(req, res, next) {
 async function isSuperAdmin(req, res, next) {
   try {
     if (!req.session || !req.session.userId) {
+      if (req.method !== 'GET') return res.status(401).json({ error: 'Session expired. Please login again.' });
       return res.redirect('/admin/login');
     }
     const user = await User.findById(req.session.userId).select('role isActive');
@@ -51,11 +54,13 @@ async function isSuperAdmin(req, res, next) {
 async function isFinancialSecretary(req, res, next) {
   try {
     if (!req.session || !req.session.userId) {
+      if (req.method !== 'GET') return res.status(401).json({ error: 'Session expired. Please login again.' });
       return res.redirect('/admin/login');
     }
     const user = await User.findById(req.session.userId).select('role isActive');
     if (!user || !user.isActive) {
       req.session.destroy();
+      if (req.method !== 'GET') return res.status(401).json({ error: 'Session expired. Please login again.' });
       return res.redirect('/admin/login');
     }
     if (user.role !== 'financial_secretary' && user.role !== 'superadmin') {

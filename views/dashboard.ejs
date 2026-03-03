@@ -1,6 +1,6 @@
 <%- include('partials/header') %>
 
-<!-- Dashboard Header -->
+<!-- Dashboard Hero -->
 <div class="dash-header">
   <div class="container">
     <div class="dash-profile-row">
@@ -12,81 +12,75 @@
         <% } %>
       </div>
       <div>
-        <h1>Welcome, <%= user.firstName %> 👋</h1>
-        <p>Your referral code: <strong style="color: var(--gold);"><%= user.referralCode %></strong></p>
+        <h1>Welcome back, <%= user.firstName %> 👋</h1>
+        <p style="opacity: 0.8;">Your referral code: <strong style="color: var(--gold); background: rgba(212,168,67,0.15); padding: 2px 10px; border-radius: 20px; font-size: 14px;"><%= user.referralCode %></strong></p>
       </div>
     </div>
   </div>
 </div>
 
-<div class="container">
-  <!-- Stats -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <i class='bx bx-money'></i>
-      <div class="stat-value">₹<%= user.totalEarnings %></div>
-      <div class="stat-label">Total Earnings</div>
+<div class="container" style="max-width: 960px;">
+  <!-- Quick Stats -->
+  <div class="dash-stats">
+    <div class="dash-stat-card">
+      <div class="dash-stat-icon" style="background: rgba(212,168,67,0.12);"><i class='bx bx-money' style="color: var(--gold);"></i></div>
+      <div>
+        <div class="dash-stat-value">₹<%= user.totalEarnings %></div>
+        <div class="dash-stat-label">Total Earnings</div>
+      </div>
     </div>
-    <div class="stat-card">
-      <i class='bx bx-group'></i>
-      <div class="stat-value"><%= user.referredUsers ? user.referredUsers.length : 0 %></div>
-      <div class="stat-label">Total Referred Users</div>
+    <div class="dash-stat-card">
+      <div class="dash-stat-icon" style="background: rgba(59,130,246,0.12);"><i class='bx bx-group' style="color: #3B82F6;"></i></div>
+      <div>
+        <div class="dash-stat-value"><%= user.referredUsers ? user.referredUsers.length : 0 %></div>
+        <div class="dash-stat-label">Referrals</div>
+      </div>
     </div>
-    <div class="stat-card">
-      <i class='bx bx-book-open'></i>
-      <div class="stat-value"><%= user.purchasedCourses ? user.purchasedCourses.filter(c => c.status === 'approved').length : 0 %></div>
-      <div class="stat-label">Active Courses</div>
-    </div>
-    <div class="stat-card">
-      <i class='bx bx-wallet'></i>
-      <div class="stat-value">₹<%= user.referredUsers ? user.referredUsers.filter(r => r.isActive).length * Math.round((user.purchasedCourses && user.purchasedCourses[0] ? user.purchasedCourses[0].price : 0) * 0.65) : 0 %></div>
-      <div class="stat-label">Earned from Referrals</div>
+    <div class="dash-stat-card">
+      <div class="dash-stat-icon" style="background: rgba(16,185,129,0.12);"><i class='bx bx-book-open' style="color: #10B981;"></i></div>
+      <div>
+        <div class="dash-stat-value"><%= user.purchasedCourses ? user.purchasedCourses.filter(c => c.status === 'approved').length : 0 %></div>
+        <div class="dash-stat-label">Active Courses</div>
+      </div>
     </div>
   </div>
 
-  <!-- Referral Section -->
-  <div class="referral-box">
-    <h3><i class='bx bx-link' style="color: var(--gold);"></i> My Referral Links</h3>
-    <p style="color: var(--gray-500); font-size: 13px; margin-bottom: 16px;">
-      Share these links to earn 65% commission on every sale!
-    </p>
+  <!-- Share & Earn Section -->
+  <div class="dash-section">
+    <div class="dash-section-header">
+      <h2><i class='bx bx-share-alt'></i> Share & Earn</h2>
+      <span class="dash-section-badge">65% commission</span>
+    </div>
 
-    <!-- General referral link -->
-    <div style="margin-bottom: 16px; padding: 16px; background: var(--gray-50); border-radius: var(--radius-sm);">
-      <label style="font-size: 13px; color: var(--navy); margin-bottom: 6px; display: block; font-weight: 600;">
-        <i class='bx bx-globe' style="color: var(--gold);"></i> General Link (user picks course)
-      </label>
+    <!-- General Link -->
+    <div class="dash-share-card">
+      <div class="dash-share-label"><i class='bx bx-link'></i> Your Referral Link</div>
       <div class="referral-link-group">
         <input type="text" readonly value="<%= baseUrl %>/register?ref=<%= user.referralCode %>" id="genLink">
-        <button class="btn btn-primary btn-sm" onclick="copyLink('genLink')">
-          <i class='bx bx-copy'></i> Copy
-        </button>
+        <button class="btn btn-primary btn-sm" onclick="copyLink('genLink')"><i class='bx bx-copy'></i> Copy</button>
       </div>
-      <a href="https://wa.me/?text=Join%20Growing%20Up%20and%20start%20earning!%20<%= encodeURIComponent(baseUrl + '/register?ref=' + user.referralCode) %>" 
-         target="_blank" class="btn-whatsapp" style="margin-top: 8px;">
+      <a href="https://wa.me/?text=Join%20Growing%20Up%20and%20start%20earning!%20<%= encodeURIComponent(baseUrl + '/register?ref=' + user.referralCode) %>"
+         target="_blank" class="btn-whatsapp" style="margin-top: 10px;">
         <i class='bx bxl-whatsapp'></i> Share on WhatsApp
       </a>
     </div>
 
-    <!-- Course-specific referral links -->
-    <h4 style="color: var(--navy); margin-bottom: 12px; font-size: 15px;">
-      <i class='bx bx-book-open' style="color: var(--gold);"></i> Course-Specific Refer Links
-    </h4>
-    <div class="referral-dashboard">
+    <!-- Course Links -->
+    <div class="dash-course-links">
       <% Object.keys(courses).forEach(key => { %>
-        <div class="card course-border-<%= key %>">
-          <h4 style="font-size: 13px; color: var(--navy); margin-bottom: 2px;"><%= courses[key].title %></h4>
-          <p style="font-size: 11px; color: var(--gray-500); margin-bottom: 6px;"><%= courses[key].currency %><%= courses[key].price %></p>
-          <div class="referral-link-group" style="margin-bottom: 8px;">
+        <div class="dash-course-link-card course-border-<%= key %>">
+          <div class="dash-course-link-top">
+            <span class="dash-course-name"><%= courses[key].title %></span>
+            <span class="dash-course-price"><%= courses[key].currency %><%= courses[key].price %></span>
+          </div>
+          <div class="referral-link-group">
             <input type="text" readonly
               value="<%= baseUrl %>/course/<%= key %>?ref=<%= user.referralCode %>"
               id="link_<%= key %>">
-            <button class="btn btn-primary btn-sm" onclick="copyLink('link_<%= key %>')">
-              <i class='bx bx-copy'></i>
-            </button>
+            <button class="btn btn-primary btn-sm" onclick="copyLink('link_<%= key %>')"><i class='bx bx-copy'></i></button>
           </div>
-          <a href="https://wa.me/?text=Check%20out%20<%= encodeURIComponent(courses[key].title) %>%20on%20Growing%20Up!%20<%= encodeURIComponent(baseUrl + '/course/' + key + '?ref=' + user.referralCode) %>" 
-             target="_blank" class="btn-whatsapp" style="width: 100%; justify-content: center;">
+          <a href="https://wa.me/?text=Check%20out%20<%= encodeURIComponent(courses[key].title) %>%20on%20Growing%20Up!%20<%= encodeURIComponent(baseUrl + '/course/' + key + '?ref=' + user.referralCode) %>"
+             target="_blank" class="btn-whatsapp btn-sm" style="width: 100%; justify-content: center; margin-top: 8px;">
             <i class='bx bxl-whatsapp'></i> Share
           </a>
         </div>
@@ -94,81 +88,92 @@
     </div>
   </div>
 
-  <!-- Referred Users -->
-  <div class="card" style="margin-bottom: 24px;">
-    <h3 style="margin-bottom: 16px;"><i class='bx bx-group' style="color: var(--gold);"></i> My Referrals</h3>
+  <!-- My Referrals -->
+  <div class="dash-section">
+    <div class="dash-section-header">
+      <h2><i class='bx bx-group'></i> My Referrals</h2>
+      <span class="dash-section-count"><%= user.referredUsers ? user.referredUsers.length : 0 %> total</span>
+    </div>
     <% if (user.referredUsers && user.referredUsers.length > 0) { %>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% user.referredUsers.forEach(ref => { %>
-              <tr>
-                <td><%= ref.firstName %> <%= ref.lastName %></td>
-                <td><%= ref.email %></td>
-                <td>
-                  <span class="badge <%= ref.isActive ? 'badge-active' : 'badge-inactive' %>">
-                    <%= ref.isActive ? 'Active' : 'Pending' %>
-                  </span>
-                </td>
-              </tr>
-            <% }); %>
-          </tbody>
-        </table>
+      <div class="dash-referral-list">
+        <% user.referredUsers.forEach(ref => { %>
+          <div class="dash-referral-item">
+            <div class="dash-referral-avatar"><%= ref.firstName.charAt(0).toUpperCase() %></div>
+            <div class="dash-referral-info">
+              <strong><%= ref.firstName %> <%= ref.lastName %></strong>
+              <span><%= ref.email %></span>
+            </div>
+            <span class="badge <%= ref.isActive ? 'badge-active' : 'badge-inactive' %>">
+              <%= ref.isActive ? 'Active' : 'Pending' %>
+            </span>
+          </div>
+        <% }); %>
       </div>
     <% } else { %>
-      <p style="color: var(--gray-500); text-align: center; padding: 20px;">
-        No referrals yet. Share your link to start earning!
-      </p>
+      <div class="dash-empty">
+        <i class='bx bx-user-plus'></i>
+        <p>No referrals yet. Share your link to start earning!</p>
+      </div>
     <% } %>
   </div>
 
-  <!-- Purchased Courses -->
-  <div class="card" style="margin-bottom: 40px;">
-    <h3 style="margin-bottom: 16px;"><i class='bx bx-book-open' style="color: var(--gold);"></i> My Courses</h3>
+  <!-- My Courses -->
+  <div class="dash-section" style="margin-bottom: 48px;">
+    <div class="dash-section-header">
+      <h2><i class='bx bx-book-open'></i> My Courses</h2>
+    </div>
     <% if (user.purchasedCourses && user.purchasedCourses.length > 0) { %>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Course</th>
-              <th>Price</th>
-              <th>Status</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% user.purchasedCourses.forEach(course => { %>
-              <tr>
-                <td><%= course.courseName %></td>
-                <td>₹<%= course.price %></td>
-                <td>
-                  <span class="badge badge-<%= course.status %>"><%= course.status %></span>
-                </td>
-                <td><%= new Date(course.purchasedAt).toLocaleDateString() %></td>
-              </tr>
-            <% }); %>
-          </tbody>
-        </table>
+      <div class="dash-course-list">
+        <% user.purchasedCourses.forEach(course => { %>
+          <div class="dash-course-item">
+            <div class="dash-course-item-left">
+              <div class="dash-course-icon"><i class='bx bx-book'></i></div>
+              <div>
+                <strong><%= course.courseName %></strong>
+                <span>₹<%= course.price %> &bull; <%= new Date(course.purchasedAt).toLocaleDateString() %></span>
+              </div>
+            </div>
+            <span class="badge badge-<%= course.status %>"><%= course.status %></span>
+          </div>
+        <% }); %>
       </div>
     <% } else { %>
-      <p style="color: var(--gray-500); text-align: center; padding: 20px;">No courses purchased yet.</p>
+      <div class="dash-empty">
+        <i class='bx bx-cart'></i>
+        <p>No courses purchased yet.</p>
+      </div>
     <% } %>
   </div>
 </div>
 
 <script>
   function copyLink(id) {
-    const input = document.getElementById(id);
-    navigator.clipboard.writeText(input.value).then(() => {
+    var input = document.getElementById(id);
+    var text = input.value;
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function() {
+        showToast('Link copied to clipboard!');
+      }).catch(function() {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  }
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
       showToast('Link copied to clipboard!');
-    });
+    } catch (e) {
+      showToast('Failed to copy link', 'error');
+    }
+    document.body.removeChild(ta);
   }
 </script>
 

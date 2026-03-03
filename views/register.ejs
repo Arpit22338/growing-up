@@ -30,16 +30,6 @@
         <i class='bx bx-user' style="color: var(--gold);"></i> Account Information
       </h3>
 
-      <!-- Profile Picture -->
-      <div class="profile-upload" id="profileUploadArea">
-        <div class="profile-preview" id="profileClickArea">
-          <img id="profilePreview" style="display:none;">
-          <i class='bx bx-camera' id="profileIcon"></i>
-        </div>
-        <span>Tap to upload photo</span>
-        <input type="file" id="profileInput" accept="image/*" capture="user" style="display:none;">
-      </div>
-
       <form id="step1Form">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
           <div class="form-group">
@@ -157,15 +147,15 @@
       </div>
       <div class="qr-container" id="qrContainer">
         <div class="qr-box">
-          <a href="/images/esewa-qr.png" target="_blank" title="Tap to open full size">
-            <img src="/images/esewa-qr.png" alt="eSewa QR Code" style="width: 100%; max-width: 220px; border-radius: 8px; cursor: pointer;">
+          <a id="esewaQrLink" href="/images/esewa-qr.png" target="_blank" title="Tap to open full size">
+            <img id="esewaQrImg" src="/images/esewa-qr.png" alt="eSewa QR Code" style="width: 100%; max-width: 220px; border-radius: 8px; cursor: pointer;">
           </a>
           <h4 style="margin-top: 8px;">eSewa</h4>
           <p style="font-size: 11px; color: var(--gray-500);">Tap QR to enlarge</p>
         </div>
         <div class="qr-box">
-          <a href="/images/khalti-qr.png" target="_blank" title="Tap to open full size">
-            <img src="/images/khalti-qr.png" alt="Khalti QR Code" style="width: 100%; max-width: 220px; border-radius: 8px; cursor: pointer;">
+          <a id="khaltiQrLink" href="/images/khalti-qr.png" target="_blank" title="Tap to open full size">
+            <img id="khaltiQrImg" src="/images/khalti-qr.png" alt="Khalti QR Code" style="width: 100%; max-width: 220px; border-radius: 8px; cursor: pointer;">
           </a>
           <h4 style="margin-top: 8px;">Khalti</h4>
           <p style="font-size: 11px; color: var(--gray-500);">Tap QR to enlarge</p>
@@ -270,4 +260,23 @@ function selectRegCourse(el, key) {
 })();
 </script>
 <script src="/js/register.js"></script>
+<script>
+// Load QR codes from DB (admin-uploaded), fallback to static images
+(function() {
+  fetch('/api/qr-codes').then(function(r) { return r.json(); }).then(function(data) {
+    if (data.esewa) {
+      var eImg = document.getElementById('esewaQrImg');
+      var eLink = document.getElementById('esewaQrLink');
+      if (eImg) eImg.src = data.esewa;
+      if (eLink) eLink.href = data.esewa;
+    }
+    if (data.khalti) {
+      var kImg = document.getElementById('khaltiQrImg');
+      var kLink = document.getElementById('khaltiQrLink');
+      if (kImg) kImg.src = data.khalti;
+      if (kLink) kLink.href = data.khalti;
+    }
+  }).catch(function() {});
+})();
+</script>
 <%- include('partials/footer') %>

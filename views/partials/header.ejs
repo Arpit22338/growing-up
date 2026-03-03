@@ -79,9 +79,6 @@
       <img src="/images/logo-web.png" alt="Growing Up" class="logo-img" width="38" height="38">
       Growing <span>Up</span>
     </a>
-    <button class="hamburger" id="hamburgerBtn" type="button">
-      <i class='bx bx-menu' id="hamburgerIcon"></i>
-    </button>
     <div class="nav-links" id="navLinks">
       <a href="/">Home</a>
       <a href="/#courses">Courses</a>
@@ -91,6 +88,7 @@
         <% } else { %>
           <a href="/dashboard">Dashboard</a>
         <% } %>
+        <a href="/dashboard" class="nav-profile-mobile"><i class='bx bx-user'></i> Profile</a>
         <a href="/logout" class="btn-gold">Logout</a>
       <% } else { %>
         <a href="/login">Login</a>
@@ -98,13 +96,9 @@
       <% } %>
     </div>
     <% if (typeof session !== 'undefined' && session.userId) { %>
-    <a href="/dashboard" class="profile-icon" title="My Profile">
-      <% if (typeof session.profilePicture !== 'undefined' && session.profilePicture) { %>
-        <img src="<%= session.profilePicture %>" alt="Profile" class="profile-icon-img">
-      <% } else { %>
-        <% const initials = (typeof session.userName !== 'undefined' && session.userName) ? session.userName.charAt(0).toUpperCase() : 'U'; %>
-        <span><%= initials %></span>
-      <% } %>
-    </a>
+    <a href="/dashboard" class="nav-profile-desktop" title="My Profile"><i class='bx bx-user'></i></a>
     <% } %>
+    <button class="hamburger" id="hamburgerBtn" type="button">
+      <i class='bx bx-menu' id="hamburgerIcon"></i>
+    </button>
   </nav>

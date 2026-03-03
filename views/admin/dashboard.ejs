@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= csrfToken %>">
   <title>Admin Dashboard — Growing Up</title>
   <link rel="stylesheet" href="/css/style.css">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
@@ -12,56 +13,80 @@
     <%- include('sidebar', { role, active: 'dashboard' }) %>
 
     <div class="admin-content">
-      <button class="hamburger" onclick="document.getElementById('adminSidebar').classList.toggle('open')" style="display: none; margin-bottom: 16px;">
-        <i class='bx bx-menu' style="font-size: 24px;"></i>
-      </button>
+      <div class="admin-topbar">
+        <button class="hamburger" id="hamBtn"><i class='bx bx-menu'></i></button>
+        <div>
+          <h1 style="margin-bottom: 2px;"><i class='bx bx-grid-alt'></i> Dashboard</h1>
+          <p style="color: var(--gray-500); font-size: 13px; margin: 0;">Welcome back, Admin</p>
+        </div>
+      </div>
 
-      <h1><i class='bx bx-grid-alt'></i> Dashboard</h1>
-
-      <div class="stats-grid" style="margin-top: 0;">
-        <div class="stat-card">
-          <i class='bx bx-wallet'></i>
-          <div class="stat-value">₹<%= totalBalance %></div>
-          <div class="stat-label">Platform Balance (35%)</div>
+      <!-- Stats Grid -->
+      <div class="admin-stats-grid">
+        <div class="admin-stat-card admin-stat-blue">
+          <div class="admin-stat-left">
+            <div class="admin-stat-value">₹<%= totalBalance %></div>
+            <div class="admin-stat-label">Platform Balance (35%)</div>
+          </div>
+          <div class="admin-stat-icon-bg"><i class='bx bx-wallet'></i></div>
         </div>
-        <div class="stat-card">
-          <i class='bx bx-money'></i>
-          <div class="stat-value">₹<%= totalRevenue %></div>
-          <div class="stat-label">Total Revenue</div>
+        <div class="admin-stat-card admin-stat-gold">
+          <div class="admin-stat-left">
+            <div class="admin-stat-value">₹<%= totalRevenue %></div>
+            <div class="admin-stat-label">Total Revenue</div>
+          </div>
+          <div class="admin-stat-icon-bg"><i class='bx bx-trending-up'></i></div>
         </div>
-        <div class="stat-card">
-          <i class='bx bx-group'></i>
-          <div class="stat-value"><%= totalUsers %></div>
-          <div class="stat-label">Total Users</div>
+        <div class="admin-stat-card admin-stat-green">
+          <div class="admin-stat-left">
+            <div class="admin-stat-value"><%= totalUsers %></div>
+            <div class="admin-stat-label">Total Users</div>
+          </div>
+          <div class="admin-stat-icon-bg"><i class='bx bx-group'></i></div>
         </div>
-        <div class="stat-card">
-          <i class='bx bx-user-check'></i>
-          <div class="stat-value"><%= activeUsers %></div>
-          <div class="stat-label">Active Users</div>
+        <div class="admin-stat-card admin-stat-teal">
+          <div class="admin-stat-left">
+            <div class="admin-stat-value"><%= activeUsers %></div>
+            <div class="admin-stat-label">Active Users</div>
+          </div>
+          <div class="admin-stat-icon-bg"><i class='bx bx-user-check'></i></div>
         </div>
-        <div class="stat-card">
-          <i class='bx bx-time-five'></i>
-          <div class="stat-value"><%= pendingPayments %></div>
-          <div class="stat-label">Pending Payments</div>
+        <div class="admin-stat-card admin-stat-orange">
+          <div class="admin-stat-left">
+            <div class="admin-stat-value"><%= pendingPayments %></div>
+            <div class="admin-stat-label">Pending Payments</div>
+          </div>
+          <div class="admin-stat-icon-bg"><i class='bx bx-time-five'></i></div>
         </div>
       </div>
 
       <!-- Quick Actions -->
-      <div class="card">
-        <h3 style="margin-bottom: 16px;"><i class='bx bx-zap' style="color: var(--gold);"></i> Quick Actions</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
-          <a href="/admin/payments?status=pending" class="btn btn-primary">
-            <i class='bx bx-credit-card'></i> Review Payments (<%= pendingPayments %>)
+      <div class="card" style="margin-top: 4px;">
+        <h3 style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+          <i class='bx bx-zap' style="color: var(--gold);"></i> Quick Actions
+        </h3>
+        <div class="admin-actions-grid">
+          <a href="/admin/payments?status=pending" class="admin-action-card">
+            <i class='bx bx-credit-card'></i>
+            <span>Review Payments</span>
+            <% if (pendingPayments > 0) { %><span class="admin-action-badge"><%= pendingPayments %></span><% } %>
           </a>
-          <a href="/admin/users" class="btn btn-outline">
-            <i class='bx bx-group'></i> Manage Users
+          <a href="/admin/users" class="admin-action-card">
+            <i class='bx bx-group'></i>
+            <span>Manage Users</span>
           </a>
           <% if (role === 'superadmin') { %>
-            <a href="/admin/settings" class="btn btn-outline">
-              <i class='bx bx-cog'></i> Update QR Codes
+            <a href="/admin/add-user" class="admin-action-card">
+              <i class='bx bx-user-plus'></i>
+              <span>Add User</span>
             </a>
-            <a href="/admin/earnings" class="btn btn-outline">
-              <i class='bx bx-bar-chart-alt-2'></i> View Earnings
+            <a href="/admin/settings" class="admin-action-card">
+              <i class='bx bx-qr'></i>
+              <span>QR Codes</span>
+            </a>
+            <a href="/admin/earnings" class="admin-action-card">
+              <i class='bx bx-bar-chart-alt-2'></i>
+              <span>Earnings</span>
             </a>
           <% } %>
         </div>
@@ -71,10 +96,9 @@
 
   <div class="toast-container" id="toastContainer"></div>
   <script>
-    // Mobile sidebar toggle
-    if (window.innerWidth <= 768) {
-      document.querySelector('.hamburger').style.display = 'block';
-    }
+    document.getElementById('hamBtn').addEventListener('click', function() {
+      document.getElementById('adminSidebar').classList.toggle('open');
+    });
   </script>
 </body>
 </html>
