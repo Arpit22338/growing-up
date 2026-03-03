@@ -79,17 +79,9 @@
       <img src="/images/logo-web.png" alt="Growing Up" class="logo-img" width="38" height="38">
       Growing <span>Up</span>
     </a>
-    <div class="nav-right">
-      <% if (typeof session !== 'undefined' && session.userId) { %>
-        <a href="/logout" class="mobile-auth-btn btn-gold">Logout</a>
-      <% } else { %>
-        <a href="/login" class="mobile-auth-btn">Login</a>
-        <a href="/register" class="mobile-auth-btn btn-gold">Register</a>
-      <% } %>
-      <button class="hamburger" id="hamburgerBtn" type="button">
-        <i class='bx bx-menu' id="hamburgerIcon"></i>
-      </button>
-    </div>
+    <button class="hamburger" id="hamburgerBtn" type="button">
+      <i class='bx bx-menu' id="hamburgerIcon"></i>
+    </button>
     <div class="nav-links" id="navLinks">
       <a href="/">Home</a>
       <a href="/#courses">Courses</a>
@@ -103,6 +95,9 @@
       <% } else { %>
         <a href="/login">Login</a>
         <a href="/register" class="btn-gold">Register</a>
+      <% } %>
+    </div>
+  </nav>
       <% } %>
     </div>
   </nav>
