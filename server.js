@@ -19,11 +19,11 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://translate.google.com", "https://translate.googleapis.com", "https://translate-pa.googleapis.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://translate.googleapis.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
       fontSrc: ["'self'", "https://unpkg.com", "data:"],
-      connectSrc: ["'self'", "https://translate.googleapis.com"],
+      connectSrc: ["'self'"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],

@@ -54,7 +54,7 @@
       "telephone": "+977-9808467028",
       "contactType": "customer support",
       "email": "arpitkafle468@gmail.com",
-      "availableLanguage": ["English", "Nepali"]
+      "availableLanguage": ["English"]
     },
     "sameAs": [],
     "areaServed": {
@@ -73,17 +73,6 @@
   <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 </head>
 <body>
-  <!-- Google Translate Element (hidden) -->
-  <div id="google_translate_element" style="display:none;"></div>
-
-  <!-- Language Popup (first visit only) -->
-  <div class="lang-popup" id="langPopup" style="display:none;">
-    <span>🇳🇵 नेपालीमा हेर्नुहोस्?</span>
-    <button onclick="switchToNepali()">नेपाली</button>
-    <button onclick="dismissLang()">English</button>
-    <button class="close-lang" onclick="dismissLang()">&times;</button>
-  </div>
-
   <!-- Navbar -->
   <nav class="navbar">
     <a href="/" class="logo">
@@ -107,21 +96,5 @@
         <a href="/login">Login</a>
         <a href="/register" class="btn-gold">Register</a>
       <% } %>
-      <button class="lang-toggle-btn" id="langToggleBtn" onclick="toggleLanguage()" title="Switch Language">
-        <i class='bx bx-globe'></i> <span id="langLabel">NP</span>
-      </button>
     </div>
   </nav>
-
-  <!-- Google Translate Script -->
-  <script type="text/javascript">
-    function googleTranslateElementInit() {
-      new google.translate.TranslateElement({
-        pageLanguage: 'en',
-        includedLanguages: 'ne,en',
-        autoDisplay: false,
-        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-      }, 'google_translate_element');
-    }
-  </script>
-  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>

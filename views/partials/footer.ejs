@@ -30,52 +30,6 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
-    // Language popup (first visit)
-    if (!localStorage.getItem('gu_lang_seen')) {
-      document.getElementById('langPopup').style.display = 'flex';
-    }
-
-    // Update lang toggle button label based on current state
-    function updateLangLabel() {
-      var label = document.getElementById('langLabel');
-      if (label) {
-        var isNepali = document.cookie.indexOf('googtrans=/en/ne') !== -1;
-        label.textContent = isNepali ? 'EN' : 'NP';
-      }
-    }
-    updateLangLabel();
-
-    // Switch language using Google Translate
-    function switchToNepali() {
-      dismissLang();
-      triggerTranslation('ne');
-    }
-
-    function triggerTranslation(lang) {
-      // Set the Google Translate cookie
-      document.cookie = 'googtrans=/en/' + lang + ';path=/;';
-      document.cookie = 'googtrans=/en/' + lang + ';path=/;domain=' + window.location.hostname;
-      // Reload to apply
-      window.location.reload();
-    }
-
-    function toggleLanguage() {
-      var isNepali = document.cookie.indexOf('googtrans=/en/ne') !== -1;
-      if (isNepali) {
-        // Switch back to English
-        document.cookie = 'googtrans=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        document.cookie = 'googtrans=;path=/;domain=' + window.location.hostname + ';expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        window.location.reload();
-      } else {
-        triggerTranslation('ne');
-      }
-    }
-
-    function dismissLang() {
-      localStorage.setItem('gu_lang_seen', '1');
-      document.getElementById('langPopup').style.display = 'none';
-    }
-
     // Mobile nav toggle
     function toggleNav() {
       document.getElementById('navLinks').classList.toggle('open');
