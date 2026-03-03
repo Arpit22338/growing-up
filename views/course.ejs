@@ -4,7 +4,8 @@
   <div class="container" style="max-width: 800px;">
     
     <!-- Course Card -->
-    <div class="course-detail-card" style="border-top: 5px solid <%= course.borderColor && !course.borderColor.includes('gradient') ? course.borderColor : 'var(--gold)' %>;">
+    <% var borderVal = (course.borderColor && !course.borderColor.includes('gradient')) ? course.borderColor : 'var(--gold)'; %>
+    <div class="course-detail-card" data-border="<%= borderVal %>">
       <% if (course.badge) { %>
         <div class="course-badge" style="position: absolute; top: 16px; right: 16px;"><%= course.badge %></div>
       <% } %>
@@ -90,6 +91,10 @@
 </section>
 
 <script>
+(function(){
+  var card = document.querySelector('.course-detail-card[data-border]');
+  if (card) card.style.borderTop = '5px solid ' + card.dataset.border;
+})();
 function copyCourseLink() {
   const input = document.getElementById('courseRefLink');
   if (input) {

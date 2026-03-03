@@ -204,24 +204,28 @@ input, select, textarea { font-family: inherit; }
 }
 
 /* Profile Icon */
-/* Nav Profile Icon (desktop) */
+/* Nav Profile Icon (desktop) — Facebook-style silhouette */
 .nav-profile-desktop {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  color: var(--gray-300);
+  width: 34px;
+  height: 34px;
+  background: var(--white);
+  color: var(--gray-400);
   font-size: 20px;
   text-decoration: none;
   transition: var(--transition);
   flex-shrink: 0;
-  margin-left: 4px;
-  border-radius: var(--radius-sm);
+  margin-left: 8px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  overflow: hidden;
 }
 .nav-profile-desktop:hover {
-  color: var(--white);
-  background: rgba(255,255,255,0.1);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(212,168,67,0.3);
+  color: var(--navy);
 }
 /* Nav Profile link (mobile hamburger) */
 .nav-profile-mobile {
