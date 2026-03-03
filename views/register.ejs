@@ -104,10 +104,9 @@
         <label>Select Course <span class="required">*</span></label>
         <div class="reg-course-grid">
           <% Object.keys(courses).forEach(key => { %>
-            <div class="reg-course-option<%= selectedCourse === key ? ' selected' : '' %>" 
+            <div class="reg-course-option<%= selectedCourse === key ? ' selected' : '' %> course-border-<%= key %>" 
                  data-course="<%= key %>" 
-                 onclick="selectRegCourse(this, '<%= key %>')"
-                 style="border-top: 3px solid <%= courses[key].borderColor && !courses[key].borderColor.includes('gradient') ? courses[key].borderColor : 'var(--gold)' %>;">
+                 onclick="selectRegCourse(this, '<%= key %>')">
               <% if (courses[key].badge) { %>
                 <span style="position:absolute;top:8px;right:8px;background:var(--gold);color:var(--navy);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;"><%= courses[key].badge %></span>
               <% } %>

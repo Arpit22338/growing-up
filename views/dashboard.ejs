@@ -63,9 +63,9 @@
     </h4>
     <div class="referral-dashboard">
       <% Object.keys(courses).forEach(key => { %>
-        <div class="card" style="border-top: 3px solid <%= courses[key].borderColor && !courses[key].borderColor.includes('gradient') ? courses[key].borderColor : 'var(--gold)' %>;">
-          <h4 style="font-size: 14px; color: var(--navy); margin-bottom: 4px;"><%= courses[key].title %></h4>
-          <p style="font-size: 12px; color: var(--gray-500); margin-bottom: 8px;"><%= courses[key].name %> — <%= courses[key].currency %><%= courses[key].price %></p>
+        <div class="card course-border-<%= key %>">
+          <h4 style="font-size: 13px; color: var(--navy); margin-bottom: 2px;"><%= courses[key].title %></h4>
+          <p style="font-size: 11px; color: var(--gray-500); margin-bottom: 6px;"><%= courses[key].currency %><%= courses[key].price %></p>
           <div class="referral-link-group" style="margin-bottom: 8px;">
             <input type="text" readonly
               value="<%= baseUrl %>/course/<%= key %>?ref=<%= user.referralCode %>"

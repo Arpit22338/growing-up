@@ -55,8 +55,7 @@
         <% const c = courses[key]; %>
         <% const isOwned = ownedCourseKey === key; %>
         <% const isLocked = hasApprovedCourse && !isOwned; %>
-        <div class="course-card-new<%= c.badge ? ' featured-new' : '' %><%= isLocked ? ' course-card-locked' : '' %>" 
-             style="<%= c.badge ? '' : 'border-top: 4px solid ' + c.borderColor + ';' %>">
+        <div class="course-card-new<%= c.badge ? ' featured-new' : '' %><%= isLocked ? ' course-card-locked' : '' %> course-border-<%= key %>">
           
           <% if (c.badge) { %>
             <div class="course-badge"><%= c.badge %></div>
