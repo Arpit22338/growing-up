@@ -70,6 +70,23 @@
       container.appendChild(toast);
       setTimeout(() => { toast.remove(); }, 4000);
     }
+
+    // Password show/hide toggle
+    document.querySelectorAll('.password-toggle').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('input');
+        const icon = this.querySelector('i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.replace('bx-hide', 'bx-show');
+          this.setAttribute('aria-label', 'Hide password');
+        } else {
+          input.type = 'password';
+          icon.classList.replace('bx-show', 'bx-hide');
+          this.setAttribute('aria-label', 'Show password');
+        }
+      });
+    });
   </script>
 </body>
 </html>

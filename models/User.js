@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
   lastName: { type: String, required: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   whatsapp: { type: String, required: true, trim: true },
-  gender: { type: String, enum: ['Male', 'Female'], required: true },
+  gender: { type: String, enum: ['M', 'F'], required: true },
   password: { type: String, required: true },
   referralCode: { type: String, unique: true },
   referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
@@ -20,20 +20,20 @@ const userSchema = new mongoose.Schema({
     transactionId: String,
     status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
   }],
+  profilePicture: { type: String, default: '' },
   totalEarnings: { type: Number, default: 0 },
   isActive: { type: Boolean, default: false },
   role: { type: String, enum: ['user', 'superadmin', 'financial_secretary'], default: 'user' },
   createdAt: { type: Date, default: Date.now }
 });
 
-// Generate referral code before saving
-userSchema.pre('save', function(next) {
+// Generate referral code before saving (Mongoose 9+ - no next() callback)
+userSchema.pre('save', function() {
   if (!this.referralCode) {
     const namePart = (this.firstName.substring(0, 3) + this.lastName.substring(0, 2)).toUpperCase();
     const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
     this.referralCode = `GU${namePart}${randomPart}`;
   }
-  next();
 });
 
 userSchema.virtual('fullName').get(function() {

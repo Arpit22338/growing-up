@@ -28,7 +28,10 @@
       </div>
       <div class="form-group">
         <label>Password</label>
-        <input type="password" class="form-control" name="password" required placeholder="Admin password">
+        <div class="password-wrapper">
+          <input type="password" class="form-control" name="password" required placeholder="Admin password">
+          <button type="button" class="password-toggle" aria-label="Show password"><i class='bx bx-hide'></i></button>
+        </div>
       </div>
       <button type="submit" class="btn btn-primary btn-block btn-lg">
         <i class='bx bx-log-in'></i> Login
@@ -76,6 +79,21 @@
         errDiv.textContent = 'Connection error';
         errDiv.style.display = 'flex';
       }
+    });
+
+    // Password show/hide toggle
+    document.querySelectorAll('.password-toggle').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('input');
+        const icon = this.querySelector('i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.replace('bx-hide', 'bx-show');
+        } else {
+          input.type = 'password';
+          icon.classList.replace('bx-show', 'bx-hide');
+        }
+      });
     });
   </script>
 </body>

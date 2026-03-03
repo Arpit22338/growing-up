@@ -91,9 +91,9 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.set('trust proxy', 1); // Trust first proxy (Vercel/Nginx)
 
-// Body parsing with size limits
-app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+// Body parsing with size limits (2mb for profile picture uploads as base64)
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
 // Static files with cache headers
 app.use(express.static(path.join(__dirname, 'public'), {

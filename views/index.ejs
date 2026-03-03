@@ -5,9 +5,21 @@
   <img src="/images/logo-web.png" alt="Growing Up" class="hero-logo" width="100" height="100">
   <h1>Invest in Your <span>Future</span></h1>
   <p>Join thousands of Nepali learners building skills and earning through referrals. Start your journey with Growing Up today.</p>
-  <a href="#courses" class="btn-hero">
-    <i class='bx bx-book-open'></i> Explore Courses
-  </a>
+  <div class="hero-actions">
+    <a href="#courses" class="btn-hero">
+      <i class='bx bx-book-open'></i> Explore Courses
+    </a>
+    <% if (typeof loggedInUser === 'undefined' || !loggedInUser) { %>
+    <div class="hero-auth">
+      <a href="/login" class="btn-hero-login">
+        <i class='bx bx-log-in'></i> Login
+      </a>
+      <a href="/register" class="btn-hero-register">
+        <i class='bx bx-user-plus'></i> Register
+      </a>
+    </div>
+    <% } %>
+  </div>
 </section>
 
 <!-- How It Works -->

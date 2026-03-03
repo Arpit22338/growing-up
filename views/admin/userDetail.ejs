@@ -25,8 +25,17 @@
           <table style="width: 100%;">
             <tr><td style="padding: 8px 0; color: var(--gray-500);">Email</td><td style="font-weight: 600;"><%= user.email %></td></tr>
             <tr><td style="padding: 8px 0; color: var(--gray-500);">WhatsApp</td><td style="font-weight: 600;"><%= user.whatsapp %></td></tr>
-            <tr><td style="padding: 8px 0; color: var(--gray-500);">Gender</td><td><%= user.gender %></td></tr>
+            <tr><td style="padding: 8px 0; color: var(--gray-500);">Gender</td><td><%= user.gender === 'M' ? 'Male' : 'Female' %></td></tr>
             <tr><td style="padding: 8px 0; color: var(--gray-500);">Referral Code</td><td><code style="background: var(--gray-100); padding: 2px 8px; border-radius: 4px;"><%= user.referralCode %></code></td></tr>
+            <tr>
+              <td style="padding: 8px 0; color: var(--gray-500);">Referral Link</td>
+              <td>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                  <input type="text" readonly value="<%= typeof baseUrl !== 'undefined' ? baseUrl : 'https://growingup.tech' %>/register?ref=<%= user.referralCode %>" id="userRefLink" style="font-size: 12px; padding: 4px 8px; border: 1px solid var(--gray-200); border-radius: 4px; background: var(--gray-50); flex: 1; min-width: 200px;">
+                  <button onclick="navigator.clipboard.writeText(document.getElementById('userRefLink').value); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy',1500)" class="btn btn-primary btn-sm" style="white-space: nowrap;">Copy</button>
+                </div>
+              </td>
+            </tr>
             <tr>
               <td style="padding: 8px 0; color: var(--gray-500);">Status</td>
               <td><span class="badge <%= user.isActive ? 'badge-active' : 'badge-inactive' %>"><%= user.isActive ? 'Active' : 'Inactive' %></span></td>

@@ -8,31 +8,73 @@ let currentStep = 1;
 var _csrfMeta = document.querySelector('meta[name="csrf-token"]');
 var _csrf = _csrfMeta ? _csrfMeta.content : '';
 
-// Profile picture preview (localStorage only)
-function previewProfile(input) {
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const img = document.getElementById('profilePreview');
-      img.src = e.target.result;
-      img.style.display = 'block';
-      document.getElementById('profileIcon').style.display = 'none';
-      // Store in localStorage only
-      localStorage.setItem('gu_profile_pic', e.target.result);
-    };
-    reader.readAsDataURL(input.files[0]);
-  }
-}
+// Profile picture — open file picker on tap/click, compress + store in localStorage
+(function initProfileUpload() {
+  var clickArea = document.getElementById('profileClickArea');
+  var uploadArea = document.getElementById('profileUploadArea');
+  var fileInput = document.getElementById('profileInput');
+  if (!clickArea || !fileInput) return;
 
-// Load profile pic from localStorage
-(function loadProfile() {
-  const saved = localStorage.getItem('gu_profile_pic');
+  // Open file picker when tapping the circle or the label
+  function openPicker(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    fileInput.value = ''; // reset so same file can be re-selected
+    fileInput.click();
+  }
+  clickArea.addEventListener('click', openPicker);
+  clickArea.addEventListener('touchend', openPicker);
+  if (uploadArea) {
+    uploadArea.addEventListener('click', function(e) {
+      if (e.target === uploadArea || e.target.tagName === 'SPAN') openPicker(e);
+    });
+  }
+
+  // When file is selected, compress and save to localStorage
+  fileInput.addEventListener('change', function() {
+    if (fileInput.files && fileInput.files[0]) {
+      var file = fileInput.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image too large. Max 5MB.');
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var tempImg = new Image();
+        tempImg.onload = function() {
+          var canvas = document.createElement('canvas');
+          var maxSize = 200;
+          var w = tempImg.width, h = tempImg.height;
+          if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+          else { w = Math.round(w * maxSize / h); h = maxSize; }
+          canvas.width = w;
+          canvas.height = h;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(tempImg, 0, 0, w, h);
+          var compressed = canvas.toDataURL('image/jpeg', 0.7);
+
+          var img = document.getElementById('profilePreview');
+          img.src = compressed;
+          img.style.display = 'block';
+          var icon = document.getElementById('profileIcon');
+          if (icon) icon.style.display = 'none';
+          try { localStorage.setItem('gu_profile_pic', compressed); } catch(err) { /* quota */ }
+        };
+        tempImg.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Load saved profile pic from localStorage on page load
+  var saved = null;
+  try { saved = localStorage.getItem('gu_profile_pic'); } catch(err) {}
   if (saved) {
-    const img = document.getElementById('profilePreview');
+    var img = document.getElementById('profilePreview');
     if (img) {
       img.src = saved;
       img.style.display = 'block';
-      const icon = document.getElementById('profileIcon');
+      var icon = document.getElementById('profileIcon');
       if (icon) icon.style.display = 'none';
     }
   }
@@ -248,14 +290,17 @@ document.getElementById('step3Form').addEventListener('submit', async (e) => {
   btn.innerHTML = '<span class="spinner"></span> Creating account...';
 
   try {
+    // Include profile picture from localStorage
+    const profilePicture = localStorage.getItem('gu_profile_pic') || '';
     const res = await fetch('/api/register/step3', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': _csrf },
-      body: JSON.stringify({ password })
+      body: JSON.stringify({ password, profilePicture })
     });
     const result = await res.json();
 
     if (result.success) {
+      localStorage.removeItem('gu_profile_pic');
       goToStep(4);
     } else {
       showToast(result.error || 'Registration failed', 'error');

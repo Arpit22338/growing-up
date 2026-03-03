@@ -31,13 +31,13 @@
       </h3>
 
       <!-- Profile Picture -->
-      <div class="profile-upload">
-        <div class="profile-preview" onclick="document.getElementById('profileInput').click()">
+      <div class="profile-upload" id="profileUploadArea">
+        <div class="profile-preview" id="profileClickArea">
           <img id="profilePreview" style="display:none;">
           <i class='bx bx-camera' id="profileIcon"></i>
         </div>
-        <span>Upload Profile Picture</span>
-        <input type="file" id="profileInput" accept="image/*" style="display:none;" onchange="previewProfile(this)">
+        <span>Tap to upload photo</span>
+        <input type="file" id="profileInput" accept="image/*" capture="user" style="display:none;">
       </div>
 
       <form id="step1Form">
@@ -67,10 +67,10 @@
           <label>Gender <span class="required">*</span></label>
           <div class="radio-group">
             <label class="radio-option">
-              <input type="radio" name="gender" value="Male" required> Male
+              <input type="radio" name="gender" value="M" required> Male
             </label>
             <label class="radio-option">
-              <input type="radio" name="gender" value="Female"> Female
+              <input type="radio" name="gender" value="F"> Female
             </label>
           </div>
         </div>
@@ -211,13 +211,19 @@
       <form id="step3Form">
         <div class="form-group">
           <label>Password <span class="required">*</span></label>
-          <input type="password" class="form-control" name="password" required minlength="6"
-            placeholder="Minimum 6 characters">
+          <div class="password-wrapper">
+            <input type="password" class="form-control" name="password" required minlength="6"
+              placeholder="Minimum 6 characters">
+            <button type="button" class="password-toggle" aria-label="Show password"><i class='bx bx-hide'></i></button>
+          </div>
         </div>
         <div class="form-group">
           <label>Confirm Password <span class="required">*</span></label>
-          <input type="password" class="form-control" name="confirmPassword" required
-            placeholder="Re-enter password">
+          <div class="password-wrapper">
+            <input type="password" class="form-control" name="confirmPassword" required
+              placeholder="Re-enter password">
+            <button type="button" class="password-toggle" aria-label="Show password"><i class='bx bx-hide'></i></button>
+          </div>
         </div>
 
         <button type="submit" class="btn btn-gold btn-block btn-lg" id="step3Btn">

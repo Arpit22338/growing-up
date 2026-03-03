@@ -15,6 +15,9 @@
       <i class='bx bx-group'></i> Users
     </a>
     <% if (role === 'superadmin') { %>
+      <a href="/admin/add-user" class="<%= typeof active !== 'undefined' && active === 'add-user' ? 'active' : '' %>">
+        <i class='bx bx-user-plus'></i> Add User
+      </a>
       <a href="/admin/earnings" class="<%= typeof active !== 'undefined' && active === 'earnings' ? 'active' : '' %>">
         <i class='bx bx-bar-chart-alt-2'></i> Earnings
       </a>

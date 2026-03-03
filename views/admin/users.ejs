@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Users — Admin — Growing Up</title>
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
   <link rel="stylesheet" href="/css/style.css">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
@@ -100,11 +101,25 @@
         </div>
         <div class="form-group">
           <label>WhatsApp</label>
-          <input type="text" class="form-control" name="whatsapp" required>
+          <input type="text" class="form-control" name="whatsapp" required placeholder="98XXXXXXXX">
+        </div>
+        <div class="form-group">
+          <label>Gender</label>
+          <select class="form-control" name="gender">
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Password</label>
-          <input type="password" class="form-control" name="password" required minlength="6">
+          <div class="password-wrapper">
+            <input type="password" class="form-control" name="password" required minlength="6">
+            <button type="button" class="password-toggle" aria-label="Show password"><i class='bx bx-hide'></i></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Referral Code <small style="color:var(--gray-500);">(optional — referrer's code)</small></label>
+          <input type="text" class="form-control" name="referralCode" placeholder="e.g. GURAMK4X2">
         </div>
         <div class="form-group">
           <label>Role</label>
@@ -174,7 +189,7 @@
         });
         const result = await res.json();
         if (result.success) {
-          showToast('User added!');
+          showToast('User added! Referral code: ' + (result.referralCode || 'generated'));
           location.reload();
         } else {
           showToast(result.error || 'Failed', 'error');
@@ -182,6 +197,21 @@
       } catch (err) {
         showToast('Error', 'error');
       }
+    });
+
+    // Password show/hide toggle
+    document.querySelectorAll('.password-toggle').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('input');
+        const icon = this.querySelector('i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.replace('bx-hide', 'bx-show');
+        } else {
+          input.type = 'password';
+          icon.classList.replace('bx-show', 'bx-hide');
+        }
+      });
     });
   </script>
 </body>

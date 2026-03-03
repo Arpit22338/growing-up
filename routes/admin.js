@@ -145,6 +145,11 @@ router.get('/admin/users', isAdmin, async (req, res) => {
   }
 });
 
+// GET - Add user page (Super Admin only)
+router.get('/admin/add-user', isSuperAdmin, (req, res) => {
+  res.render('admin/addUser', { role: req.session.role });
+});
+
 // GET - User detail / referral tree
 router.get('/admin/users/:id', isAdmin, async (req, res) => {
   try {
@@ -154,7 +159,7 @@ router.get('/admin/users/:id', isAdmin, async (req, res) => {
     if (!user) return res.status(404).send('User not found');
 
     const payments = await Payment.find({ user: user._id }).sort({ createdAt: -1 });
-    res.render('admin/userDetail', { user, payments, role: req.session.role });
+    res.render('admin/userDetail', { user, payments, role: req.session.role, baseUrl: process.env.BASE_URL || 'https://growingup.tech' });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
@@ -189,28 +194,51 @@ router.post('/admin/users/:id/delete', isSuperAdmin, async (req, res) => {
 // SECURITY: Cannot create superadmin accounts through this route
 router.post('/admin/users/add', isSuperAdmin, async (req, res) => {
   try {
-    const { firstName, lastName, email, whatsapp, password, role } = req.body;
+    const { firstName, lastName, email, whatsapp, password, role, gender, referralCode } = req.body;
     
+    if (!firstName || !lastName || !email || !whatsapp || !password) {
+      return res.status(400).json({ error: 'All required fields must be filled' });
+    }
+
     // Block creating superadmin accounts via UI
     const safeRole = (role === 'financial_secretary') ? 'financial_secretary' : 'user';
+    const safeGender = (gender === 'F') ? 'F' : 'M';
 
     const existing = await User.findOne({ email: email.toLowerCase() });
     if (existing) return res.status(400).json({ error: 'Email already exists' });
 
     const hashed = await bcrypt.hash(password, 12);
-    const user = new User({
-      firstName,
-      lastName,
-      email: email.toLowerCase(),
-      whatsapp,
+    const userData = {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.toLowerCase().trim(),
+      whatsapp: whatsapp.trim(),
       password: hashed,
-      gender: 'Male',
+      gender: safeGender,
       role: safeRole,
       isActive: true
-    });
+    };
+
+    // Link to referrer if referral code provided
+    if (referralCode && referralCode.trim()) {
+      const referrer = await User.findOne({ referralCode: referralCode.trim().toUpperCase() });
+      if (!referrer) {
+        return res.status(400).json({ error: 'Invalid referral code. No user found with that code.' });
+      }
+      userData.referredBy = referrer._id;
+    }
+
+    const user = new User(userData);
     await user.save();
 
-    return res.json({ success: true });
+    // Add to referrer's referredUsers list
+    if (userData.referredBy) {
+      await User.findByIdAndUpdate(userData.referredBy, {
+        $push: { referredUsers: user._id }
+      });
+    }
+
+    return res.json({ success: true, referralCode: user.referralCode, referralLink: (process.env.BASE_URL || 'https://growingup.tech') + '/register?ref=' + user.referralCode });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Server error' });

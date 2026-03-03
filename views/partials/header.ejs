@@ -97,4 +97,14 @@
         <a href="/register" class="btn-gold">Register</a>
       <% } %>
     </div>
+    <% if (typeof session !== 'undefined' && session.userId) { %>
+    <a href="/dashboard" class="profile-icon" title="My Profile">
+      <% if (typeof session.profilePicture !== 'undefined' && session.profilePicture) { %>
+        <img src="<%= session.profilePicture %>" alt="Profile" class="profile-icon-img">
+      <% } else { %>
+        <% const initials = (typeof session.userName !== 'undefined' && session.userName) ? session.userName.charAt(0).toUpperCase() : 'U'; %>
+        <span><%= initials %></span>
+      <% } %>
+    </a>
+    <% } %>
   </nav>

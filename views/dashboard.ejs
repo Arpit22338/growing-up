@@ -3,8 +3,19 @@
 <!-- Dashboard Header -->
 <div class="dash-header">
   <div class="container">
-    <h1>Welcome, <%= user.firstName %> 👋</h1>
-    <p>Your referral code: <strong style="color: var(--gold);"><%= user.referralCode %></strong></p>
+    <div class="dash-profile-row">
+      <div class="dash-avatar">
+        <% if (user.profilePicture) { %>
+          <img src="<%= user.profilePicture %>" alt="<%= user.firstName %>">
+        <% } else { %>
+          <span><%= user.firstName.charAt(0).toUpperCase() %></span>
+        <% } %>
+      </div>
+      <div>
+        <h1>Welcome, <%= user.firstName %> 👋</h1>
+        <p>Your referral code: <strong style="color: var(--gold);"><%= user.referralCode %></strong></p>
+      </div>
+    </div>
   </div>
 </div>
 

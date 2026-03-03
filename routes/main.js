@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
   let loggedInUser = null;
   if (req.session && req.session.userId) {
     try {
-      loggedInUser = await User.findById(req.session.userId).select('purchasedCourses isActive referralCode');
+      loggedInUser = await User.findById(req.session.userId).select('purchasedCourses isActive referralCode profilePicture');
     } catch (e) {}
   }
   res.render('index', { courses, loggedInUser });
@@ -175,9 +175,17 @@ router.post('/api/register/step3', async (req, res) => {
       return res.status(400).json({ error: 'Please complete previous steps first' });
     }
 
-    const { password } = req.body;
+    const { password, profilePicture } = req.body;
     if (!password || password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    // Validate profile picture size (max ~500KB base64)
+    let validProfilePic = '';
+    if (profilePicture && typeof profilePicture === 'string' && profilePicture.startsWith('data:image/')) {
+      if (profilePicture.length <= 700000) {
+        validProfilePic = profilePicture;
+      }
     }
 
     const reg = req.session.registration;
@@ -191,6 +199,7 @@ router.post('/api/register/step3', async (req, res) => {
       whatsapp: reg.whatsapp,
       gender: reg.gender,
       password: hashedPassword,
+      profilePicture: validProfilePic,
       referredBy: reg.referrerId,
       isActive: false,
       purchasedCourses: [{
@@ -279,25 +288,25 @@ router.post('/api/login', async (req, res) => {
           lastName: 'Admin',
           email: process.env.SUPER_ADMIN_EMAIL,
           whatsapp: '0000000000',
-          gender: 'Male',
+          gender: 'M',
           password: hashed,
           role: 'superadmin',
           isActive: true
         });
         await admin.save();
       }
-      // Regenerate session to prevent fixation
-      const oldSession = req.session;
-      req.session.regenerate((err) => {
-        if (err) return res.status(500).json({ error: 'Session error' });
-        req.session.userId = admin._id;
-        req.session.role = 'superadmin';
-        req.session.isActive = true;
-        req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
-        req.session.loginAt = Date.now();
+      // Set session (safe for serverless — avoids regenerate issues)
+      req.session.userId = admin._id;
+      req.session.role = 'superadmin';
+      req.session.userName = admin.firstName || 'Admin';
+      req.session.profilePicture = admin.profilePicture || '';
+      req.session.isActive = true;
+      req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
+      req.session.loginAt = Date.now();
+      return req.session.save((err) => {
+        if (err) console.error('Session save error:', err);
         return res.json({ success: true, redirect: '/admin' });
       });
-      return;
     }
 
     if (email === process.env.FIN_SEC_EMAIL && password === process.env.FIN_SEC_PASSWORD) {
@@ -309,23 +318,25 @@ router.post('/api/login', async (req, res) => {
           lastName: 'Secretary',
           email: process.env.FIN_SEC_EMAIL,
           whatsapp: '0000000000',
-          gender: 'Male',
+          gender: 'M',
           password: hashed,
           role: 'financial_secretary',
           isActive: true
         });
         await finSec.save();
       }
-      req.session.regenerate((err) => {
-        if (err) return res.status(500).json({ error: 'Session error' });
-        req.session.userId = finSec._id;
-        req.session.role = 'financial_secretary';
-        req.session.isActive = true;
-        req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
-        req.session.loginAt = Date.now();
+      // Set session (safe for serverless)
+      req.session.userId = finSec._id;
+      req.session.role = 'financial_secretary';
+      req.session.userName = finSec.firstName || 'Finance';
+      req.session.profilePicture = finSec.profilePicture || '';
+      req.session.isActive = true;
+      req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
+      req.session.loginAt = Date.now();
+      return req.session.save((err) => {
+        if (err) console.error('Session save error:', err);
         return res.json({ success: true, redirect: '/admin' });
       });
-      return;
     }
 
     // Regular user login
@@ -343,19 +354,19 @@ router.post('/api/login', async (req, res) => {
       return res.json({ success: true, redirect: '/pending' });
     }
 
-    // Regenerate session on login to prevent session fixation
-    req.session.regenerate((err) => {
-      if (err) return res.status(500).json({ error: 'Session error' });
-      req.session.userId = user._id;
-      req.session.role = user.role;
-      req.session.isActive = user.isActive;
-      req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
-      req.session.loginAt = Date.now();
+    // Set session (safe for serverless — avoids regenerate issues)
+    req.session.userId = user._id;
+    req.session.role = user.role;
+    req.session.userName = user.firstName || 'User';
+    req.session.profilePicture = user.profilePicture || '';
+    req.session.isActive = user.isActive;
+    req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
+    req.session.loginAt = Date.now();
 
-      if (user.role === 'superadmin' || user.role === 'financial_secretary') {
-        return res.json({ success: true, redirect: '/admin' });
-      }
-      return res.json({ success: true, redirect: '/dashboard' });
+    const redirect = (user.role === 'superadmin' || user.role === 'financial_secretary') ? '/admin' : '/dashboard';
+    return req.session.save((err) => {
+      if (err) console.error('Session save error:', err);
+      return res.json({ success: true, redirect });
     });
   } catch (err) {
     console.error(err);
