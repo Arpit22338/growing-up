@@ -19,49 +19,68 @@
     <div class="stat-card">
       <i class='bx bx-group'></i>
       <div class="stat-value"><%= user.referredUsers ? user.referredUsers.length : 0 %></div>
-      <div class="stat-label">Referrals</div>
+      <div class="stat-label">Total Referred Users</div>
     </div>
     <div class="stat-card">
       <i class='bx bx-book-open'></i>
       <div class="stat-value"><%= user.purchasedCourses ? user.purchasedCourses.filter(c => c.status === 'approved').length : 0 %></div>
       <div class="stat-label">Active Courses</div>
     </div>
+    <div class="stat-card">
+      <i class='bx bx-wallet'></i>
+      <div class="stat-value">₹<%= user.referredUsers ? user.referredUsers.filter(r => r.isActive).length * Math.round((user.purchasedCourses && user.purchasedCourses[0] ? user.purchasedCourses[0].price : 0) * 0.65) : 0 %></div>
+      <div class="stat-label">Earned from Referrals</div>
+    </div>
   </div>
 
   <!-- Referral Section -->
   <div class="referral-box">
-    <h3><i class='bx bx-link' style="color: var(--gold);"></i> Your Referral Links</h3>
+    <h3><i class='bx bx-link' style="color: var(--gold);"></i> My Referral Links</h3>
     <p style="color: var(--gray-500); font-size: 13px; margin-bottom: 16px;">
       Share these links to earn 65% commission on every sale!
     </p>
 
     <!-- General referral link -->
-    <div style="margin-bottom: 12px;">
-      <label style="font-size: 12px; color: var(--gray-500); margin-bottom: 4px; display: block;">General Link (user picks course)</label>
+    <div style="margin-bottom: 16px; padding: 16px; background: var(--gray-50); border-radius: var(--radius-sm);">
+      <label style="font-size: 13px; color: var(--navy); margin-bottom: 6px; display: block; font-weight: 600;">
+        <i class='bx bx-globe' style="color: var(--gold);"></i> General Link (user picks course)
+      </label>
       <div class="referral-link-group">
         <input type="text" readonly value="<%= baseUrl %>/register?ref=<%= user.referralCode %>" id="genLink">
         <button class="btn btn-primary btn-sm" onclick="copyLink('genLink')">
           <i class='bx bx-copy'></i> Copy
         </button>
       </div>
+      <a href="https://wa.me/?text=Join%20Growing%20Up%20and%20start%20earning!%20<%= encodeURIComponent(baseUrl + '/register?ref=' + user.referralCode) %>" 
+         target="_blank" class="btn-whatsapp" style="margin-top: 8px;">
+        <i class='bx bxl-whatsapp'></i> Share on WhatsApp
+      </a>
     </div>
 
-    <!-- Course-specific links -->
-    <% Object.keys(courses).forEach(key => { %>
-      <div style="margin-bottom: 8px;">
-        <label style="font-size: 12px; color: var(--gray-500); margin-bottom: 4px; display: block;">
-          <%= courses[key].name %> Link
-        </label>
-        <div class="referral-link-group">
-          <input type="text" readonly
-            value="<%= baseUrl %>/register?ref=<%= user.referralCode %>&course=<%= key %>"
-            id="link_<%= key %>">
-          <button class="btn btn-primary btn-sm" onclick="copyLink('link_<%= key %>')">
-            <i class='bx bx-copy'></i> Copy
-          </button>
+    <!-- Course-specific referral links -->
+    <h4 style="color: var(--navy); margin-bottom: 12px; font-size: 15px;">
+      <i class='bx bx-book-open' style="color: var(--gold);"></i> Course-Specific Refer Links
+    </h4>
+    <div class="referral-dashboard">
+      <% Object.keys(courses).forEach(key => { %>
+        <div class="card" style="border-top: 3px solid <%= courses[key].borderColor && !courses[key].borderColor.includes('gradient') ? courses[key].borderColor : 'var(--gold)' %>;">
+          <h4 style="font-size: 14px; color: var(--navy); margin-bottom: 4px;"><%= courses[key].title %></h4>
+          <p style="font-size: 12px; color: var(--gray-500); margin-bottom: 8px;"><%= courses[key].name %> — <%= courses[key].currency %><%= courses[key].price %></p>
+          <div class="referral-link-group" style="margin-bottom: 8px;">
+            <input type="text" readonly
+              value="<%= baseUrl %>/course/<%= key %>?ref=<%= user.referralCode %>"
+              id="link_<%= key %>">
+            <button class="btn btn-primary btn-sm" onclick="copyLink('link_<%= key %>')">
+              <i class='bx bx-copy'></i>
+            </button>
+          </div>
+          <a href="https://wa.me/?text=Check%20out%20<%= encodeURIComponent(courses[key].title) %>%20on%20Growing%20Up!%20<%= encodeURIComponent(baseUrl + '/course/' + key + '?ref=' + user.referralCode) %>" 
+             target="_blank" class="btn-whatsapp" style="width: 100%; justify-content: center;">
+            <i class='bx bxl-whatsapp'></i> Share
+          </a>
         </div>
-      </div>
-    <% }); %>
+      <% }); %>
+    </div>
   </div>
 
   <!-- Referred Users -->

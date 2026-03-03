@@ -25,8 +25,14 @@ function fileToBase64(file) {
 }
 
 // GET - Home page
-router.get('/', (req, res) => {
-  res.render('index', { courses });
+router.get('/', async (req, res) => {
+  let loggedInUser = null;
+  if (req.session && req.session.userId) {
+    try {
+      loggedInUser = await User.findById(req.session.userId).select('purchasedCourses isActive referralCode');
+    } catch (e) {}
+  }
+  res.render('index', { courses, loggedInUser });
 });
 
 // GET - Sitemap.xml (PSEO)
@@ -46,11 +52,21 @@ router.get('/sitemap.xml', (req, res) => {
 });
 
 // GET - Course page with optional referral
-router.get('/course/:key', (req, res) => {
+router.get('/course/:key', async (req, res) => {
   const course = courses[req.params.key];
   if (!course) return res.redirect('/');
   const ref = req.query.ref || '';
-  res.render('course', { course, ref });
+  
+  // Check if user is logged in — pass user data for refer button
+  let loggedInUser = null;
+  if (req.session && req.session.userId) {
+    try {
+      loggedInUser = await User.findById(req.session.userId).select('referralCode isActive firstName');
+    } catch (e) {}
+  }
+  
+  const baseUrl = process.env.BASE_URL || '';
+  res.render('course', { course, ref, loggedInUser, baseUrl });
 });
 
 // GET - Register page
@@ -128,6 +144,15 @@ router.post('/api/register/step2', upload.single('screenshot'), async (req, res)
     const course = courses[courseKey];
     if (!course) {
       return res.status(400).json({ error: 'Invalid course selected' });
+    }
+
+    // One-course-per-user: check if this email already has an approved course
+    const existingUser = await User.findOne({ email: req.session.registration.email });
+    if (existingUser) {
+      const hasApproved = existingUser.purchasedCourses.some(c => c.status === 'approved');
+      if (hasApproved) {
+        return res.status(400).json({ error: 'You already own a course. One course per account only.' });
+      }
     }
 
     req.session.registration.courseKey = courseKey;

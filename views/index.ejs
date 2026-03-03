@@ -15,7 +15,7 @@
   <div class="container">
     <h2 class="section-title">How It Works</h2>
     <p class="section-subtitle">Simple steps to start learning and earning</p>
-    <div class="courses-grid" style="max-width: 800px; margin: 0 auto;">
+    <div class="how-grid">
       <div class="card" style="text-align: center;">
         <i class='bx bx-link' style="font-size: 40px; color: var(--gold); margin-bottom: 12px;"></i>
         <h3>1. Get a Referral</h3>
@@ -40,20 +40,75 @@
   <div class="container">
     <h2 class="section-title">Choose Your Package</h2>
     <p class="section-subtitle">All packages include lifetime access & community support</p>
-    <div class="courses-grid">
+    
+    <div class="courses-grid-2x2">
       <% const courseKeys = Object.keys(courses); %>
-      <% courseKeys.forEach((key, i) => { %>
+      <% 
+        const hasApprovedCourse = (typeof loggedInUser !== 'undefined' && loggedInUser && loggedInUser.purchasedCourses) 
+          ? loggedInUser.purchasedCourses.some(c => c.status === 'approved') 
+          : false;
+        const ownedCourseKey = hasApprovedCourse 
+          ? loggedInUser.purchasedCourses.find(c => c.status === 'approved').courseKey 
+          : null;
+      %>
+      <% courseKeys.forEach((key) => { %>
         <% const c = courses[key]; %>
-        <div class="course-card<%= key === 'everything' ? ' featured' : '' %>">
-          <h3><%= c.name %></h3>
-          <div class="price"><%= c.currency %><%= c.price %></div>
-          <p><%= c.description %></p>
-          <ul class="features">
-            <% c.features.forEach(f => { %>
-              <li><i class='bx bx-check'></i> <%= f %></li>
-            <% }); %>
-          </ul>
-          <a href="/register?course=<%= key %>" class="btn-course">Get Started</a>
+        <% const isOwned = ownedCourseKey === key; %>
+        <% const isLocked = hasApprovedCourse && !isOwned; %>
+        <div class="course-card-new<%= c.badge ? ' featured-new' : '' %><%= isLocked ? ' course-card-locked' : '' %>" 
+             style="<%= c.badge ? '' : 'border-top: 4px solid ' + c.borderColor + ';' %>">
+          
+          <% if (c.badge) { %>
+            <div class="course-badge"><%= c.badge %></div>
+          <% } %>
+          
+          <!-- Thumbnail -->
+          <div class="course-thumb">
+            <img src="<%= c.thumbnail %>" alt="<%= c.title %>" loading="lazy">
+            <div class="course-thumb-overlay">
+              <i class='bx <%= c.icon %>'></i>
+            </div>
+          </div>
+          
+          <!-- Content -->
+          <div class="course-body">
+            <h3 class="course-title-new"><%= c.title %></h3>
+            <p class="course-subtitle"><%= c.name %></p>
+            <div class="course-price-new"><%= c.currency %><%= c.price %></div>
+            <p class="course-desc"><%= c.description %></p>
+
+            <!-- Content List -->
+            <ul class="course-content-list">
+              <% c.content.forEach(item => { %>
+                <li><span class="content-emoji"><%= item.emoji %></span> <%= item.text %></li>
+              <% }); %>
+            </ul>
+
+            <!-- No Certification Notice -->
+            <div class="no-cert-notice">
+              <i class='bx bx-info-circle'></i>
+              <span>This course does NOT provide any certification. It is a knowledge and skill-building program only.</span>
+            </div>
+
+            <% if (isLocked) { %>
+              <div class="locked-msg">
+                <i class='bx bx-lock-alt'></i>
+                <span>You already own a course. One course per account only.</span>
+              </div>
+            <% } else if (isOwned) { %>
+              <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--success); display: flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+                <i class='bx bx-check-circle'></i> You own this course
+              </div>
+              <a href="/dashboard" class="btn-course-new" style="background: var(--success);">
+                <i class='bx bx-grid-alt'></i> Go to Dashboard
+              </a>
+            <% } else { %>
+              <!-- Buttons -->
+              <a href="/course/<%= key %>" class="btn-course-new">
+                <i class='bx bx-rocket'></i> Get Started
+              </a>
+            <% } %>
+          </div>
         </div>
       <% }); %>
     </div>

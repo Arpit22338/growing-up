@@ -1,25 +1,103 @@
 <%- include('partials/header') %>
 
-<section class="section" style="background: var(--white);">
-  <div class="container" style="max-width: 700px;">
-    <div class="card" style="text-align: center; padding: 48px 32px;">
-      <h2 style="color: var(--navy); font-size: 28px; margin-bottom: 8px;"><%= course.name %></h2>
-      <div class="price" style="font-size: 42px; font-weight: 800; color: var(--gold-dark); margin-bottom: 12px;">
-        <%= course.currency %><%= course.price %>
+<section class="section" style="background: var(--white); padding-top: 40px;">
+  <div class="container" style="max-width: 800px;">
+    
+    <!-- Course Card -->
+    <div class="course-detail-card" style="border-top: 5px solid <%= course.borderColor && !course.borderColor.includes('gradient') ? course.borderColor : 'var(--gold)' %>;">
+      <% if (course.badge) { %>
+        <div class="course-badge" style="position: absolute; top: 16px; right: 16px;"><%= course.badge %></div>
+      <% } %>
+
+      <!-- Thumbnail -->
+      <div class="course-detail-thumb">
+        <img src="<%= course.thumbnail %>" alt="<%= course.title %>">
+        <div class="course-detail-icon">
+          <i class='bx <%= course.icon %>'></i>
+        </div>
       </div>
-      <p style="color: var(--gray-500); margin-bottom: 24px;"><%= course.description %></p>
-      <ul class="features" style="display: inline-block; text-align: left; margin-bottom: 32px;">
-        <% course.features.forEach(f => { %>
-          <li><i class='bx bx-check' style="color: var(--success);"></i> <%= f %></li>
-        <% }); %>
-      </ul>
-      <div>
-        <a href="/register?course=<%= course.key %><%= ref ? '&ref=' + ref : '' %>" class="btn btn-gold btn-lg">
-          <i class='bx bx-cart'></i> Enroll Now
-        </a>
+
+      <!-- Info -->
+      <div class="course-detail-body">
+        <p class="course-detail-label"><%= course.name %></p>
+        <h1 class="course-detail-title"><%= course.title %></h1>
+        <div class="course-detail-price"><%= course.currency %><%= course.price %></div>
+        <p class="course-detail-desc"><%= course.description %></p>
+
+        <!-- Content List -->
+        <h3 style="color: var(--navy); margin-bottom: 12px; font-size: 18px;">
+          <i class='bx bx-list-check' style="color: var(--gold);"></i> What You'll Learn
+        </h3>
+        <ul class="course-detail-content">
+          <% course.content.forEach(item => { %>
+            <li>
+              <span class="content-emoji"><%= item.emoji %></span>
+              <span><%= item.text %></span>
+            </li>
+          <% }); %>
+        </ul>
+
+        <!-- No Certification Notice -->
+        <div class="no-cert-notice" style="margin: 24px 0;">
+          <i class='bx bx-info-circle'></i>
+          <span>This course does <strong>NOT</strong> provide any certification. It is a knowledge and skill-building program only.</span>
+        </div>
+
+        <!-- Buttons -->
+        <div class="course-detail-actions">
+          <a href="/register?course=<%= course.key %><%= ref ? '&ref=' + ref : '' %>" class="btn btn-gold btn-lg" style="width: 100%;">
+            <i class='bx bx-rocket'></i> Get Started
+          </a>
+          
+          <% if (typeof loggedInUser !== 'undefined' && loggedInUser && loggedInUser.isActive) { %>
+            <!-- Logged in & approved user: show refer button -->
+            <div class="refer-earn-box">
+              <h4><i class='bx bx-link' style="color: var(--gold);"></i> Refer & Earn 65%</h4>
+              <p style="font-size: 13px; color: var(--gray-500); margin-bottom: 12px;">
+                Share this course and earn ₹<%= Math.round(course.price * 0.65) %> per referral!
+              </p>
+              <div class="referral-link-group">
+                <input type="text" readonly 
+                  value="<%= baseUrl %>/course/<%= course.key %>?ref=<%= loggedInUser.referralCode %>" 
+                  id="courseRefLink">
+                <button class="btn btn-primary btn-sm" onclick="copyCourseLink()">
+                  <i class='bx bx-copy'></i> Copy
+                </button>
+              </div>
+              <a href="https://wa.me/?text=Check%20out%20this%20course%20on%20Growing%20Up!%20<%= encodeURIComponent(baseUrl + '/course/' + course.key + '?ref=' + loggedInUser.referralCode) %>" 
+                 target="_blank" class="btn btn-sm" style="background: #25D366; color: white; margin-top: 10px; width: 100%;">
+                <i class='bx bxl-whatsapp'></i> Share on WhatsApp
+              </a>
+            </div>
+          <% } else if (typeof loggedInUser !== 'undefined' && loggedInUser && !loggedInUser.isActive) { %>
+            <!-- Logged in but pending -->
+            <div class="refer-earn-box" style="opacity: 0.7;">
+              <p style="color: var(--warning); font-size: 13px; font-weight: 600;">
+                <i class='bx bx-time-five'></i> Your account must be approved before you can refer others.
+              </p>
+            </div>
+          <% } else { %>
+            <!-- Not logged in -->
+            <a href="/login" class="btn btn-outline btn-sm" style="width: 100%; margin-top: 8px;">
+              <i class='bx bx-link'></i> Login to Refer & Earn
+            </a>
+          <% } %>
+        </div>
       </div>
     </div>
+
   </div>
 </section>
+
+<script>
+function copyCourseLink() {
+  const input = document.getElementById('courseRefLink');
+  if (input) {
+    navigator.clipboard.writeText(input.value).then(() => {
+      showToast('Referral link copied!');
+    });
+  }
+}
+</script>
 
 <%- include('partials/footer') %>

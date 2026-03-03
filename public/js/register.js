@@ -163,23 +163,8 @@ document.getElementById('step1Form').addEventListener('submit', async (e) => {
   btn.innerHTML = 'Continue to Payment <i class="bx bx-right-arrow-alt"></i>';
 });
 
-// Course selection info
-const courseSelect = document.getElementById('courseSelect');
-if (courseSelect) {
-  courseSelect.addEventListener('change', function() {
-    const info = document.getElementById('selectedCourseInfo');
-    const text = document.getElementById('selectedCourseText');
-    if (this.value) {
-      const selected = this.options[this.selectedIndex];
-      info.style.display = 'flex';
-      text.textContent = 'You selected: ' + selected.text;
-    } else {
-      info.style.display = 'none';
-    }
-  });
-  // Trigger if pre-selected
-  if (courseSelect.value) courseSelect.dispatchEvent(new Event('change'));
-}
+// Course selection - now driven by card click via selectRegCourse() in register.ejs
+// The hidden #courseSelect input is updated by selectRegCourse()
 
 // Screenshot preview
 const screenshotInput = document.getElementById('screenshotInput');

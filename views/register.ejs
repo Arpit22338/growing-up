@@ -99,22 +99,47 @@
         <i class='bx bx-wallet' style="color: var(--gold);"></i> Make Payment
       </h3>
 
-      <!-- Course Selection -->
+      <!-- Course Selection Cards -->
       <div class="form-group">
         <label>Select Course <span class="required">*</span></label>
-        <select class="form-control" id="courseSelect" name="courseKey">
-          <option value="">— Choose a package —</option>
+        <div class="reg-course-grid">
           <% Object.keys(courses).forEach(key => { %>
-            <option value="<%= key %>" <%= selectedCourse === key ? 'selected' : '' %>>
-              <%= courses[key].name %> — <%= courses[key].currency %><%= courses[key].price %>
-            </option>
+            <div class="reg-course-option<%= selectedCourse === key ? ' selected' : '' %>" 
+                 data-course="<%= key %>" 
+                 onclick="selectRegCourse(this, '<%= key %>')"
+                 style="border-top: 3px solid <%= courses[key].borderColor && !courses[key].borderColor.includes('gradient') ? courses[key].borderColor : 'var(--gold)' %>;">
+              <% if (courses[key].badge) { %>
+                <span style="position:absolute;top:8px;right:8px;background:var(--gold);color:var(--navy);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;"><%= courses[key].badge %></span>
+              <% } %>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                <i class='bx <%= courses[key].icon %>' style="font-size:20px;color:var(--gold);"></i>
+                <strong style="font-size:14px;color:var(--navy);"><%= courses[key].title %></strong>
+              </div>
+              <div style="font-size:22px;font-weight:800;color:var(--gold-dark);margin-bottom:4px;"><%= courses[key].currency %><%= courses[key].price %></div>
+              <p style="font-size:11px;color:var(--gray-500);margin-bottom:6px;"><%= courses[key].description %></p>
+              <ul style="list-style:none;padding:0;">
+                <% courses[key].content.slice(0,3).forEach(item => { %>
+                  <li style="font-size:11px;color:var(--gray-700);padding:2px 0;"><%= item.emoji %> <%= item.text %></li>
+                <% }); %>
+                <% if (courses[key].content.length > 3) { %>
+                  <li style="font-size:11px;color:var(--gray-500);padding:2px 0;">+ <%= courses[key].content.length - 3 %> more...</li>
+                <% } %>
+              </ul>
+            </div>
           <% }); %>
-        </select>
+        </div>
+        <input type="hidden" id="courseSelect" name="courseKey" value="<%= selectedCourse %>">
       </div>
 
       <div id="selectedCourseInfo" style="display: none;" class="alert alert-info">
         <i class='bx bx-info-circle'></i>
         <span id="selectedCourseText"></span>
+      </div>
+
+      <!-- No Certification Notice -->
+      <div class="no-cert-notice" style="margin-bottom: 20px;">
+        <i class='bx bx-info-circle'></i>
+        <span>Courses do NOT provide any certification. They are knowledge and skill-building programs only.</span>
       </div>
 
       <!-- QR Codes -->
@@ -215,5 +240,29 @@
   </div>
 </div>
 
+<script>
+// Course card selection for step 2
+function selectRegCourse(el, key) {
+  document.querySelectorAll('.reg-course-option').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('courseSelect').value = key;
+  var info = document.getElementById('selectedCourseInfo');
+  var text = document.getElementById('selectedCourseText');
+  info.style.display = 'flex';
+  text.textContent = 'You selected: ' + el.querySelector('strong').textContent + ' — ' + el.querySelector('[style*="font-size:22px"]').textContent;
+}
+// Auto-trigger if pre-selected
+(function() {
+  var pre = document.querySelector('.reg-course-option.selected');
+  if (pre) {
+    var info = document.getElementById('selectedCourseInfo');
+    var text = document.getElementById('selectedCourseText');
+    if (info && text) {
+      info.style.display = 'flex';
+      text.textContent = 'You selected: ' + pre.querySelector('strong').textContent;
+    }
+  }
+})();
+</script>
 <script src="/js/register.js"></script>
 <%- include('partials/footer') %>
