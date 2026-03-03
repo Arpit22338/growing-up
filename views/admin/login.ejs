@@ -51,7 +51,7 @@
       const c = document.getElementById('toastContainer');
       const t = document.createElement('div');
       t.className = 'toast toast-' + type;
-      t.innerHTML = '<i class="bx bx-error-circle"></i> ' + msg;
+      t.innerHTML = '<i class="bx ' + (type === 'success' ? 'bx-check-circle' : 'bx-error-circle') + '"></i> ' + msg;
       c.appendChild(t);
       setTimeout(() => t.remove(), 4000);
     }

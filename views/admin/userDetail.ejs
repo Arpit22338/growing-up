@@ -153,6 +153,34 @@
       setTimeout(() => t.remove(), 4000);
     }
 
+    function copyLink(text, btnElement) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btnElement.innerHTML;
+          btnElement.innerHTML = '<i class="bx bx-check"></i> Copied!';
+          setTimeout(function() { btnElement.innerHTML = orig; }, 2000);
+        }).catch(function() {
+          fallbackCopy(text, btnElement);
+        });
+      } else {
+        fallbackCopy(text, btnElement);
+      }
+    }
+    function fallbackCopy(text, btnElement) {
+      var temp = document.createElement('textarea');
+      temp.value = text;
+      temp.style.position = 'fixed';
+      temp.style.opacity = '0';
+      document.body.appendChild(temp);
+      temp.focus();
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+      var orig = btnElement.innerHTML;
+      btnElement.innerHTML = '<i class="bx bx-check"></i> Copied!';
+      setTimeout(function() { btnElement.innerHTML = orig; }, 2000);
+    }
+
     var csrfMeta = document.querySelector('meta[name="csrf-token"]');
     var CSRF = csrfMeta ? csrfMeta.content : '';
 

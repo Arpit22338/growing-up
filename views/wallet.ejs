@@ -63,11 +63,7 @@
                   <% } %>
                 </td>
                 <td>
-                  <span class="badge badge-<%= w.status %>" style="
-                    <% if (w.status === 'pending') { %>background:rgba(245,158,11,0.12);color:#D97706;
-                    <% } else if (w.status === 'approved') { %>background:rgba(16,185,129,0.12);color:#059669;
-                    <% } else { %>background:rgba(239,68,68,0.12);color:#DC2626;<% } %>
-                  "><%= w.status.charAt(0).toUpperCase() + w.status.slice(1) %></span>
+                  <span class="badge badge-<%= w.status %>"><%= w.status.charAt(0).toUpperCase() + w.status.slice(1) %></span>
                   <% if (w.status === 'rejected' && w.rejectionReason) { %>
                     <br><span style="font-size:11px;color:var(--danger);"><%= w.rejectionReason %></span>
                   <% } %>
