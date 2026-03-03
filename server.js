@@ -12,7 +12,18 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Connect to MongoDB
-connectDB();
+const dbReady = connectDB();
+
+// Ensure DB is connected before handling any request (critical for serverless)
+app.use(async (req, res, next) => {
+  try {
+    await dbReady;
+    next();
+  } catch (err) {
+    console.error('DB connection failed:', err.message);
+    res.status(500).send('Database connection failed');
+  }
+});
 
 // ── Security Headers (Helmet) ──
 app.use(helmet({
@@ -162,10 +173,8 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  // Don't leak error details in production
-  const message = process.env.NODE_ENV === 'production' ? 'Something went wrong!' : err.message;
-  res.status(500).send(message);
+  console.error('ERROR:', err.stack || err.message || err);
+  res.status(500).send('Error: ' + (err.message || 'Something went wrong!'));
 });
 
 // Export for Vercel serverless
