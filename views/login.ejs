@@ -60,6 +60,13 @@
 
       if (result.success) {
         window.location.href = result.redirect;
+      } else if (result.rejected) {
+        // Show rejection notice with reason
+        errDiv.innerHTML = '<div style="text-align:left;"><strong><i class="bx bx-x-circle"></i> Account Rejected</strong><br>' + 
+          (result.error || 'Your payment was rejected.') + 
+          (result.reason ? '<br><strong>Reason:</strong> ' + result.reason : '') +
+          '<br><a href="/register" style="color:var(--gold);font-weight:700;text-decoration:underline;margin-top:8px;display:inline-block;">Register Again</a></div>';
+        errDiv.style.display = 'flex';
       } else {
         errDiv.textContent = result.error || 'Login failed';
         errDiv.style.display = 'flex';

@@ -4,8 +4,10 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Payment = require('../models/Payment');
 const Settings = require('../models/Settings');
+const Withdrawal = require('../models/Withdrawal');
 const courses = require('../config/courses');
 const multer = require('multer');
+const { isAuthenticated, isActiveUser } = require('../middleware/auth');
 
 // Multer config — memory storage (for Vercel/serverless compatibility)
 const upload = multer({
@@ -351,6 +353,15 @@ router.post('/api/login', async (req, res) => {
     }
 
     if (!user.isActive) {
+      // Check if account was rejected
+      const pendingPayment = await Payment.findOne({ user: user._id }).sort({ createdAt: -1 });
+      if (pendingPayment && pendingPayment.status === 'rejected') {
+        return res.status(403).json({
+          error: 'Your account was rejected.',
+          reason: pendingPayment.rejectionReason || 'Payment could not be verified. Please contact support on WhatsApp.',
+          rejected: true
+        });
+      }
       return res.json({ success: true, redirect: '/pending' });
     }
 
@@ -385,9 +396,98 @@ router.get('/dashboard', async (req, res) => {
   try {
     const user = await User.findById(req.session.userId).populate('referredUsers', 'firstName lastName email isActive');
     if (!user || !user.isActive) return res.redirect('/pending');
-    res.render('dashboard', { user, courses, baseUrl: process.env.BASE_URL });
+    
+    const withdrawals = await Withdrawal.find({ user: user._id }).sort({ createdAt: -1 });
+    const approvedTotal = withdrawals.filter(w => w.status === 'approved').reduce((s, w) => s + w.amount, 0);
+    const pendingTotal = withdrawals.filter(w => w.status === 'pending').reduce((s, w) => s + w.amount, 0);
+    const availableBalance = user.totalEarnings - approvedTotal - pendingTotal;
+    
+    res.render('dashboard', { user, courses, baseUrl: process.env.BASE_URL, withdrawals, availableBalance });
   } catch (err) {
     res.redirect('/login');
+  }
+});
+
+// POST - Request withdrawal
+router.post('/api/withdraw', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Please login first' });
+  }
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user || !user.isActive) {
+      return res.status(403).json({ error: 'Account not active' });
+    }
+
+    const { amount, method, walletId, bankName, accountName, accountNumber } = req.body;
+    const numAmount = Number(amount);
+
+    if (!numAmount || numAmount < 500) {
+      return res.status(400).json({ error: 'Minimum withdrawal is ₹500' });
+    }
+
+    // Check pending withdrawals total
+    const pendingWithdrawals = await Withdrawal.find({ user: user._id, status: 'pending' });
+    const pendingTotal = pendingWithdrawals.reduce((s, w) => s + w.amount, 0);
+
+    // Check approved withdrawals total
+    const approvedWithdrawals = await Withdrawal.find({ user: user._id, status: 'approved' });
+    const approvedTotal = approvedWithdrawals.reduce((s, w) => s + w.amount, 0);
+
+    const availableBalance = user.totalEarnings - approvedTotal - pendingTotal;
+
+    if (numAmount > availableBalance) {
+      return res.status(400).json({ error: 'Insufficient balance. Available: ₹' + availableBalance });
+    }
+
+    if (!['esewa', 'khalti', 'bank'].includes(method)) {
+      return res.status(400).json({ error: 'Invalid withdrawal method' });
+    }
+
+    // Validate method-specific fields
+    if ((method === 'esewa' || method === 'khalti') && (!walletId || !walletId.trim())) {
+      return res.status(400).json({ error: 'Wallet ID/number is required' });
+    }
+    if (method === 'bank') {
+      if (!bankName || !bankName.trim() || !accountName || !accountName.trim() || !accountNumber || !accountNumber.trim()) {
+        return res.status(400).json({ error: 'Bank name, account holder name, and account number are required' });
+      }
+    }
+
+    // Calculate fee (₹20 for bank transfers)
+    const fee = method === 'bank' ? 20 : 0;
+    const netAmount = numAmount - fee;
+
+    const withdrawal = new Withdrawal({
+      user: user._id,
+      amount: numAmount,
+      method,
+      fee,
+      netAmount,
+      walletId: walletId || '',
+      bankName: bankName || '',
+      accountName: accountName || '',
+      accountNumber: accountNumber || ''
+    });
+
+    await withdrawal.save();
+    return res.json({ success: true, message: 'Withdrawal request submitted!' });
+  } catch (err) {
+    console.error('Withdrawal error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// GET - User withdrawals history (JSON)
+router.get('/api/my-withdrawals', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Please login first' });
+  }
+  try {
+    const withdrawals = await Withdrawal.find({ user: req.session.userId }).sort({ createdAt: -1 });
+    return res.json({ withdrawals });
+  } catch (err) {
+    return res.status(500).json({ error: 'Server error' });
   }
 });
 

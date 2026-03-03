@@ -31,9 +31,9 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
-      fontSrc: ["'self'", "https://unpkg.com", "data:"],
+      fontSrc: ["'self'", "https://unpkg.com", "https://fonts.gstatic.com", "data:"],
       connectSrc: ["'self'"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],

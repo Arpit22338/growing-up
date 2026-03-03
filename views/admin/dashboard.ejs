@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="<%= csrfToken %>">
   <title>Admin Dashboard — Growing Up</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
@@ -68,6 +71,15 @@
             <span class="dash-stat-label">Pending Payments</span>
           </div>
         </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+            <i class='bx bx-money-withdraw'></i>
+          </div>
+          <div class="dash-stat-info">
+            <span class="dash-stat-value"><%= typeof pendingWithdrawals !== 'undefined' ? pendingWithdrawals : 0 %></span>
+            <span class="dash-stat-label">Pending Withdrawals</span>
+          </div>
+        </div>
       </div>
 
       <!-- Quick Actions -->
@@ -84,6 +96,11 @@
           <a href="/admin/users" class="admin-action-card">
             <i class='bx bx-group'></i>
             <span>Manage Users</span>
+          </a>
+          <a href="/admin/withdrawals?status=pending" class="admin-action-card">
+            <i class='bx bx-money-withdraw'></i>
+            <span>Withdrawals</span>
+            <% if (typeof pendingWithdrawals !== 'undefined' && pendingWithdrawals > 0) { %><span class="admin-action-badge"><%= pendingWithdrawals %></span><% } %>
           </a>
           <% if (role === 'superadmin') { %>
             <a href="/admin/add-user" class="admin-action-card">

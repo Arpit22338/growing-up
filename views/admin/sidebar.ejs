@@ -11,6 +11,9 @@
     <a href="/admin/payments" class="<%= typeof active !== 'undefined' && active === 'payments' ? 'active' : '' %>">
       <i class='bx bx-credit-card'></i> Payments
     </a>
+    <a href="/admin/withdrawals" class="<%= typeof active !== 'undefined' && active === 'withdrawals' ? 'active' : '' %>">
+      <i class='bx bx-money-withdraw'></i> Withdrawals
+    </a>
     <a href="/admin/users" class="<%= typeof active !== 'undefined' && active === 'users' ? 'active' : '' %>">
       <i class='bx bx-group'></i> Users
     </a>
@@ -18,8 +21,14 @@
       <a href="/admin/add-user" class="<%= typeof active !== 'undefined' && active === 'add-user' ? 'active' : '' %>">
         <i class='bx bx-user-plus'></i> Add User
       </a>
+      <a href="/admin/withdrawals" class="<%= typeof active !== 'undefined' && active === 'withdrawals' ? 'active' : '' %>">
+        <i class='bx bx-money-withdraw'></i> Withdrawals
+      </a>
       <a href="/admin/earnings" class="<%= typeof active !== 'undefined' && active === 'earnings' ? 'active' : '' %>">
         <i class='bx bx-bar-chart-alt-2'></i> Earnings
+      </a>
+      <a href="/admin/referral-tree" class="<%= typeof active !== 'undefined' && active === 'referral-tree' ? 'active' : '' %>">
+        <i class='bx bx-git-branch'></i> Referral Tree
       </a>
       <div class="sidebar-divider"></div>
       <a href="/admin/settings" class="<%= typeof active !== 'undefined' && active === 'settings' ? 'active' : '' %>">

@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
   <title>User Detail — Admin — Growing Up</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
@@ -71,7 +74,12 @@
 
       <!-- Referral Tree -->
       <div class="card" style="margin-bottom: 24px;">
-        <h3 style="margin-bottom: 16px;"><i class='bx bx-git-branch' style="color: var(--gold);"></i> Referral Tree (<%= user.referredUsers ? user.referredUsers.length : 0 %>)</h3>
+        <h3 style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <i class='bx bx-git-branch' style="color: var(--gold);"></i> Referral Tree (<%= user.referredUsers ? user.referredUsers.length : 0 %> direct)
+          <button class="btn btn-primary btn-sm" onclick="loadFullTree()" id="treeBtn" style="margin-left: auto;">
+            <i class='bx bx-expand'></i> View Full Downline
+          </button>
+        </h3>
         <% if (user.referredUsers && user.referredUsers.length > 0) { %>
           <div class="table-container">
             <table>
@@ -94,6 +102,12 @@
         <% } else { %>
           <p style="color: var(--gray-500); text-align: center; padding: 20px;">No referrals yet.</p>
         <% } %>
+
+        <!-- Full Downline Tree Container -->
+        <div id="fullTreeContainer" style="display: none; margin-top: 20px; border-top: 1px solid var(--gray-200); padding-top: 20px;">
+          <h4 style="color: var(--navy); margin-bottom: 12px;"><i class='bx bx-sitemap' style="color: var(--gold);"></i> Full Downline Tree</h4>
+          <div id="treeContent" style="font-size: 14px;"></div>
+        </div>
       </div>
 
       <!-- Payment History -->
@@ -162,6 +176,56 @@
       } catch (err) {
         showToast('Error: ' + (err.message || 'Connection failed'), 'error');
       }
+    }
+
+    async function loadFullTree() {
+      var btn = document.getElementById('treeBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Loading...';
+      try {
+        var res = await fetch('/admin/users/<%= user._id %>/tree');
+        if (res.status === 401) {
+          showToast('Session expired. Please login again.', 'error');
+          setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
+          return;
+        }
+        var data = await res.json();
+        if (data.tree) {
+          var container = document.getElementById('fullTreeContainer');
+          var content = document.getElementById('treeContent');
+          content.innerHTML = renderTree(data.tree, 0);
+          container.style.display = 'block';
+          btn.innerHTML = '<i class="bx bx-collapse"></i> Tree Loaded';
+        }
+      } catch (err) {
+        showToast('Failed to load tree', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bx bx-expand"></i> View Full Downline';
+      }
+    }
+
+    function renderTree(nodes, depth) {
+      if (!nodes || nodes.length === 0) return '';
+      var html = '<ul style="list-style:none;padding-left:' + (depth > 0 ? '24' : '0') + 'px;margin:0;">';
+      nodes.forEach(function(node) {
+        var statusBadge = node.isActive ? '<span class="badge badge-active" style="font-size:11px;">Active</span>' : '<span class="badge badge-inactive" style="font-size:11px;">Pending</span>';
+        html += '<li style="padding:6px 0;border-left:' + (depth > 0 ? '2px solid var(--gray-200)' : 'none') + ';padding-left:' + (depth > 0 ? '12' : '0') + 'px;margin-left:' + (depth > 0 ? '8' : '0') + 'px;">';
+        html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">';
+        html += '<i class="bx bx-user" style="color:var(--gold);"></i>';
+        html += '<a href="/admin/users/' + node._id + '" style="color:var(--navy);font-weight:600;">' + node.name + '</a>';
+        html += '<span style="color:var(--gray-500);font-size:12px;">' + node.email + '</span>';
+        html += statusBadge;
+        if (node.children && node.children.length > 0) {
+          html += '<span style="font-size:11px;color:var(--info);font-weight:600;">(' + node.children.length + ' referrals)</span>';
+        }
+        html += '</div>';
+        if (node.children && node.children.length > 0) {
+          html += renderTree(node.children, depth + 1);
+        }
+        html += '</li>';
+      });
+      html += '</ul>';
+      return html;
     }
   </script>
 </body>

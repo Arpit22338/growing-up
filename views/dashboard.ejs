@@ -45,6 +45,119 @@
     </div>
   </div>
 
+  <!-- Wallet & Withdraw Section -->
+  <div class="dash-section">
+    <div class="dash-section-header">
+      <h2><i class='bx bx-wallet'></i> Wallet</h2>
+    </div>
+    <div class="dash-wallet-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon" style="background: rgba(212,168,67,0.12);"><i class='bx bx-money' style="color: var(--gold);"></i></div>
+        <div>
+          <div class="dash-stat-value">₹<%= user.totalEarnings %></div>
+          <div class="dash-stat-label">Total Earnings</div>
+        </div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon" style="background: rgba(16,185,129,0.12);"><i class='bx bx-wallet' style="color: #10B981;"></i></div>
+        <div>
+          <div class="dash-stat-value">₹<%= availableBalance %></div>
+          <div class="dash-stat-label">Available Balance</div>
+        </div>
+      </div>
+    </div>
+
+    <% if (availableBalance >= 500) { %>
+      <button class="btn btn-gold btn-lg" onclick="document.getElementById('withdrawModal').style.display='flex'" style="width: 100%; margin-bottom: 16px;">
+        <i class='bx bx-money-withdraw'></i> Request Withdrawal
+      </button>
+    <% } else { %>
+      <div style="background: var(--gray-100); border-radius: var(--radius-sm); padding: 12px 16px; text-align: center; color: var(--gray-500); font-size: 14px; margin-bottom: 16px;">
+        <i class='bx bx-info-circle'></i> Minimum ₹500 required to withdraw. Available: ₹<%= availableBalance %>
+      </div>
+    <% } %>
+
+    <!-- Withdrawal History -->
+    <% if (typeof withdrawals !== 'undefined' && withdrawals.length > 0) { %>
+      <h4 style="color: var(--navy); margin-bottom: 12px;"><i class='bx bx-history' style="color: var(--gold);"></i> Withdrawal History</h4>
+      <div class="dash-referral-list">
+        <% withdrawals.forEach(w => { %>
+          <div class="dash-referral-item" style="flex-wrap: wrap;">
+            <div class="dash-referral-info" style="flex: 1;">
+              <strong>₹<%= w.amount %> via <%= w.method.charAt(0).toUpperCase() + w.method.slice(1) %></strong>
+              <span><%= new Date(w.createdAt).toLocaleDateString() %><%= w.fee > 0 ? ' · Fee: ₹' + w.fee + ' · Net: ₹' + w.netAmount : '' %></span>
+              <% if (w.status === 'rejected' && w.rejectionReason) { %>
+                <span style="color: var(--danger); font-size: 12px;">Reason: <%= w.rejectionReason %></span>
+              <% } %>
+            </div>
+            <span class="badge badge-<%= w.status %>"><%= w.status %></span>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Withdrawal Modal -->
+  <div id="withdrawModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+    <div class="card" style="max-width:440px; width:100%; padding:32px; position:relative; max-height:90vh; overflow-y:auto;">
+      <button onclick="document.getElementById('withdrawModal').style.display='none'" style="position:absolute;top:12px;right:12px;background:none;font-size:24px;color:var(--gray-500);cursor:pointer;">
+        <i class='bx bx-x'></i>
+      </button>
+      <h3 style="color:var(--navy);margin-bottom:4px;"><i class='bx bx-money-withdraw' style="color:var(--gold);"></i> Request Withdrawal</h3>
+      <p style="color:var(--gray-500);font-size:13px;margin-bottom:20px;">Available: ₹<%= availableBalance %> · Min: ₹500</p>
+
+      <div id="withdrawError" class="alert alert-danger" style="display:none;"></div>
+
+      <form id="withdrawForm">
+        <div class="form-group">
+          <label>Amount (₹)</label>
+          <input type="number" class="form-control" name="amount" min="500" max="<%= availableBalance %>" required placeholder="Min ₹500">
+        </div>
+        <div class="form-group">
+          <label>Withdrawal Method</label>
+          <select class="form-control" name="method" id="withdrawMethod" required onchange="toggleWithdrawFields()">
+            <option value="">Select method</option>
+            <option value="esewa">eSewa</option>
+            <option value="khalti">Khalti</option>
+            <option value="bank">Bank Transfer (+₹20 fee)</option>
+          </select>
+        </div>
+        <div id="walletFields" style="display:none;">
+          <div class="form-group">
+            <label>Wallet ID / Phone Number</label>
+            <input type="text" class="form-control" name="walletId" placeholder="e.g. 98XXXXXXXX">
+          </div>
+        </div>
+        <div id="bankFields" style="display:none;">
+          <div class="form-group">
+            <label>Bank Name</label>
+            <input type="text" class="form-control" name="bankName" placeholder="e.g. Nepal Bank Ltd">
+          </div>
+          <div class="form-group">
+            <label>Account Holder Name</label>
+            <input type="text" class="form-control" name="accountName" placeholder="Full name on account">
+          </div>
+          <div class="form-group">
+            <label>Account Number</label>
+            <input type="text" class="form-control" name="accountNumber" placeholder="Bank account number">
+          </div>
+          <div style="background:var(--gray-100);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--gray-700);margin-bottom:16px;">
+            <i class='bx bx-info-circle' style="color:var(--warning);"></i> Bank transfers have a ₹20 processing fee.
+          </div>
+        </div>
+        <div id="withdrawConfirm" style="display:none;background:rgba(212,168,67,0.1);border:1px solid var(--gold);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px;text-align:center;">
+          <p style="font-weight:600;color:var(--navy);margin-bottom:8px;">Confirm Withdrawal</p>
+          <p style="font-size:14px;color:var(--gray-700);">Amount: <strong id="confirmAmount">₹0</strong></p>
+          <p style="font-size:14px;color:var(--gray-700);" id="confirmFee" style="display:none;">Fee: <strong>₹20</strong></p>
+          <p style="font-size:14px;color:var(--navy);font-weight:700;">You will receive: <strong id="confirmNet">₹0</strong></p>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="withdrawBtn" disabled>
+          <i class='bx bx-check'></i> Submit Withdrawal
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- Share & Earn Section -->
   <div class="dash-section">
     <div class="dash-section-header">
@@ -184,6 +297,86 @@
     }
     document.body.removeChild(ta);
   }
+
+  // Withdrawal form logic
+  function toggleWithdrawFields() {
+    var method = document.getElementById('withdrawMethod').value;
+    document.getElementById('walletFields').style.display = (method === 'esewa' || method === 'khalti') ? 'block' : 'none';
+    document.getElementById('bankFields').style.display = method === 'bank' ? 'block' : 'none';
+    updateWithdrawConfirm();
+  }
+
+  function updateWithdrawConfirm() {
+    var form = document.getElementById('withdrawForm');
+    var amount = Number(form.amount.value) || 0;
+    var method = form.method.value;
+    var fee = method === 'bank' ? 20 : 0;
+    var net = amount - fee;
+
+    var btn = document.getElementById('withdrawBtn');
+    var confirm = document.getElementById('withdrawConfirm');
+
+    if (amount >= 500 && method) {
+      document.getElementById('confirmAmount').textContent = '₹' + amount;
+      document.getElementById('confirmFee').style.display = fee > 0 ? 'block' : 'none';
+      document.getElementById('confirmNet').textContent = '₹' + net;
+      confirm.style.display = 'block';
+      btn.disabled = false;
+    } else {
+      confirm.style.display = 'none';
+      btn.disabled = true;
+    }
+  }
+
+  // Listen for amount/method changes
+  (function() {
+    var form = document.getElementById('withdrawForm');
+    if (!form) return;
+    var amountInput = form.querySelector('[name="amount"]');
+    if (amountInput) amountInput.addEventListener('input', updateWithdrawConfirm);
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('withdrawBtn');
+      var errDiv = document.getElementById('withdrawError');
+      errDiv.style.display = 'none';
+
+      var data = {
+        amount: form.amount.value,
+        method: form.method.value,
+        walletId: form.walletId ? form.walletId.value : '',
+        bankName: form.bankName ? form.bankName.value : '',
+        accountName: form.accountName ? form.accountName.value : '',
+        accountNumber: form.accountNumber ? form.accountNumber.value : ''
+      };
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Submitting...';
+
+      try {
+        var res = await fetch('/api/withdraw', {
+          method: 'POST',
+          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify(data)
+        });
+        var result = await res.json();
+        if (result.success) {
+          showToast(result.message || 'Withdrawal request submitted!');
+          document.getElementById('withdrawModal').style.display = 'none';
+          setTimeout(function() { location.reload(); }, 1200);
+        } else {
+          errDiv.textContent = result.error || 'Failed';
+          errDiv.style.display = 'flex';
+        }
+      } catch (err) {
+        errDiv.textContent = 'Something went wrong. Please try again.';
+        errDiv.style.display = 'flex';
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bx bx-check"></i> Submit Withdrawal';
+    });
+  })();
 </script>
 
 <%- include('partials/footer') %>

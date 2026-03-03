@@ -22,7 +22,9 @@ const userSchema = new mongoose.Schema({
   }],
   profilePicture: { type: String, default: '' },
   totalEarnings: { type: Number, default: 0 },
+  withdrawnAmount: { type: Number, default: 0 },
   isActive: { type: Boolean, default: false },
+  rejectionReason: { type: String, default: '' },
   role: { type: String, enum: ['user', 'superadmin', 'financial_secretary'], default: 'user' },
   createdAt: { type: Date, default: Date.now }
 });

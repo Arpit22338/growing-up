@@ -5,6 +5,7 @@ const multer = require('multer');
 const User = require('../models/User');
 const Payment = require('../models/Payment');
 const Settings = require('../models/Settings');
+const Withdrawal = require('../models/Withdrawal');
 const courses = require('../config/courses');
 const { isAdmin, isSuperAdmin, isFinancialSecretary } = require('../middleware/auth');
 
@@ -33,6 +34,7 @@ router.get('/admin', isAdmin, async (req, res) => {
     const totalUsers = await User.countDocuments({ role: 'user' });
     const activeUsers = await User.countDocuments({ role: 'user', isActive: true });
     const pendingPayments = await Payment.countDocuments({ status: 'pending' });
+    const pendingWithdrawals = await Withdrawal.countDocuments({ status: 'pending' });
     const approvedPayments = await Payment.find({ status: 'approved' });
     const totalBalance = approvedPayments.reduce((sum, p) => sum + p.platformCommission, 0);
     const totalRevenue = approvedPayments.reduce((sum, p) => sum + p.price, 0);
@@ -42,6 +44,7 @@ router.get('/admin', isAdmin, async (req, res) => {
       totalUsers,
       activeUsers,
       pendingPayments,
+      pendingWithdrawals,
       totalBalance,
       totalRevenue
     });
@@ -351,6 +354,117 @@ router.post('/admin/reset-everything', isSuperAdmin, async (req, res) => {
   } catch (err) {
     console.error('Reset error:', err);
     res.status(500).json({ error: 'Reset failed' });
+  }
+});
+
+// GET - Withdrawal requests (Super Admin only — FinSec cannot touch withdrawals)
+router.get('/admin/withdrawals', isSuperAdmin, async (req, res) => {
+  try {
+    const status = req.query.status || 'pending';
+    const withdrawals = await Withdrawal.find({ status })
+      .populate('user', 'firstName lastName email whatsapp totalEarnings')
+      .sort({ createdAt: -1 });
+    res.render('admin/withdrawals', { withdrawals, status, role: req.session.role });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+// POST - Approve withdrawal (Super Admin only)
+router.post('/admin/withdrawals/:id/approve', isSuperAdmin, async (req, res) => {
+  try {
+    const withdrawal = await Withdrawal.findById(req.params.id);
+    if (!withdrawal) return res.status(404).json({ error: 'Withdrawal not found' });
+    if (withdrawal.status !== 'pending') return res.status(400).json({ error: 'Withdrawal already processed' });
+
+    withdrawal.status = 'approved';
+    withdrawal.reviewedBy = req.session.userId;
+    withdrawal.reviewedAt = new Date();
+    await withdrawal.save();
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST - Reject withdrawal (Super Admin only)
+router.post('/admin/withdrawals/:id/reject', isSuperAdmin, async (req, res) => {
+  try {
+    const withdrawal = await Withdrawal.findById(req.params.id);
+    if (!withdrawal) return res.status(404).json({ error: 'Withdrawal not found' });
+    if (withdrawal.status !== 'pending') return res.status(400).json({ error: 'Withdrawal already processed' });
+
+    withdrawal.status = 'rejected';
+    withdrawal.rejectionReason = req.body.reason || '';
+    withdrawal.reviewedBy = req.session.userId;
+    withdrawal.reviewedAt = new Date();
+    await withdrawal.save();
+
+    // Refund the reserved amount back to user's available balance
+    await User.findByIdAndUpdate(withdrawal.user, {
+      $inc: { withdrawnAmount: -withdrawal.amount }
+    });
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// GET - Recursive referral tree API (Admin)
+router.get('/admin/users/:id/tree', isAdmin, async (req, res) => {
+  try {
+    async function buildTree(userId, depth) {
+      if (depth > 10) return []; // Prevent infinite loops
+      const children = await User.find({ referredBy: userId })
+        .select('firstName lastName email isActive referralCode createdAt')
+        .lean();
+      const result = [];
+      for (const child of children) {
+        const grandChildren = await buildTree(child._id, depth + 1);
+        result.push({
+          _id: child._id,
+          name: child.firstName + ' ' + child.lastName,
+          email: child.email,
+          isActive: child.isActive,
+          referralCode: child.referralCode,
+          joined: child.createdAt,
+          children: grandChildren
+        });
+      }
+      return result;
+    }
+
+    const tree = await buildTree(req.params.id, 0);
+    return res.json({ tree });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// GET - Referral tree viewer page (Super Admin only)
+router.get('/admin/referral-tree', isSuperAdmin, async (req, res) => {
+  try {
+    const users = await User.find({ role: 'user' }).select('firstName lastName email referralCode isActive').sort({ firstName: 1 });
+    res.render('admin/referralTree', { users, role: req.session.role });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+// Also add withdrawals quick action count to admin dashboard
+router.get('/admin/dashboard-data', isAdmin, async (req, res) => {
+  try {
+    const pendingWithdrawals = await Withdrawal.countDocuments({ status: 'pending' });
+    return res.json({ pendingWithdrawals });
+  } catch (err) {
+    return res.status(500).json({ error: 'Server error' });
   }
 });
 

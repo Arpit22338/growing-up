@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+  <title>Referral Tree — Admin — Growing Up</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="admin-layout">
+    <%- include('sidebar', { role, active: 'referral-tree' }) %>
+
+    <div class="admin-content">
+      <div class="admin-topbar">
+        <button class="hamburger" id="hamBtn"><i class='bx bx-menu'></i></button>
+        <div>
+          <h1 style="margin-bottom: 2px;"><i class='bx bx-git-branch'></i> Referral Tree</h1>
+          <p style="color: var(--gray-500); font-size: 13px; margin: 0;">View full downline tree for any user</p>
+        </div>
+      </div>
+
+      <!-- User Selector -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Select a User</label>
+          <select class="form-control" id="userSelect" onchange="loadTree(this.value)">
+            <option value="">— Choose a user —</option>
+            <% users.forEach(u => { %>
+              <option value="<%= u._id %>"><%= u.firstName %> <%= u.lastName %> (<%= u.referralCode %>) — <%= u.email %></option>
+            <% }); %>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tree Container -->
+      <div class="card" id="treeCard" style="display: none;">
+        <div id="treeLoading" style="text-align: center; padding: 40px; display: none;">
+          <span class="spinner spinner-dark" style="width: 28px; height: 28px;"></span>
+          <p style="color: var(--gray-500); margin-top: 12px;">Loading referral tree...</p>
+        </div>
+        <div id="treeContent"></div>
+        <div id="treeEmpty" style="text-align: center; padding: 40px; display: none;">
+          <i class='bx bx-user-x' style="font-size: 40px; color: var(--gray-300);"></i>
+          <p style="color: var(--gray-500); margin-top: 8px;">This user has no referrals yet.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script>
+    function showToast(msg, type) {
+      type = type || 'success';
+      var c = document.getElementById('toastContainer');
+      var t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.innerHTML = '<i class="bx ' + (type === 'success' ? 'bx-check-circle' : 'bx-error-circle') + '"></i> ' + msg;
+      c.appendChild(t);
+      setTimeout(function(){ t.remove(); }, 4000);
+    }
+
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var CSRF = csrfMeta ? csrfMeta.content : '';
+
+    async function loadTree(userId) {
+      var card = document.getElementById('treeCard');
+      var loading = document.getElementById('treeLoading');
+      var content = document.getElementById('treeContent');
+      var empty = document.getElementById('treeEmpty');
+
+      if (!userId) {
+        card.style.display = 'none';
+        return;
+      }
+
+      card.style.display = 'block';
+      loading.style.display = 'block';
+      content.innerHTML = '';
+      empty.style.display = 'none';
+
+      try {
+        var res = await fetch('/admin/users/' + userId + '/tree', {
+          headers: { 'X-CSRF-Token': CSRF },
+          credentials: 'same-origin'
+        });
+        var data = await res.json();
+        loading.style.display = 'none';
+
+        if (!data.tree || data.tree.length === 0) {
+          empty.style.display = 'block';
+          return;
+        }
+
+        content.innerHTML = renderTree(data.tree, 0);
+      } catch (err) {
+        loading.style.display = 'none';
+        showToast('Failed to load referral tree', 'error');
+      }
+    }
+
+    function renderTree(nodes, depth) {
+      if (!nodes || nodes.length === 0) return '';
+      var html = '<ul class="ref-tree" style="' + (depth > 0 ? 'margin-left: 24px; border-left: 2px solid var(--gray-200); padding-left: 16px;' : '') + '">';
+      nodes.forEach(function(node) {
+        var statusBadge = node.isActive
+          ? '<span class="badge badge-active">Active</span>'
+          : '<span class="badge badge-inactive">Pending</span>';
+        html += '<li style="padding: 10px 0; border-bottom: 1px solid var(--gray-100);">';
+        html += '<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">';
+        html += '<div style="width: 32px; height: 32px; background: linear-gradient(135deg, var(--navy), var(--navy-light)); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0;">' + node.name.charAt(0).toUpperCase() + '</div>';
+        html += '<div style="flex: 1; min-width: 0;">';
+        html += '<strong style="color: var(--navy); font-size: 14px;">' + node.name + '</strong>';
+        html += '<br><span style="font-size: 12px; color: var(--gray-500);">' + node.email + ' · ' + node.referralCode + '</span>';
+        html += '</div>';
+        html += statusBadge;
+        if (node.children && node.children.length > 0) {
+          html += '<span style="font-size: 11px; color: var(--gold); font-weight: 700; background: rgba(212,168,67,0.1); padding: 2px 8px; border-radius: 10px;">' + node.children.length + ' referrals</span>';
+        }
+        html += '</div>';
+        if (node.children && node.children.length > 0) {
+          html += renderTree(node.children, depth + 1);
+        }
+        html += '</li>';
+      });
+      html += '</ul>';
+      return html;
+    }
+
+    document.getElementById('hamBtn').addEventListener('click', function() {
+      document.getElementById('adminSidebar').classList.toggle('open');
+    });
+  </script>
+</body>
+</html>

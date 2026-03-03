@@ -108,7 +108,7 @@
               <p style="font-size:11px;color:var(--gray-500);margin-bottom:6px;"><%= courses[key].description %></p>
               <ul style="list-style:none;padding:0;">
                 <% courses[key].content.slice(0,3).forEach(item => { %>
-                  <li style="font-size:11px;color:var(--gray-700);padding:2px 0;"><%= item.emoji %> <%= item.text %></li>
+                  <li style="font-size:11px;color:var(--gray-700);padding:2px 0;"><i class='bx <%= item.icon %>' style="font-size:12px;color:var(--gold);"></i> <%= item.text %></li>
                 <% }); %>
                 <% if (courses[key].content.length > 3) { %>
                   <li style="font-size:11px;color:var(--gray-500);padding:2px 0;">+ <%= courses[key].content.length - 3 %> more...</li>
