@@ -408,6 +408,24 @@ router.get('/dashboard', async (req, res) => {
   }
 });
 
+// GET - My Wallet page
+router.get('/dashboard/wallet', async (req, res) => {
+  if (!req.session || !req.session.userId) return res.redirect('/login');
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user || !user.isActive) return res.redirect('/pending');
+
+    const withdrawals = await Withdrawal.find({ user: user._id }).sort({ createdAt: -1 });
+    const approvedTotal = withdrawals.filter(w => w.status === 'approved').reduce((s, w) => s + w.amount, 0);
+    const pendingTotal = withdrawals.filter(w => w.status === 'pending').reduce((s, w) => s + w.amount, 0);
+    const availableBalance = user.totalEarnings - approvedTotal - pendingTotal;
+
+    res.render('wallet', { user, withdrawals, availableBalance });
+  } catch (err) {
+    res.redirect('/dashboard');
+  }
+});
+
 // POST - Request withdrawal
 router.post('/api/withdraw', async (req, res) => {
   if (!req.session || !req.session.userId) {

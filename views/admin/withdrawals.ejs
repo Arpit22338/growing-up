@@ -85,7 +85,7 @@
                     <td>
                       <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                         <button class="btn btn-sm" style="background: var(--success); color: white;" onclick="approveWithdrawal('<%= w._id %>')">
-                          <i class='bx bx-check'></i> Approve
+                          <i class='bx bx-check'></i> Mark as Paid
                         </button>
                         <button class="btn btn-sm" style="background: var(--danger); color: white;" onclick="rejectWithdrawal('<%= w._id %>')">
                           <i class='bx bx-x'></i> Reject
@@ -121,7 +121,7 @@
     var CSRF = csrfMeta ? csrfMeta.content : '';
 
     async function approveWithdrawal(id) {
-      if (!confirm('Approve this withdrawal? Make sure you have sent the money.')) return;
+      if (!confirm('Mark as Paid? Make sure you have already sent the money to the user.')) return;
       try {
         var res = await fetch('/admin/withdrawals/' + id + '/approve', {
           method: 'POST',

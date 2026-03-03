@@ -61,8 +61,8 @@
                 <input type="text" readonly 
                   value="<%= baseUrl %>/course/<%= course.key %>?ref=<%= loggedInUser.referralCode %>" 
                   id="courseRefLink">
-                <button class="btn btn-primary btn-sm" onclick="copyCourseLink()">
-                  <i class='bx bx-copy'></i> Copy
+                <button type="button" class="btn btn-primary btn-sm" onclick="copyLink(document.getElementById('courseRefLink').value, this)" style="cursor:pointer;pointer-events:all;">
+                  Copy
                 </button>
               </div>
               <a href="https://wa.me/?text=Check%20out%20this%20course%20on%20Growing%20Up!%20<%= encodeURIComponent(baseUrl + '/course/' + course.key + '?ref=' + loggedInUser.referralCode) %>" 
@@ -95,40 +95,6 @@
   var card = document.querySelector('.course-detail-card[data-border]');
   if (card) card.style.borderTop = '5px solid ' + card.dataset.border;
 })();
-function copyCourseLink() {
-  const input = document.getElementById('courseRefLink');
-  if (!input) return;
-  var text = input.value;
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text).then(function() {
-      showToast('Referral link copied!');
-    }).catch(function() {
-      var ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.left = '-9999px';
-      ta.style.top = '0';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      try { document.execCommand('copy'); showToast('Referral link copied!'); } catch(e) { showToast('Failed to copy', 'error'); }
-      document.body.removeChild(ta);
-    });
-  } else {
-    var ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.left = '-9999px';
-    ta.style.top = '0';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.focus();
-    ta.select();
-    try { document.execCommand('copy'); showToast('Referral link copied!'); } catch(e) { showToast('Failed to copy', 'error'); }
-    document.body.removeChild(ta);
-  }
-}
 </script>
 
 <%- include('partials/footer') %>

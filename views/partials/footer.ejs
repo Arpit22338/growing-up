@@ -71,6 +71,35 @@
       setTimeout(() => { toast.remove(); }, 4000);
     }
 
+    // Global copy link function
+    function copyLink(text, btn) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function() {
+          btn.innerHTML = '\u2713 Copied!';
+          setTimeout(function() { btn.innerHTML = 'Copy'; }, 2000);
+        }).catch(function() { fallbackCopy(text, btn); });
+      } else {
+        fallbackCopy(text, btn);
+      }
+    }
+    function fallbackCopy(text, btn) {
+      var temp = document.createElement('textarea');
+      temp.value = text;
+      temp.style.position = 'fixed';
+      temp.style.opacity = '0';
+      document.body.appendChild(temp);
+      temp.focus();
+      temp.select();
+      try {
+        document.execCommand('copy');
+        btn.innerHTML = '\u2713 Copied!';
+        setTimeout(function() { btn.innerHTML = 'Copy'; }, 2000);
+      } catch(e) {
+        btn.innerHTML = 'Failed';
+      }
+      document.body.removeChild(temp);
+    }
+
     // Password show/hide toggle
     document.querySelectorAll('.password-toggle').forEach(function(btn) {
       btn.addEventListener('click', function() {

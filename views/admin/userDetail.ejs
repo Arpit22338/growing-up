@@ -39,7 +39,7 @@
               <td>
                 <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                   <input type="text" readonly value="<%= typeof baseUrl !== 'undefined' ? baseUrl : 'https://growingup.tech' %>/register?ref=<%= user.referralCode %>" id="userRefLink" style="font-size: 12px; padding: 4px 8px; border: 1px solid var(--gray-200); border-radius: 4px; background: var(--gray-50); flex: 1; min-width: 200px;">
-                  <button onclick="navigator.clipboard.writeText(document.getElementById('userRefLink').value); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy',1500)" class="btn btn-primary btn-sm" style="white-space: nowrap;">Copy</button>
+                  <button type="button" onclick="copyLink(document.getElementById('userRefLink').value, this)" class="btn btn-primary btn-sm" style="white-space: nowrap; cursor:pointer; pointer-events:all;">Copy</button>
                 </div>
               </td>
             </tr>
