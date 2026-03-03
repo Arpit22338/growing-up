@@ -422,8 +422,8 @@ router.post('/api/withdraw', async (req, res) => {
     const { amount, method, walletId, bankName, accountName, accountNumber } = req.body;
     const numAmount = Number(amount);
 
-    if (!numAmount || numAmount < 500) {
-      return res.status(400).json({ error: 'Minimum withdrawal is ₹500' });
+    if (!numAmount || numAmount < 400) {
+      return res.status(400).json({ error: 'Minimum withdrawal is ₹400' });
     }
 
     // Check pending withdrawals total

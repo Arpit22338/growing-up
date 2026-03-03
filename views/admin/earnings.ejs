@@ -16,7 +16,10 @@
     <%- include('sidebar', { role, active: 'earnings' }) %>
 
     <div class="admin-content">
-      <h1><i class='bx bx-bar-chart-alt-2'></i> Earnings Overview</h1>
+      <div class="admin-topbar">
+        <button class="hamburger" id="hamBtn"><i class='bx bx-menu'></i></button>
+        <h1 style="margin-bottom: 0;"><i class='bx bx-bar-chart-alt-2'></i> Earnings Overview</h1>
+      </div>
 
       <div class="stats-grid" style="margin-top: 0;">
         <div class="stat-card">
@@ -73,5 +76,10 @@
       </div>
     </div>
   </div>
+  <script>
+    document.getElementById('hamBtn').addEventListener('click', function() {
+      document.getElementById('adminSidebar').classList.toggle('open');
+    });
+  </script>
 </body>
 </html>

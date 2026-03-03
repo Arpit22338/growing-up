@@ -16,9 +16,12 @@
     <%- include('sidebar', { role, active: 'add-user' }) %>
 
     <div class="admin-content">
-      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
-        <a href="/admin/users" style="color: var(--navy); font-size: 20px;"><i class='bx bx-arrow-back'></i></a>
-        <h1 style="margin-bottom: 0;"><i class='bx bx-user-plus' style="color: var(--gold);"></i> Add New User</h1>
+      <div class="admin-topbar">
+        <button class="hamburger" id="hamBtn"><i class='bx bx-menu'></i></button>
+        <div style="flex: 1; display: flex; align-items: center; gap: 12px;">
+          <a href="/admin/users" style="color: var(--navy); font-size: 20px;"><i class='bx bx-arrow-back'></i></a>
+          <h1 style="margin-bottom: 0;"><i class='bx bx-user-plus' style="color: var(--gold);"></i> Add New User</h1>
+        </div>
       </div>
 
       <div class="card" style="max-width: 600px; padding: 32px;">
@@ -158,6 +161,10 @@
           icon.classList.replace('bx-show', 'bx-hide');
         }
       });
+    });
+
+    document.getElementById('hamBtn').addEventListener('click', function() {
+      document.getElementById('adminSidebar').classList.toggle('open');
     });
   </script>
 </body>

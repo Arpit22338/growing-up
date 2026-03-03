@@ -333,8 +333,9 @@ router.get('/admin/earnings', isSuperAdmin, async (req, res) => {
 // POST - Reset everything to zero (Super Admin only)
 router.post('/admin/reset-everything', isSuperAdmin, async (req, res) => {
   try {
-    // Delete all payments
+    // Delete all payments and withdrawals
     await Payment.deleteMany({});
+    await Withdrawal.deleteMany({});
 
     // Reset all users: earnings to 0, deactivate, clear purchased courses & referredUsers
     await User.updateMany(
@@ -342,6 +343,7 @@ router.post('/admin/reset-everything', isSuperAdmin, async (req, res) => {
       {
         $set: {
           totalEarnings: 0,
+          withdrawnAmount: 0,
           isActive: false,
           purchasedCourses: [],
           referredUsers: []
@@ -402,11 +404,6 @@ router.post('/admin/withdrawals/:id/reject', isSuperAdmin, async (req, res) => {
     withdrawal.reviewedBy = req.session.userId;
     withdrawal.reviewedAt = new Date();
     await withdrawal.save();
-
-    // Refund the reserved amount back to user's available balance
-    await User.findByIdAndUpdate(withdrawal.user, {
-      $inc: { withdrawnAmount: -withdrawal.amount }
-    });
 
     return res.json({ success: true });
   } catch (err) {

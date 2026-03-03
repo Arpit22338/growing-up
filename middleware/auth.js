@@ -73,11 +73,19 @@ async function isFinancialSecretary(req, res, next) {
   }
 }
 
-function isActiveUser(req, res, next) {
-  if (req.session && req.session.isActive) {
-    return next();
+async function isActiveUser(req, res, next) {
+  try {
+    if (!req.session || !req.session.userId) return res.redirect('/login');
+    const user = await User.findById(req.session.userId).select('isActive');
+    if (user && user.isActive) {
+      req.session.isActive = true;
+      return next();
+    }
+    req.session.isActive = false;
+    return res.redirect('/pending');
+  } catch (err) {
+    return res.redirect('/pending');
   }
-  return res.redirect('/pending');
 }
 
 module.exports = { isAuthenticated, isAdmin, isSuperAdmin, isFinancialSecretary, isActiveUser };

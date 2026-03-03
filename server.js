@@ -152,13 +152,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── Security headers for all responses ──
+// ── Extra security headers (beyond Helmet) ──
 app.use((req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
-  res.removeHeader('X-Powered-By');
   next();
 });
 

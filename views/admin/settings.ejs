@@ -46,8 +46,13 @@
     <%- include('sidebar', { role, active: 'settings' }) %>
 
     <div class="admin-content">
-      <h1 style="margin-bottom: 8px;"><i class='bx bx-cog' style="color: var(--gold);"></i> Settings</h1>
-      <p style="color: var(--gray-500); margin-bottom: 28px;">Manage payment QR codes and platform configuration.</p>
+      <div class="admin-topbar">
+        <button class="hamburger" id="hamBtn"><i class='bx bx-menu'></i></button>
+        <div style="flex: 1;">
+          <h1 style="margin-bottom: 8px;"><i class='bx bx-cog' style="color: var(--gold);"></i> Settings</h1>
+          <p style="color: var(--gray-500); margin-bottom: 0;">Manage payment QR codes and platform configuration.</p>
+        </div>
+      </div>
 
       <!-- QR Code Upload -->
       <div class="card" style="margin-bottom: 28px;">
@@ -175,6 +180,10 @@
         btn.disabled = false;
         btn.innerHTML = '<i class="bx bx-cloud-upload"></i> Save QR Codes';
       });
+    });
+
+    document.getElementById('hamBtn').addEventListener('click', function() {
+      document.getElementById('adminSidebar').classList.toggle('open');
     });
   </script>
 </body>

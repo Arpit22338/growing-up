@@ -67,13 +67,13 @@
       </div>
     </div>
 
-    <% if (availableBalance >= 500) { %>
+    <% if (availableBalance >= 400) { %>
       <button class="btn btn-gold btn-lg" onclick="document.getElementById('withdrawModal').style.display='flex'" style="width: 100%; margin-bottom: 16px;">
         <i class='bx bx-money-withdraw'></i> Request Withdrawal
       </button>
     <% } else { %>
       <div style="background: var(--gray-100); border-radius: var(--radius-sm); padding: 12px 16px; text-align: center; color: var(--gray-500); font-size: 14px; margin-bottom: 16px;">
-        <i class='bx bx-info-circle'></i> Minimum ₹500 required to withdraw. Available: ₹<%= availableBalance %>
+        <i class='bx bx-info-circle'></i> Minimum ₹400 required to withdraw. Available: ₹<%= availableBalance %>
       </div>
     <% } %>
 
@@ -104,14 +104,14 @@
         <i class='bx bx-x'></i>
       </button>
       <h3 style="color:var(--navy);margin-bottom:4px;"><i class='bx bx-money-withdraw' style="color:var(--gold);"></i> Request Withdrawal</h3>
-      <p style="color:var(--gray-500);font-size:13px;margin-bottom:20px;">Available: ₹<%= availableBalance %> · Min: ₹500</p>
+      <p style="color:var(--gray-500);font-size:13px;margin-bottom:20px;">Available: ₹<%= availableBalance %> · Min: ₹400</p>
 
       <div id="withdrawError" class="alert alert-danger" style="display:none;"></div>
 
       <form id="withdrawForm">
         <div class="form-group">
           <label>Amount (₹)</label>
-          <input type="number" class="form-control" name="amount" min="500" max="<%= availableBalance %>" required placeholder="Min ₹500">
+          <input type="number" class="form-control" name="amount" min="400" max="<%= availableBalance %>" required placeholder="Min ₹400">
         </div>
         <div class="form-group">
           <label>Withdrawal Method</label>
@@ -148,7 +148,7 @@
         <div id="withdrawConfirm" style="display:none;background:rgba(212,168,67,0.1);border:1px solid var(--gold);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px;text-align:center;">
           <p style="font-weight:600;color:var(--navy);margin-bottom:8px;">Confirm Withdrawal</p>
           <p style="font-size:14px;color:var(--gray-700);">Amount: <strong id="confirmAmount">₹0</strong></p>
-          <p style="font-size:14px;color:var(--gray-700);" id="confirmFee" style="display:none;">Fee: <strong>₹20</strong></p>
+          <p style="font-size:14px;color:var(--gray-700);display:none;" id="confirmFee">Fee: <strong>₹20</strong></p>
           <p style="font-size:14px;color:var(--navy);font-weight:700;">You will receive: <strong id="confirmNet">₹0</strong></p>
         </div>
         <button type="submit" class="btn btn-primary btn-block btn-lg" id="withdrawBtn" disabled>
