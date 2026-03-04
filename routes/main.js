@@ -465,7 +465,7 @@ router.post('/api/withdraw', async (req, res) => {
 
   try {
     // 2. Fetch user fresh from DB (never trust session/frontend)
-    const user = await User.findById(req.session.userId).select('+walletBalance +lastWithdrawalDate +dailyWithdrawCount +isActive');
+    const user = await User.findById(req.session.userId).select('+totalEarnings +lastWithdrawalDate +dailyWithdrawCount +isActive');
     if (!user || !user.isActive) {
       return res.status(403).json({ success: false, message: 'Account not active' });
     }
@@ -517,25 +517,22 @@ router.post('/api/withdraw', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Phone number must be exactly 10 digits.' });
     }
 
-    // 6. Check balance from DB (never trust frontend amount)
-    if (requestedAmount > user.walletBalance) {
-      return res.status(400).json({ success: false, message: 'Insufficient balance. Available: ₹' + user.walletBalance });
+    // 6. Compute available balance from totalEarnings minus all approved+pending withdrawals
+    const allWithdrawals = await Withdrawal.find({ user: user._id });
+    const approvedTotal = allWithdrawals.filter(w => w.status === 'approved').reduce((s, w) => s + w.amount, 0);
+    const pendingTotal = allWithdrawals.filter(w => w.status === 'pending').reduce((s, w) => s + w.amount, 0);
+    const availableBalance = user.totalEarnings - approvedTotal - pendingTotal;
+
+    if (requestedAmount > availableBalance) {
+      return res.status(400).json({ success: false, message: 'Insufficient balance. Available: ₹' + availableBalance });
     }
 
-    // 7. ATOMIC wallet deduction to prevent race conditions
+    // 7. Update daily withdrawal tracking
     const updateQuery = user.lastWithdrawalDate === today
-      ? { $inc: { walletBalance: -requestedAmount, dailyWithdrawCount: 1 } }
-      : { $inc: { walletBalance: -requestedAmount }, $set: { lastWithdrawalDate: today, dailyWithdrawCount: 1 } };
+      ? { $inc: { dailyWithdrawCount: 1 } }
+      : { $set: { lastWithdrawalDate: today, dailyWithdrawCount: 1 } };
 
-    const result = await User.findOneAndUpdate(
-      { _id: user._id, walletBalance: { $gte: requestedAmount } },
-      updateQuery,
-      { new: true }
-    );
-
-    if (!result) {
-      return res.status(400).json({ success: false, message: 'Insufficient balance or concurrent request detected.' });
-    }
+    await User.findByIdAndUpdate(user._id, updateQuery);
 
     // 8. Create withdrawal record (no fee for eSewa/Khalti)
     const withdrawal = new Withdrawal({
@@ -567,7 +564,7 @@ router.post('/api/withdrawals', async (req, res) => {
     return res.status(401).json({ success: false, message: 'Please login first' });
   }
   try {
-    const user = await User.findById(req.session.userId).select('+walletBalance +lastWithdrawalDate +dailyWithdrawCount +isActive');
+    const user = await User.findById(req.session.userId).select('+totalEarnings +lastWithdrawalDate +dailyWithdrawCount +isActive');
     if (!user || !user.isActive) return res.status(403).json({ success: false, message: 'Account not active' });
 
     const today = new Date().toDateString();
@@ -582,16 +579,22 @@ router.post('/api/withdrawals', async (req, res) => {
 
     const amt = parseInt(req.body.amount, 10);
     if (!amt || amt < 400) return res.status(400).json({ success: false, message: 'Minimum ₹400' });
-    if (amt > user.walletBalance) return res.status(400).json({ success: false, message: 'Insufficient balance' });
+
+    // Compute available balance the same way the frontend does
+    const allWithdrawals = await Withdrawal.find({ user: user._id });
+    const approvedTotal = allWithdrawals.filter(w => w.status === 'approved').reduce((s, w) => s + w.amount, 0);
+    const pendingTotal = allWithdrawals.filter(w => w.status === 'pending').reduce((s, w) => s + w.amount, 0);
+    const availableBalance = user.totalEarnings - approvedTotal - pendingTotal;
+
+    if (amt > availableBalance) return res.status(400).json({ success: false, message: 'Insufficient balance. Available: ₹' + availableBalance });
     if (!accountName) return res.status(400).json({ success: false, message: 'Fill all fields' });
     if (!walletId || !/^\d{10}$/.test(walletId.trim())) return res.status(400).json({ success: false, message: 'Enter valid phone number' });
 
     const updateQuery = user.lastWithdrawalDate === today
-      ? { $inc: { walletBalance: -amt, dailyWithdrawCount: 1 } }
-      : { $inc: { walletBalance: -amt }, $set: { lastWithdrawalDate: today, dailyWithdrawCount: 1 } };
+      ? { $inc: { dailyWithdrawCount: 1 } }
+      : { $set: { lastWithdrawalDate: today, dailyWithdrawCount: 1 } };
 
-    const result = await User.findOneAndUpdate({ _id: user._id, walletBalance: { $gte: amt } }, updateQuery, { new: true });
-    if (!result) return res.status(400).json({ success: false, message: 'Insufficient balance or concurrent request.' });
+    await User.findByIdAndUpdate(user._id, updateQuery);
 
     await Withdrawal.create({
       user: user._id,

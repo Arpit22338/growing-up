@@ -130,8 +130,7 @@
         var result = await res.json();
         if (result.success) {
           sucDiv.innerHTML = '<i class="bx bx-check-circle"></i> User added! Referral code: <strong>' + (result.referralCode || 'auto') + '</strong>'
-            + '<br><span style="font-size:13px;">Link: <input type="text" readonly value="' + (result.referralLink || '') + '" style="font-size:12px;padding:3px 6px;border:1px solid #ddd;border-radius:4px;width:260px;" onclick="this.select();document.execCommand(\'copy\');">' 
-            + ' <em style="color:var(--gray-500);">(tap to copy)</em></span>';
+            + '<br><span style="font-size:13px;">Link: <input type="text" readonly value="' + (result.referralLink || '') + '" style="font-size:12px;padding:3px 6px;border:1px solid #ddd;border-radius:4px;width:260px;" onclick="this.select();"></span>';
           sucDiv.style.display = 'flex';
           showToast('User created!');
           e.target.reset();
