@@ -248,6 +248,9 @@ document.getElementById('kb')
     document.getElementById('eb').style.borderColor='#ddd';
   });
 
+var csrfMeta=document.querySelector('meta[name="csrf-token"]');
+var CSRF=csrfMeta?csrfMeta.content:'';
+
 document.getElementById('submitW')
   .addEventListener('click', async function(){
     var p=document.getElementById('wp').value;
@@ -261,7 +264,7 @@ document.getElementById('submitW')
     try{
       var r=await fetch('/api/withdrawals',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF},
         credentials:'include',
         body:JSON.stringify({
           platform:p,accountName:n,
@@ -273,7 +276,7 @@ document.getElementById('submitW')
         alert('Done! Admin will process in 24hrs.');
         location.reload();
       }else{
-        alert(d.message||'Error');
+        alert(d.message||d.error||'Error');
       }
     }catch(e){alert('Network error');}
   });

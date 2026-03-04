@@ -136,8 +136,9 @@ async function submitWithdraw() {
   if (!n||!ph){alert('Fill all fields');return;}
   if (!a||a<400){alert('Minimum ₹400');return;}
   try {
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
     var hdrs = {'Content-Type':'application/json'};
-    if (typeof csrfHeaders === 'function') hdrs = csrfHeaders(hdrs);
+    if (csrfMeta && csrfMeta.content) hdrs['X-CSRF-Token'] = csrfMeta.content;
     var r = await fetch('/api/withdrawals', {
       method:'POST',
       headers: hdrs,

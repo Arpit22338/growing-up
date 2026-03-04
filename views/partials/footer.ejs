@@ -31,17 +31,34 @@
 
   <script>
     // Mobile drawer open/close
+    var _drawerOpen = false;
     function openDrawer() {
       document.getElementById('mobileDrawer').style.left = '0';
       document.getElementById('drawerOverlay').style.display = 'block';
+      _drawerOpen = true;
+      history.pushState({ drawer: true }, '');
     }
     function closeDrawer() {
       document.getElementById('mobileDrawer').style.left = '-280px';
       document.getElementById('drawerOverlay').style.display = 'none';
+      _drawerOpen = false;
+    }
+    function toggleDrawer() {
+      if (_drawerOpen) {
+        closeDrawer();
+        // pop the drawer state we pushed
+        history.back();
+      } else {
+        openDrawer();
+      }
     }
     (function(){
       var btn = document.getElementById('hamburgerBtn');
-      if(btn) btn.addEventListener('click', function(e){ e.stopPropagation(); openDrawer(); });
+      if(btn) btn.addEventListener('click', function(e){ e.stopPropagation(); toggleDrawer(); });
+      // Close drawer on browser back button
+      window.addEventListener('popstate', function(e) {
+        if (_drawerOpen) closeDrawer();
+      });
     })();
 
     // CSRF token helper

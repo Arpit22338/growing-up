@@ -34,7 +34,7 @@
     </div>
     <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
       <i class='bx bx-book-open' style="font-size:28px;color:#10B981;margin-bottom:8px;"></i>
-      <div style="font-size:24px;font-weight:700;color:#0A1F44;"><%= user.purchasedCourses ? user.purchasedCourses.filter(c => c.status === 'approved').length : 0 %></div>
+      <div style="font-size:24px;font-weight:700;color:#0A1F44;">4</div>
       <div style="font-size:13px;color:#888;margin-top:4px;">Active Courses</div>
     </div>
     <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
@@ -120,7 +120,7 @@
 
       <input type="number" id="wamt" placeholder="Amount (min ₹400)" min="400" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:6px;box-sizing:border-box;"/>
 
-      <p style="color:#888;font-size:13px;margin:0 0 16px;">Min ₹400 | Available: ₹<%= user.walletBalance || 0 %></p>
+      <p style="color:#888;font-size:13px;margin:0 0 16px;">Min ₹400 | Available: ₹<%= availableBalance || 0 %></p>
 
       <button type="button" onclick="submitWithdraw()" style="width:100%;padding:15px;background:#27AE60;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;">Confirm Request</button>
     </div>
@@ -237,6 +237,9 @@ function selPlat(p) {
   document.getElementById('kb').style.borderColor = p==='khalti' ? '#D4A017' : '#ddd';
 }
 
+var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+var CSRF = csrfMeta ? csrfMeta.content : '';
+
 async function submitWithdraw() {
   var p = document.getElementById('wplat').value;
   var n = document.getElementById('wname').value.trim();
@@ -249,7 +252,7 @@ async function submitWithdraw() {
   try {
     var r = await fetch('/api/withdrawals', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: {'Content-Type':'application/json','X-CSRF-Token':CSRF},
       credentials: 'include',
       body: JSON.stringify({
         platform:p, accountName:n,
@@ -262,7 +265,7 @@ async function submitWithdraw() {
       document.getElementById('wModal').style.display = 'none';
       location.reload();
     } else {
-      alert(d.message || 'Error. Try again.');
+      alert(d.message || d.error || 'Error. Try again.');
     }
   } catch(e) {
     alert('Network error. Try again.');
