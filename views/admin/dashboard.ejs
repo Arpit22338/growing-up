@@ -25,60 +25,36 @@
       </div>
 
       <!-- Stats Grid -->
-      <div class="dash-stats-grid">
-        <div class="dash-stat-card">
-          <div class="dash-stat-icon" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">
-            <i class='bx bx-wallet'></i>
-          </div>
-          <div class="dash-stat-info">
-            <span class="dash-stat-value">₹<%= totalBalance %></span>
-            <span class="dash-stat-label">Platform Balance (35%)</span>
-          </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding:16px 0;">
+        <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+          <i class='bx bx-wallet' style="font-size:28px;color:#D4A017;margin-bottom:8px;"></i>
+          <div style="font-size:24px;font-weight:700;color:#0A1F44;">₹<%= totalBalance %></div>
+          <div style="font-size:13px;color:#888;margin-top:4px;">Platform Balance (35%)</div>
         </div>
-        <div class="dash-stat-card">
-          <div class="dash-stat-icon" style="background: linear-gradient(135deg, #D4A843, #B8902E);">
-            <i class='bx bx-trending-up'></i>
-          </div>
-          <div class="dash-stat-info">
-            <span class="dash-stat-value">₹<%= totalRevenue %></span>
-            <span class="dash-stat-label">Total Revenue</span>
-          </div>
+        <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+          <i class='bx bx-trending-up' style="font-size:28px;color:#D4A017;margin-bottom:8px;"></i>
+          <div style="font-size:24px;font-weight:700;color:#0A1F44;">₹<%= totalRevenue %></div>
+          <div style="font-size:13px;color:#888;margin-top:4px;">Total Revenue</div>
         </div>
-        <div class="dash-stat-card">
-          <div class="dash-stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
-            <i class='bx bx-group'></i>
-          </div>
-          <div class="dash-stat-info">
-            <span class="dash-stat-value"><%= totalUsers %></span>
-            <span class="dash-stat-label">Total Users</span>
-          </div>
+        <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+          <i class='bx bx-group' style="font-size:28px;color:#10B981;margin-bottom:8px;"></i>
+          <div style="font-size:24px;font-weight:700;color:#0A1F44;"><%= totalUsers %></div>
+          <div style="font-size:13px;color:#888;margin-top:4px;">Total Users</div>
         </div>
-        <div class="dash-stat-card">
-          <div class="dash-stat-icon" style="background: linear-gradient(135deg, #14B8A6, #0D9488);">
-            <i class='bx bx-user-check'></i>
-          </div>
-          <div class="dash-stat-info">
-            <span class="dash-stat-value"><%= activeUsers %></span>
-            <span class="dash-stat-label">Active Users</span>
-          </div>
+        <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+          <i class='bx bx-user-check' style="font-size:28px;color:#14B8A6;margin-bottom:8px;"></i>
+          <div style="font-size:24px;font-weight:700;color:#0A1F44;"><%= activeUsers %></div>
+          <div style="font-size:13px;color:#888;margin-top:4px;">Active Users</div>
         </div>
-        <div class="dash-stat-card">
-          <div class="dash-stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
-            <i class='bx bx-time-five'></i>
-          </div>
-          <div class="dash-stat-info">
-            <span class="dash-stat-value"><%= pendingPayments %></span>
-            <span class="dash-stat-label">Pending Payments</span>
-          </div>
+        <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+          <i class='bx bx-time-five' style="font-size:28px;color:#F59E0B;margin-bottom:8px;"></i>
+          <div style="font-size:24px;font-weight:700;color:#0A1F44;"><%= pendingPayments %></div>
+          <div style="font-size:13px;color:#888;margin-top:4px;">Pending Payments</div>
         </div>
-        <div class="dash-stat-card">
-          <div class="dash-stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
-            <i class='bx bx-money-withdraw'></i>
-          </div>
-          <div class="dash-stat-info">
-            <span class="dash-stat-value"><%= typeof pendingWithdrawals !== 'undefined' ? pendingWithdrawals : 0 %></span>
-            <span class="dash-stat-label">Pending Withdrawals</span>
-          </div>
+        <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+          <i class='bx bx-money-withdraw' style="font-size:28px;color:#8B5CF6;margin-bottom:8px;"></i>
+          <div style="font-size:24px;font-weight:700;color:#0A1F44;"><%= typeof pendingWithdrawals !== 'undefined' ? pendingWithdrawals : 0 %></div>
+          <div style="font-size:13px;color:#888;margin-top:4px;">Pending Withdrawals</div>
         </div>
       </div>
 
@@ -87,35 +63,33 @@
         <h3 style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
           <i class='bx bx-zap' style="color: var(--gold);"></i> Quick Actions
         </h3>
-        <div class="admin-actions-grid">
-          <a href="/admin/payments?status=pending" class="admin-action-card">
-            <i class='bx bx-credit-card'></i>
-            <span>Review Payments</span>
-            <% if (pendingPayments > 0) { %><span class="admin-action-badge"><%= pendingPayments %></span><% } %>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px;">
+          <a href="/admin/payments?status=pending" style="display:flex;align-items:center;gap:8px;padding:14px;background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.08);text-decoration:none;color:#0A1F44;font-weight:600;font-size:14px;">
+            <i class='bx bx-credit-card' style="color:#D4A017;font-size:20px;"></i>
+            Review Payments
+            <% if (pendingPayments > 0) { %><span style="background:#F59E0B;color:#fff;font-size:11px;padding:2px 8px;border-radius:12px;margin-left:auto;"><%= pendingPayments %></span><% } %>
           </a>
-          <a href="/admin/users" class="admin-action-card">
-            <i class='bx bx-group'></i>
-            <span>Manage Users</span>
+          <a href="/admin/users" style="display:flex;align-items:center;gap:8px;padding:14px;background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.08);text-decoration:none;color:#0A1F44;font-weight:600;font-size:14px;">
+            <i class='bx bx-group' style="color:#D4A017;font-size:20px;"></i>
+            Manage Users
           </a>
-          <a href="/admin/withdrawals?status=pending" class="admin-action-card">
-            <i class='bx bx-money-withdraw'></i>
-            <span>Withdrawals</span>
-            <% if (typeof pendingWithdrawals !== 'undefined' && pendingWithdrawals > 0) { %><span class="admin-action-badge"><%= pendingWithdrawals %></span><% } %>
+          <a href="/admin/withdrawals?status=pending" style="display:flex;align-items:center;gap:8px;padding:14px;background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.08);text-decoration:none;color:#0A1F44;font-weight:600;font-size:14px;">
+            <i class='bx bx-money-withdraw' style="color:#D4A017;font-size:20px;"></i>
+            Withdrawals
+            <% if (typeof pendingWithdrawals !== 'undefined' && pendingWithdrawals > 0) { %><span style="background:#F59E0B;color:#fff;font-size:11px;padding:2px 8px;border-radius:12px;margin-left:auto;"><%= pendingWithdrawals %></span><% } %>
           </a>
-          <% if (role === 'superadmin') { %>
-            <a href="/admin/add-user" class="admin-action-card">
-              <i class='bx bx-user-plus'></i>
-              <span>Add User</span>
-            </a>
-            <a href="/admin/settings" class="admin-action-card">
-              <i class='bx bx-qr'></i>
-              <span>QR Codes</span>
-            </a>
-            <a href="/admin/earnings" class="admin-action-card">
-              <i class='bx bx-bar-chart-alt-2'></i>
-              <span>Earnings</span>
-            </a>
-          <% } %>
+          <a href="/admin/add-user" style="display:flex;align-items:center;gap:8px;padding:14px;background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.08);text-decoration:none;color:#0A1F44;font-weight:600;font-size:14px;">
+            <i class='bx bx-user-plus' style="color:#D4A017;font-size:20px;"></i>
+            Add User
+          </a>
+          <a href="/admin/earnings" style="display:flex;align-items:center;gap:8px;padding:14px;background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.08);text-decoration:none;color:#0A1F44;font-weight:600;font-size:14px;">
+            <i class='bx bx-bar-chart-alt-2' style="color:#D4A017;font-size:20px;"></i>
+            Earnings
+          </a>
+          <a href="/admin/referral-tree" style="display:flex;align-items:center;gap:8px;padding:14px;background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.08);text-decoration:none;color:#0A1F44;font-weight:600;font-size:14px;">
+            <i class='bx bx-git-branch' style="color:#D4A017;font-size:20px;"></i>
+            Referral Tree
+          </a>
         </div>
       </div>
 

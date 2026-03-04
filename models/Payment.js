@@ -15,6 +15,6 @@ const paymentSchema = new mongoose.Schema({
   referrerCommission: { type: Number, default: 0 },
   platformCommission: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Payment', paymentSchema);

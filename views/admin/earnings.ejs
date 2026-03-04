@@ -21,21 +21,21 @@
         <h1 style="margin-bottom: 0;"><i class='bx bx-bar-chart-alt-2'></i> Earnings Overview</h1>
       </div>
 
-      <div class="stats-grid" style="margin-top: 0;">
-        <div class="stat-card">
-          <i class='bx bx-money'></i>
-          <div class="stat-value">₹<%= totalRevenue %></div>
-          <div class="stat-label">Total Revenue</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px;">
+        <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+          <i class='bx bx-money' style="font-size:28px;color:#D4A017;margin-bottom:8px;"></i>
+          <div style="font-size:24px;font-weight:700;color:#0A1F44;">₹<%= totalRevenue %></div>
+          <div style="font-size:13px;color:#888;margin-top:4px;">Total Revenue</div>
         </div>
-        <div class="stat-card">
-          <i class='bx bx-wallet'></i>
-          <div class="stat-value">₹<%= totalPlatform %></div>
-          <div class="stat-label">Platform Earnings (35%)</div>
+        <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+          <i class='bx bx-wallet' style="font-size:28px;color:#D4A017;margin-bottom:8px;"></i>
+          <div style="font-size:24px;font-weight:700;color:#0A1F44;">₹<%= totalPlatform %></div>
+          <div style="font-size:13px;color:#888;margin-top:4px;">Platform Earnings (35%)</div>
         </div>
-        <div class="stat-card">
-          <i class='bx bx-group'></i>
-          <div class="stat-value">₹<%= totalReferrer %></div>
-          <div class="stat-label">Referrer Commissions (65%)</div>
+        <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+          <i class='bx bx-group' style="font-size:28px;color:#D4A017;margin-bottom:8px;"></i>
+          <div style="font-size:24px;font-weight:700;color:#0A1F44;">₹<%= totalReferrer %></div>
+          <div style="font-size:13px;color:#888;margin-top:4px;">Referrer Commissions (65%)</div>
         </div>
       </div>
 

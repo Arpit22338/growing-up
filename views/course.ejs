@@ -61,7 +61,7 @@
                 <input type="text" readonly 
                   value="<%= baseUrl %>/course/<%= course.key %>?ref=<%= loggedInUser.referralCode %>" 
                   id="courseRefLink">
-                <button type="button" class="btn btn-primary btn-sm" onclick="copyLink(document.getElementById('courseRefLink').value, this)" style="cursor:pointer;pointer-events:all;">
+                <button type="button" onclick="doCopy(this, document.getElementById('courseRefLink').value)" style="cursor:pointer;pointer-events:all!important;padding:10px 18px;border-radius:8px;border:1px solid #D4A017;background:#fff;color:#0A1F44;font-weight:600;">
                   Copy
                 </button>
               </div>
@@ -95,34 +95,6 @@
   var card = document.querySelector('.course-detail-card[data-border]');
   if (card) card.style.borderTop = '5px solid ' + card.dataset.border;
 })();
-
-function copyLink(text, btnElement) {
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text).then(function() {
-      var orig = btnElement.innerHTML;
-      btnElement.innerHTML = '<i class="bx bx-check"></i> Copied!';
-      setTimeout(function() { btnElement.innerHTML = orig; }, 2000);
-    }).catch(function() {
-      fallbackCopy(text, btnElement);
-    });
-  } else {
-    fallbackCopy(text, btnElement);
-  }
-}
-function fallbackCopy(text, btnElement) {
-  var temp = document.createElement('textarea');
-  temp.value = text;
-  temp.style.position = 'fixed';
-  temp.style.opacity = '0';
-  document.body.appendChild(temp);
-  temp.focus();
-  temp.select();
-  document.execCommand('copy');
-  document.body.removeChild(temp);
-  var orig = btnElement.innerHTML;
-  btnElement.innerHTML = '<i class="bx bx-check"></i> Copied!';
-  setTimeout(function() { btnElement.innerHTML = orig; }, 2000);
-}
 </script>
 
 <%- include('partials/footer') %>

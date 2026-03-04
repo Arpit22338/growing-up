@@ -342,7 +342,7 @@ router.post('/api/login', async (req, res) => {
     }
 
     // Regular user login
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
@@ -426,74 +426,129 @@ router.get('/dashboard/wallet', async (req, res) => {
   }
 });
 
-// POST - Request withdrawal
-router.post('/api/withdraw', async (req, res) => {
-  if (!req.session || !req.session.userId) {
-    return res.status(401).json({ error: 'Please login first' });
-  }
+// GET - Withdraw page
+router.get('/dashboard/withdraw', async (req, res) => {
+  if (!req.session || !req.session.userId) return res.redirect('/login');
   try {
     const user = await User.findById(req.session.userId);
-    if (!user || !user.isActive) {
-      return res.status(403).json({ error: 'Account not active' });
-    }
+    if (!user || !user.isActive) return res.redirect('/pending');
 
-    const { amount, method, walletId, bankName, accountName, accountNumber } = req.body;
-    const numAmount = Number(amount);
-
-    if (!numAmount || numAmount < 400) {
-      return res.status(400).json({ error: 'Minimum withdrawal is ₹400' });
-    }
-
-    // Check pending withdrawals total
-    const pendingWithdrawals = await Withdrawal.find({ user: user._id, status: 'pending' });
-    const pendingTotal = pendingWithdrawals.reduce((s, w) => s + w.amount, 0);
-
-    // Check approved withdrawals total
-    const approvedWithdrawals = await Withdrawal.find({ user: user._id, status: 'approved' });
-    const approvedTotal = approvedWithdrawals.reduce((s, w) => s + w.amount, 0);
-
+    const withdrawals = await Withdrawal.find({ user: user._id }).sort({ createdAt: -1 });
+    const approvedTotal = withdrawals.filter(w => w.status === 'approved').reduce((s, w) => s + w.amount, 0);
+    const pendingTotal = withdrawals.filter(w => w.status === 'pending').reduce((s, w) => s + w.amount, 0);
     const availableBalance = user.totalEarnings - approvedTotal - pendingTotal;
 
-    if (numAmount > availableBalance) {
-      return res.status(400).json({ error: 'Insufficient balance. Available: ₹' + availableBalance });
+    res.render('withdraw', { user, withdrawals, availableBalance });
+  } catch (err) {
+    res.redirect('/dashboard');
+  }
+});
+
+// POST - Request withdrawal (HARDENED)
+router.post('/api/withdraw', async (req, res) => {
+  // 1. Auth check
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, message: 'Please login first' });
+  }
+
+  try {
+    // 2. Fetch user fresh from DB (never trust session/frontend)
+    const user = await User.findById(req.session.userId).select('+walletBalance +lastWithdrawalDate +dailyWithdrawCount +isActive');
+    if (!user || !user.isActive) {
+      return res.status(403).json({ success: false, message: 'Account not active' });
     }
 
-    if (!['esewa', 'khalti', 'bank'].includes(method)) {
-      return res.status(400).json({ error: 'Invalid withdrawal method' });
+    // 3. Rate limiting: max 3 withdrawal requests per user per day
+    const today = new Date().toDateString();
+    if (user.lastWithdrawalDate === today && user.dailyWithdrawCount >= 3) {
+      return res.status(429).json({ success: false, message: 'Max 3 withdrawal requests per day.' });
     }
 
-    // Validate method-specific fields
-    if ((method === 'esewa' || method === 'khalti') && (!walletId || !walletId.trim())) {
-      return res.status(400).json({ error: 'Wallet ID/number is required' });
-    }
-    if (method === 'bank') {
-      if (!bankName || !bankName.trim() || !accountName || !accountName.trim() || !accountNumber || !accountNumber.trim()) {
-        return res.status(400).json({ error: 'Bank name, account holder name, and account number are required' });
-      }
+    // 4. Block if user already has a PENDING withdrawal
+    const existingPending = await Withdrawal.findOne({ user: user._id, status: 'pending' });
+    if (existingPending) {
+      return res.status(400).json({ success: false, message: 'You already have a pending withdrawal request. Wait for it to be processed first.' });
     }
 
-    // Calculate fee (₹20 for bank transfers)
-    const fee = method === 'bank' ? 20 : 0;
-    const netAmount = numAmount - fee;
+    // 5. Validate and sanitize all inputs
+    const { amount, method, walletId, accountName } = req.body;
 
+    // Platform must be exactly 'esewa' or 'khalti' (no bank for now based on withdraw.ejs)
+    if (!['esewa', 'khalti'].includes(method)) {
+      return res.status(400).json({ success: false, message: 'Invalid platform. Must be esewa or khalti.' });
+    }
+
+    // Amount must be valid positive integer >= 400
+    const requestedAmount = parseInt(amount, 10);
+    if (!requestedAmount || isNaN(requestedAmount) || requestedAmount < 400) {
+      return res.status(400).json({ success: false, message: 'Minimum withdrawal is ₹400.' });
+    }
+    if (requestedAmount > 100000) {
+      return res.status(400).json({ success: false, message: 'Maximum withdrawal is ₹1,00,000 per request.' });
+    }
+
+    // Account name: string, max 100 chars
+    if (!accountName || typeof accountName !== 'string') {
+      return res.status(400).json({ success: false, message: 'Account name is required.' });
+    }
+    const sanitizedAccountName = accountName.toString().trim().substring(0, 100);
+    if (!sanitizedAccountName) {
+      return res.status(400).json({ success: false, message: 'Account name is required.' });
+    }
+
+    // Phone number: must be 10 digits only
+    if (!walletId || typeof walletId !== 'string') {
+      return res.status(400).json({ success: false, message: 'Phone number is required.' });
+    }
+    const sanitizedPhone = walletId.toString().trim();
+    if (!/^\d{10}$/.test(sanitizedPhone)) {
+      return res.status(400).json({ success: false, message: 'Phone number must be exactly 10 digits.' });
+    }
+
+    // 6. Check balance from DB (never trust frontend amount)
+    if (requestedAmount > user.walletBalance) {
+      return res.status(400).json({ success: false, message: 'Insufficient balance. Available: ₹' + user.walletBalance });
+    }
+
+    // 7. ATOMIC wallet deduction to prevent race conditions
+    const updateQuery = user.lastWithdrawalDate === today
+      ? { $inc: { walletBalance: -requestedAmount, dailyWithdrawCount: 1 } }
+      : { $inc: { walletBalance: -requestedAmount }, $set: { lastWithdrawalDate: today, dailyWithdrawCount: 1 } };
+
+    const result = await User.findOneAndUpdate(
+      { _id: user._id, walletBalance: { $gte: requestedAmount } },
+      updateQuery,
+      { new: true }
+    );
+
+    if (!result) {
+      return res.status(400).json({ success: false, message: 'Insufficient balance or concurrent request detected.' });
+    }
+
+    // 8. Create withdrawal record (no fee for eSewa/Khalti)
     const withdrawal = new Withdrawal({
       user: user._id,
-      amount: numAmount,
+      amount: requestedAmount,
       method,
-      fee,
-      netAmount,
-      walletId: walletId || '',
-      bankName: bankName || '',
-      accountName: accountName || '',
-      accountNumber: accountNumber || ''
+      fee: 0,
+      netAmount: requestedAmount,
+      walletId: sanitizedPhone,
+      accountName: sanitizedAccountName
     });
 
     await withdrawal.save();
+
     return res.json({ success: true, message: 'Withdrawal request submitted!' });
   } catch (err) {
     console.error('Withdrawal error:', err);
-    return res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
+});
+
+// GET - User profile (redirects to dashboard for now)
+router.get('/dashboard/profile', (req, res) => {
+  if (!req.session || !req.session.userId) return res.redirect('/login');
+  res.redirect('/dashboard');
 });
 
 // GET - User withdrawals history (JSON)

@@ -39,7 +39,7 @@
               <td>
                 <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                   <input type="text" readonly value="<%= typeof baseUrl !== 'undefined' ? baseUrl : 'https://growingup.tech' %>/register?ref=<%= user.referralCode %>" id="userRefLink" style="font-size: 12px; padding: 4px 8px; border: 1px solid var(--gray-200); border-radius: 4px; background: var(--gray-50); flex: 1; min-width: 200px;">
-                  <button type="button" onclick="copyLink(document.getElementById('userRefLink').value, this)" class="btn btn-primary btn-sm" style="white-space: nowrap; cursor:pointer; pointer-events:all;">Copy</button>
+                  <button type="button" onclick="doCopy(this, document.getElementById('userRefLink').value)" style="cursor:pointer;pointer-events:all!important;padding:10px 18px;border-radius:8px;border:1px solid #D4A017;background:#fff;color:#0A1F44;font-weight:600;">Copy</button>
                 </div>
               </td>
             </tr>
@@ -52,9 +52,10 @@
         </div>
         <div class="card">
           <h3 style="margin-bottom: 16px;"><i class='bx bx-money' style="color: var(--gold);"></i> Earnings & Referrals</h3>
-          <div class="stat-card" style="box-shadow: none; border: 2px solid var(--gray-100);">
-            <div class="stat-value">₹<%= user.totalEarnings %></div>
-            <div class="stat-label">Total Earnings (Commissions)</div>
+          <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+            <i class='bx bx-money' style="font-size:28px;color:#D4A017;margin-bottom:8px;"></i>
+            <div style="font-size:24px;font-weight:700;color:#0A1F44;">₹<%= user.totalEarnings %></div>
+            <div style="font-size:13px;color:#888;margin-top:4px;">Total Earnings (Commissions)</div>
           </div>
           <div style="margin-top: 12px;">
             <p style="color: var(--gray-500); font-size: 13px;">Referred By:</p>
@@ -153,33 +154,28 @@
       setTimeout(() => t.remove(), 4000);
     }
 
-    function copyLink(text, btnElement) {
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(function() {
-          var orig = btnElement.innerHTML;
-          btnElement.innerHTML = '<i class="bx bx-check"></i> Copied!';
-          setTimeout(function() { btnElement.innerHTML = orig; }, 2000);
-        }).catch(function() {
-          fallbackCopy(text, btnElement);
-        });
+    function doCopy(btn, text) {
+      var inp = document.createElement('input');
+      inp.setAttribute('value', text);
+      inp.setAttribute('readonly', '');
+      inp.style.cssText = 'position:absolute;left:-9999px;top:0;';
+      document.body.appendChild(inp);
+      inp.select();
+      inp.setSelectionRange(0, 99999);
+      var success = false;
+      try { success = document.execCommand('copy'); } catch(e) { success = false; }
+      document.body.removeChild(inp);
+      if (success) {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '✓ Copied!';
+        btn.style.background = '#27AE60';
+        btn.style.color = '#fff';
+        setTimeout(function(){ btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
       } else {
-        fallbackCopy(text, btnElement);
+        alert('Copy failed. Please copy manually:\n'+text);
       }
     }
-    function fallbackCopy(text, btnElement) {
-      var temp = document.createElement('textarea');
-      temp.value = text;
-      temp.style.position = 'fixed';
-      temp.style.opacity = '0';
-      document.body.appendChild(temp);
-      temp.focus();
-      temp.select();
-      document.execCommand('copy');
-      document.body.removeChild(temp);
-      var orig = btnElement.innerHTML;
-      btnElement.innerHTML = '<i class="bx bx-check"></i> Copied!';
-      setTimeout(function() { btnElement.innerHTML = orig; }, 2000);
-    }
+    function copyLink(text, btn) { doCopy(btn, text); }
 
     var csrfMeta = document.querySelector('meta[name="csrf-token"]');
     var CSRF = csrfMeta ? csrfMeta.content : '';

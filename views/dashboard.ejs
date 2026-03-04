@@ -21,27 +21,26 @@
 
 <div class="container" style="max-width: 960px;">
   <!-- Quick Stats -->
-  <div class="dash-stats">
-    <div class="dash-stat-card">
-      <div class="dash-stat-icon" style="background: rgba(212,168,67,0.12);"><i class='bx bx-money' style="color: var(--gold);"></i></div>
-      <div>
-        <div class="dash-stat-value">₹<%= user.totalEarnings %></div>
-        <div class="dash-stat-label">Total Earnings</div>
-      </div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding:16px;">
+    <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+      <i class='bx bx-money' style="font-size:28px;color:#D4A017;margin-bottom:8px;"></i>
+      <div style="font-size:24px;font-weight:700;color:#0A1F44;">₹<%= user.totalEarnings %></div>
+      <div style="font-size:13px;color:#888;margin-top:4px;">Total Earnings</div>
     </div>
-    <div class="dash-stat-card">
-      <div class="dash-stat-icon" style="background: rgba(59,130,246,0.12);"><i class='bx bx-group' style="color: #3B82F6;"></i></div>
-      <div>
-        <div class="dash-stat-value"><%= user.referredUsers ? user.referredUsers.length : 0 %></div>
-        <div class="dash-stat-label">Referrals</div>
-      </div>
+    <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+      <i class='bx bx-group' style="font-size:28px;color:#3B82F6;margin-bottom:8px;"></i>
+      <div style="font-size:24px;font-weight:700;color:#0A1F44;"><%= user.referredUsers ? user.referredUsers.length : 0 %></div>
+      <div style="font-size:13px;color:#888;margin-top:4px;">Referrals</div>
     </div>
-    <div class="dash-stat-card">
-      <div class="dash-stat-icon" style="background: rgba(16,185,129,0.12);"><i class='bx bx-book-open' style="color: #10B981;"></i></div>
-      <div>
-        <div class="dash-stat-value"><%= user.purchasedCourses ? user.purchasedCourses.filter(c => c.status === 'approved').length : 0 %></div>
-        <div class="dash-stat-label">Active Courses</div>
-      </div>
+    <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+      <i class='bx bx-book-open' style="font-size:28px;color:#10B981;margin-bottom:8px;"></i>
+      <div style="font-size:24px;font-weight:700;color:#0A1F44;"><%= user.purchasedCourses ? user.purchasedCourses.filter(c => c.status === 'approved').length : 0 %></div>
+      <div style="font-size:13px;color:#888;margin-top:4px;">Active Courses</div>
+    </div>
+    <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+      <i class='bx bx-wallet' style="font-size:28px;color:#D4A017;margin-bottom:8px;"></i>
+      <div style="font-size:24px;font-weight:700;color:#0A1F44;">₹<%= availableBalance %></div>
+      <div style="font-size:13px;color:#888;margin-top:4px;">Available Balance</div>
     </div>
   </div>
 
@@ -51,20 +50,16 @@
       <h2><i class='bx bx-wallet'></i> Wallet</h2>
       <a href="/dashboard/wallet" style="font-size:13px;color:var(--gold);font-weight:600;text-decoration:none;">View Full Wallet <i class='bx bx-right-arrow-alt'></i></a>
     </div>
-    <div class="dash-wallet-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-      <div class="dash-stat-card">
-        <div class="dash-stat-icon" style="background: rgba(212,168,67,0.12);"><i class='bx bx-money' style="color: var(--gold);"></i></div>
-        <div>
-          <div class="dash-stat-value">₹<%= user.totalEarnings %></div>
-          <div class="dash-stat-label">Total Earnings</div>
-        </div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px;">
+      <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+        <i class='bx bx-money' style="font-size:28px;color:#D4A017;margin-bottom:8px;"></i>
+        <div style="font-size:24px;font-weight:700;color:#0A1F44;">₹<%= user.totalEarnings %></div>
+        <div style="font-size:13px;color:#888;margin-top:4px;">Total Earnings</div>
       </div>
-      <div class="dash-stat-card">
-        <div class="dash-stat-icon" style="background: rgba(16,185,129,0.12);"><i class='bx bx-wallet' style="color: #10B981;"></i></div>
-        <div>
-          <div class="dash-stat-value">₹<%= availableBalance %></div>
-          <div class="dash-stat-label">Available Balance</div>
-        </div>
+      <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+        <i class='bx bx-wallet' style="font-size:28px;color:#10B981;margin-bottom:8px;"></i>
+        <div style="font-size:24px;font-weight:700;color:#0A1F44;">₹<%= availableBalance %></div>
+        <div style="font-size:13px;color:#888;margin-top:4px;">Available Balance</div>
       </div>
     </div>
 
@@ -171,7 +166,7 @@
       <div class="dash-share-label"><i class='bx bx-link'></i> Your Referral Link</div>
       <div class="referral-link-group">
         <input type="text" readonly value="<%= baseUrl %>/register?ref=<%= user.referralCode %>" id="genLink">
-        <button type="button" class="btn btn-primary btn-sm" onclick="copyLink(document.getElementById('genLink').value, this)" style="cursor:pointer;pointer-events:all;">Copy</button>
+        <button type="button" onclick="doCopy(this, document.getElementById('genLink').value)" style="cursor:pointer;pointer-events:all!important;padding:10px 18px;border-radius:8px;border:1px solid #D4A017;background:#fff;color:#0A1F44;font-weight:600;">Copy</button>
       </div>
       <a href="https://wa.me/?text=Join%20Growing%20Up%20and%20start%20earning!%20<%= encodeURIComponent(baseUrl + '/register?ref=' + user.referralCode) %>"
          target="_blank" class="btn-whatsapp" style="margin-top: 10px;">
@@ -191,7 +186,7 @@
             <input type="text" readonly
               value="<%= baseUrl %>/course/<%= key %>?ref=<%= user.referralCode %>"
               id="link_<%= key %>">
-            <button type="button" class="btn btn-primary btn-sm" onclick="copyLink(document.getElementById('link_<%= key %>').value, this)" style="cursor:pointer;pointer-events:all;">Copy</button>
+            <button type="button" onclick="doCopy(this, document.getElementById('link_<%= key %>').value)" style="cursor:pointer;pointer-events:all!important;padding:10px 18px;border-radius:8px;border:1px solid #D4A017;background:#fff;color:#0A1F44;font-weight:600;">Copy</button>
           </div>
           <a href="https://wa.me/?text=Check%20out%20<%= encodeURIComponent(courses[key].title) %>%20on%20Growing%20Up!%20<%= encodeURIComponent(baseUrl + '/course/' + key + '?ref=' + user.referralCode) %>"
              target="_blank" class="btn-whatsapp btn-sm" style="width: 100%; justify-content: center; margin-top: 8px;">

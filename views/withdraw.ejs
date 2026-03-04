@@ -1,0 +1,155 @@
+<%- include('partials/header') %>
+
+<div class="container" style="max-width: 640px; padding-top: 32px; padding-bottom: 48px;">
+  <a href="/dashboard" style="display: inline-flex; align-items: center; gap: 6px; color: #888; font-size: 14px; text-decoration: none; margin-bottom: 20px;">
+    <i class='bx bx-arrow-back'></i> Back to Dashboard
+  </a>
+
+  <h2 style="color: #0A1F44; margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
+    <i class='bx bx-money-withdraw' style="color: #D4A017;"></i> Withdraw
+  </h2>
+
+  <!-- Stat Cards -->
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding:0 0 24px;">
+    <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+      <i class='bx bx-money' style="font-size:28px;color:#D4A017;margin-bottom:8px;"></i>
+      <div style="font-size:24px;font-weight:700;color:#0A1F44;">₹<%= user.totalEarnings %></div>
+      <div style="font-size:13px;color:#888;margin-top:4px;">Total Earnings</div>
+    </div>
+    <div style="background:#fff!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(0,0,0,0.08)!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;width:auto!important;height:auto!important;">
+      <i class='bx bx-wallet' style="font-size:28px;color:#D4A017;margin-bottom:8px;"></i>
+      <div style="font-size:24px;font-weight:700;color:#0A1F44;">₹<%= availableBalance %></div>
+      <div style="font-size:13px;color:#888;margin-top:4px;">Available Balance</div>
+    </div>
+  </div>
+
+  <!-- Withdraw Form Card -->
+  <div style="background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:24px;">
+    <h3 style="color:#0A1F44;margin-bottom:16px;"><i class='bx bx-money-withdraw' style="color:#D4A017;"></i> Request Withdrawal</h3>
+    <p style="color:#888;font-size:13px;margin-bottom:20px;">Available: ₹<span id="bal"><%= availableBalance %></span> · Min: ₹400</p>
+
+    <!-- Step 1: Platform Selection -->
+    <div style="display:flex;gap:12px;margin-bottom:20px;">
+      <button type="button" id="esewaBtn"
+        onclick="selectPlatform('esewa',this)"
+        style="flex:1;padding:14px;border-radius:8px;border:2px solid #ddd;cursor:pointer;font-size:15px;font-weight:600;background:#fff;color:#0A1F44;">
+        eSewa
+      </button>
+      <button type="button" id="khaltiBtn"
+        onclick="selectPlatform('khalti',this)"
+        style="flex:1;padding:14px;border-radius:8px;border:2px solid #ddd;cursor:pointer;font-size:15px;font-weight:600;background:#fff;color:#0A1F44;">
+        Khalti
+      </button>
+    </div>
+    <input type="hidden" id="platform" value="">
+
+    <!-- Step 2: Fields -->
+    <div style="margin-bottom:16px;">
+      <input type="text" id="accountName" placeholder="Account Holder Name"
+        style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:14px;box-sizing:border-box;margin-bottom:12px;font-family:'Poppins',sans-serif;">
+      <input type="tel" id="phoneNumber" placeholder="eSewa/Khalti Phone Number"
+        style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:14px;box-sizing:border-box;margin-bottom:12px;font-family:'Poppins',sans-serif;">
+      <input type="number" id="amount" placeholder="Amount" min="400"
+        style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:14px;box-sizing:border-box;font-family:'Poppins',sans-serif;">
+      <small style="color:#888;font-size:12px;margin-top:6px;display:block;">Minimum: ₹400 | Available: ₹<span><%= availableBalance %></span></small>
+    </div>
+
+    <!-- Submit -->
+    <button type="button" onclick="submitWithdraw()"
+      style="width:100%;height:52px;background:#27AE60;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin-top:20px;font-family:'Poppins',sans-serif;">
+      Request Withdrawal
+    </button>
+  </div>
+
+  <!-- Withdrawal History -->
+  <div style="background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+    <h3 style="color:#0A1F44;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+      <i class='bx bx-history' style="color:#D4A017;"></i> Withdrawal History
+    </h3>
+
+    <% if (withdrawals.length > 0) { %>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:14px;">
+          <thead>
+            <tr style="border-bottom:2px solid #eee;">
+              <th style="text-align:left;padding:10px 8px;color:#888;font-weight:600;">Amount</th>
+              <th style="text-align:left;padding:10px 8px;color:#888;font-weight:600;">Platform</th>
+              <th style="text-align:left;padding:10px 8px;color:#888;font-weight:600;">Account</th>
+              <th style="text-align:left;padding:10px 8px;color:#888;font-weight:600;">Phone</th>
+              <th style="text-align:left;padding:10px 8px;color:#888;font-weight:600;">Status</th>
+              <th style="text-align:left;padding:10px 8px;color:#888;font-weight:600;">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% withdrawals.forEach(w => { %>
+              <tr style="border-bottom:1px solid #f0f0f0;">
+                <td style="padding:10px 8px;font-weight:700;">₹<%= w.amount %></td>
+                <td style="padding:10px 8px;"><%= w.method === 'esewa' ? 'eSewa' : w.method === 'khalti' ? 'Khalti' : 'Bank' %></td>
+                <td style="padding:10px 8px;font-size:13px;"><%= w.accountName || '-' %></td>
+                <td style="padding:10px 8px;font-size:13px;"><%= w.walletId || '-' %></td>
+                <td style="padding:10px 8px;">
+                  <% var sBg = w.status==='pending' ? '#FFF3CD' : w.status==='approved' ? '#D4EDDA' : '#F8D7DA'; %>
+                  <% var sColor = w.status==='pending' ? '#856404' : w.status==='approved' ? '#155724' : '#721C24'; %>
+                  <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;background:<%= sBg %>;color:<%= sColor %>"><%= w.status.charAt(0).toUpperCase() + w.status.slice(1) %></span>
+                </td>
+                <td style="padding:10px 8px;font-size:13px;color:#888;"><%= new Date(w.createdAt).toLocaleDateString() %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <div style="text-align:center;padding:32px 16px;color:#aaa;">
+        <i class='bx bx-receipt' style="font-size:40px;margin-bottom:8px;"></i>
+        <p>No withdrawal history yet.</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+function selectPlatform(p, btn) {
+  document.getElementById('platform').value = p;
+  document.getElementById('esewaBtn').style.borderColor = '#ddd';
+  document.getElementById('esewaBtn').style.background = '#fff';
+  document.getElementById('esewaBtn').style.color = '#0A1F44';
+  document.getElementById('khaltiBtn').style.borderColor = '#ddd';
+  document.getElementById('khaltiBtn').style.background = '#fff';
+  document.getElementById('khaltiBtn').style.color = '#0A1F44';
+  btn.style.borderColor = '#D4A017';
+  btn.style.background = '#D4A017';
+  btn.style.color = '#fff';
+  document.querySelector('input[placeholder*="Phone"]').placeholder =
+    p === 'esewa' ? 'eSewa Number' : 'Khalti Number';
+}
+
+async function submitWithdraw() {
+  var p = document.getElementById('platform').value;
+  var n = document.getElementById('accountName').value;
+  var ph = document.getElementById('phoneNumber').value;
+  var a = parseInt(document.getElementById('amount').value);
+  if (!p){alert('Select eSewa or Khalti');return;}
+  if (!n||!ph){alert('Fill all fields');return;}
+  if (!a||a<400){alert('Minimum ₹400');return;}
+  try {
+    var r = await fetch('/api/withdraw', {
+      method:'POST',
+      headers: csrfHeaders({'Content-Type':'application/json'}),
+      credentials:'include',
+      body:JSON.stringify({
+        method:p,accountName:n,
+        walletId:ph,amount:a
+      })
+    });
+    var d = await r.json();
+    if(d.success){
+      alert('Requested! Admin will process in 24hrs.');
+      location.reload();
+    } else {
+      alert(d.error||d.message||'Error. Try again.');
+    }
+  } catch(e){alert('Network error.');}
+}
+</script>
+
+<%- include('partials/footer') %>

@@ -93,7 +93,7 @@ router.post('/admin/payments/:id/approve', isFinancialSecretary, async (req, res
     // Credit commission to referrer
     if (payment.referrer) {
       await User.findByIdAndUpdate(payment.referrer, {
-        $inc: { totalEarnings: payment.referrerCommission }
+        $inc: { totalEarnings: payment.referrerCommission, walletBalance: payment.referrerCommission }
       });
     }
 
@@ -343,6 +343,7 @@ router.post('/admin/reset-everything', isSuperAdmin, async (req, res) => {
       {
         $set: {
           totalEarnings: 0,
+          walletBalance: 0,
           withdrawnAmount: 0,
           isActive: false,
           purchasedCourses: [],
@@ -418,11 +419,12 @@ router.get('/admin/users/:id/tree', isAdmin, async (req, res) => {
     async function buildTree(userId, depth) {
       if (depth > 10) return []; // Prevent infinite loops
       const children = await User.find({ referredBy: userId })
-        .select('firstName lastName email isActive referralCode createdAt')
+        .select('firstName lastName email isActive referralCode createdAt purchasedCourses')
         .lean();
       const result = [];
       for (const child of children) {
         const grandChildren = await buildTree(child._id, depth + 1);
+        const activeCourse = child.purchasedCourses && child.purchasedCourses.find(c => c.status === 'approved');
         result.push({
           _id: child._id,
           name: child.firstName + ' ' + child.lastName,
@@ -430,6 +432,7 @@ router.get('/admin/users/:id/tree', isAdmin, async (req, res) => {
           isActive: child.isActive,
           referralCode: child.referralCode,
           joined: child.createdAt,
+          course: activeCourse ? activeCourse.courseName : 'None',
           children: grandChildren
         });
       }
@@ -463,6 +466,11 @@ router.get('/admin/dashboard-data', isAdmin, async (req, res) => {
   } catch (err) {
     return res.status(500).json({ error: 'Server error' });
   }
+});
+
+// Admin profile - redirects to dashboard (no separate profile page for admins)
+router.get('/admin/profile', isAdmin, (req, res) => {
+  res.redirect('/admin');
 });
 
 module.exports = router;

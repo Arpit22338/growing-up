@@ -105,21 +105,21 @@
 
     function renderTree(nodes, depth) {
       if (!nodes || nodes.length === 0) return '';
-      var html = '<ul class="ref-tree" style="' + (depth > 0 ? 'margin-left: 24px; border-left: 2px solid var(--gray-200); padding-left: 16px;' : '') + '">';
+      var html = '<ul style="list-style:none;padding:0;margin:0;' + (depth > 0 ? 'margin-left:24px;border-left:2px solid #e5e7eb;padding-left:16px;' : '') + '">';
       nodes.forEach(function(node) {
-        var statusBadge = node.isActive
-          ? '<span class="badge badge-active">Active</span>'
-          : '<span class="badge badge-inactive">Pending</span>';
-        html += '<li style="padding: 10px 0; border-bottom: 1px solid var(--gray-100);">';
-        html += '<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">';
-        html += '<div style="width: 32px; height: 32px; background: linear-gradient(135deg, var(--navy), var(--navy-light)); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0;">' + node.name.charAt(0).toUpperCase() + '</div>';
-        html += '<div style="flex: 1; min-width: 0;">';
-        html += '<strong style="color: var(--navy); font-size: 14px;">' + node.name + '</strong>';
-        html += '<br><span style="font-size: 12px; color: var(--gray-500);">' + node.email + ' · ' + node.referralCode + '</span>';
+        var statusColor = node.isActive ? '#10B981' : '#F59E0B';
+        var statusText = node.isActive ? 'Active' : 'Pending';
+        var statusBg = node.isActive ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)';
+        html += '<li style="padding:10px 0;border-bottom:1px solid #f0f0f0;">';
+        html += '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">';
+        html += '<div style="width:32px;height:32px;background:#0A1F44;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">' + node.name.charAt(0).toUpperCase() + '</div>';
+        html += '<div style="flex:1;min-width:0;">';
+        html += '<strong style="color:#0A1F44;font-size:14px;">' + node.name + '</strong>';
+        html += '<br><span style="font-size:12px;color:#888;">' + node.email + ' · ' + node.referralCode + (node.course ? ' · 📚 ' + node.course : '') + '</span>';
         html += '</div>';
-        html += statusBadge;
+        html += '<span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;background:' + statusBg + ';color:' + statusColor + ';">' + statusText + '</span>';
         if (node.children && node.children.length > 0) {
-          html += '<span style="font-size: 11px; color: var(--gold); font-weight: 700; background: rgba(212,168,67,0.1); padding: 2px 8px; border-radius: 10px;">' + node.children.length + ' referrals</span>';
+          html += '<span style="font-size:11px;color:#D4A017;font-weight:700;background:rgba(212,168,67,0.1);padding:2px 8px;border-radius:10px;">' + node.children.length + ' referrals</span>';
         }
         html += '</div>';
         if (node.children && node.children.length > 0) {

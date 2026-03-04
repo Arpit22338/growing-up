@@ -1,10 +1,49 @@
 <!-- Admin sidebar partial -->
+<!-- Mobile navbar for admin (shown below 768px) -->
+<nav id="adminMobileNav" style="display:none;background:#0A1F44;color:#fff;height:60px;padding:0 24px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1000;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;">
+  <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:#fff;font-weight:700;font-size:18px;">
+    <img src="/images/logo-web.png" alt="Growing Up" width="36" height="36" style="border-radius:50%;">
+    Growing <span style="color:#D4A017;">Up</span>
+  </a>
+  <button type="button" id="adminHamburger" style="background:none;border:none;color:#fff;font-size:28px;cursor:pointer;padding:4px;">
+    <i class='bx bx-menu'></i>
+  </button>
+</nav>
+<!-- Mobile Drawer Overlay for Admin -->
+<div id="adminDrawerOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1100;" onclick="closeAdminDrawer()"></div>
+<!-- Mobile Drawer for Admin -->
+<div id="adminMobileDrawer" style="position:fixed;top:0;left:-280px;width:280px;height:100%;background:#0A1F44;z-index:1200;transition:left 0.3s ease;padding:20px 0;overflow-y:auto;">
+  <div style="display:flex;align-items:center;gap:8px;padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,0.1);">
+    <img src="/images/logo-web.png" alt="Growing Up" width="36" height="36" style="border-radius:50%;">
+    <span style="color:#fff;font-weight:700;font-size:16px;">Growing <span style="color:#D4A017;">Up</span></span>
+    <button type="button" onclick="closeAdminDrawer()" style="margin-left:auto;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;"><i class='bx bx-x'></i></button>
+  </div>
+  <div style="padding:16px 0;">
+    <a href="/" onclick="closeAdminDrawer()" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;">🏠 Home</a>
+    <a href="/admin" onclick="closeAdminDrawer()" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;">📊 Dashboard</a>
+    <a href="/admin/payments" onclick="closeAdminDrawer()" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;">💳 Payments</a>
+    <a href="/admin/users" onclick="closeAdminDrawer()" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;">👥 Users</a>
+    <a href="/admin/profile" onclick="closeAdminDrawer()" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;">👤 Profile</a>
+    <a href="/admin/earnings" onclick="closeAdminDrawer()" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;">💰 Earnings</a>
+    <a href="/admin/referral-tree" onclick="closeAdminDrawer()" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;">🌳 Referral Tree</a>
+    <a href="/admin/withdrawals" onclick="closeAdminDrawer()" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;">💸 Withdrawals</a>
+    <a href="/admin/settings" onclick="closeAdminDrawer()" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;">⚙️ Settings</a>
+    <div style="border-top:1px solid rgba(255,255,255,0.1);margin:8px 0;"></div>
+    <a href="/" onclick="closeAdminDrawer()" style="display:block;padding:12px 24px;color:#D4A017;text-decoration:none;font-size:15px;font-weight:500;">🏠 View Site</a>
+    <a href="/logout" onclick="closeAdminDrawer()" style="display:block;padding:12px 24px;color:#ff6b6b;text-decoration:none;font-size:15px;font-weight:600;">🚪 Logout</a>
+  </div>
+</div>
+
+<!-- Desktop Sidebar -->
 <div class="admin-sidebar" id="adminSidebar">
   <div class="sidebar-logo">
     <img src="/images/logo-web.png" alt="Growing Up" class="logo-img" width="38" height="38">
     Growing <span>Up</span>
   </div>
   <nav class="sidebar-nav">
+    <a href="/" class="<%= typeof active !== 'undefined' && active === 'home' ? 'active' : '' %>">
+      <i class='bx bx-home'></i> Home
+    </a>
     <a href="/admin" class="<%= typeof active !== 'undefined' && active === 'dashboard' ? 'active' : '' %>">
       <i class='bx bx-grid-alt'></i> Dashboard
     </a>
@@ -14,18 +53,18 @@
     <a href="/admin/users" class="<%= typeof active !== 'undefined' && active === 'users' ? 'active' : '' %>">
       <i class='bx bx-group'></i> Users
     </a>
+    <a href="/admin/profile" class="<%= typeof active !== 'undefined' && active === 'profile' ? 'active' : '' %>">
+      <i class='bx bx-user'></i> Profile
+    </a>
     <% if (role === 'superadmin') { %>
-      <a href="/admin/add-user" class="<%= typeof active !== 'undefined' && active === 'add-user' ? 'active' : '' %>">
-        <i class='bx bx-user-plus'></i> Add User
-      </a>
-      <a href="/admin/withdrawals" class="<%= typeof active !== 'undefined' && active === 'withdrawals' ? 'active' : '' %>">
-        <i class='bx bx-money-withdraw'></i> Withdrawals
-      </a>
       <a href="/admin/earnings" class="<%= typeof active !== 'undefined' && active === 'earnings' ? 'active' : '' %>">
         <i class='bx bx-bar-chart-alt-2'></i> Earnings
       </a>
       <a href="/admin/referral-tree" class="<%= typeof active !== 'undefined' && active === 'referral-tree' ? 'active' : '' %>">
         <i class='bx bx-git-branch'></i> Referral Tree
+      </a>
+      <a href="/admin/withdrawals" class="<%= typeof active !== 'undefined' && active === 'withdrawals' ? 'active' : '' %>">
+        <i class='bx bx-money-withdraw'></i> Withdrawals
       </a>
       <div class="sidebar-divider"></div>
       <a href="/admin/settings" class="<%= typeof active !== 'undefined' && active === 'settings' ? 'active' : '' %>">
@@ -41,3 +80,35 @@
     </a>
   </nav>
 </div>
+<style>
+  @media(max-width:768px){
+    .admin-sidebar{display:none!important;}
+    #adminMobileNav{display:flex!important;}
+  }
+  @media(min-width:769px){
+    #adminMobileNav{display:none!important;}
+    #adminMobileDrawer{display:none!important;}
+    #adminDrawerOverlay{display:none!important;}
+  }
+</style>
+<script>
+function openAdminDrawer(){
+  document.getElementById('adminMobileDrawer').style.left='0';
+  document.getElementById('adminDrawerOverlay').style.display='block';
+}
+function closeAdminDrawer(){
+  document.getElementById('adminMobileDrawer').style.left='-280px';
+  document.getElementById('adminDrawerOverlay').style.display='none';
+}
+(function(){
+  var btn=document.getElementById('adminHamburger');
+  if(btn) btn.addEventListener('click',function(e){e.stopPropagation();openAdminDrawer();});
+  // Also support old hamBtn
+  var hamBtn=document.getElementById('hamBtn');
+  if(hamBtn) hamBtn.addEventListener('click',function(){
+    var sb=document.getElementById('adminSidebar');
+    if(sb) sb.classList.toggle('open');
+    if(window.innerWidth<=768) openAdminDrawer();
+  });
+})();
+</script>

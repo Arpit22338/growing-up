@@ -8,6 +8,9 @@ const crypto = require('crypto');
 const path = require('path');
 const connectDB = require('./config/db');
 
+const Payment = require('./models/Payment');
+const User = require('./models/User');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -179,6 +182,38 @@ app.use((err, req, res, next) => {
 
 // Export for Vercel serverless
 module.exports = app;
+
+// ── Auto-delete approved/rejected payments after 3 days ──
+setInterval(async () => {
+  try {
+    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+    const result = await Payment.deleteMany({
+      status: { $in: ['approved', 'rejected'] },
+      updatedAt: { $lt: threeDaysAgo }
+    });
+    if (result.deletedCount > 0) {
+      console.log(`Old payment records cleaned up: ${result.deletedCount} deleted`);
+    }
+  } catch (err) {
+    console.error('Payment cleanup error:', err.message);
+  }
+}, 24 * 60 * 60 * 1000); // runs every 24 hours
+
+// ── Reset daily withdrawal counts (check every hour) ──
+setInterval(async () => {
+  try {
+    const today = new Date().toDateString();
+    const result = await User.updateMany(
+      { lastWithdrawalDate: { $ne: today }, dailyWithdrawCount: { $gt: 0 } },
+      { $set: { dailyWithdrawCount: 0 } }
+    );
+    if (result.modifiedCount > 0) {
+      console.log(`Daily withdrawal counts reset for ${result.modifiedCount} users`);
+    }
+  } catch (err) {
+    console.error('Daily withdrawal reset error:', err.message);
+  }
+}, 60 * 60 * 1000); // runs every hour
 
 // Only listen when running locally (not on Vercel)
 if (!process.env.VERCEL) {

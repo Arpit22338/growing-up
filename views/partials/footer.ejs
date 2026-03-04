@@ -30,26 +30,18 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
-    // Mobile nav toggle
-    (function() {
+    // Mobile drawer open/close
+    function openDrawer() {
+      document.getElementById('mobileDrawer').style.left = '0';
+      document.getElementById('drawerOverlay').style.display = 'block';
+    }
+    function closeDrawer() {
+      document.getElementById('mobileDrawer').style.left = '-280px';
+      document.getElementById('drawerOverlay').style.display = 'none';
+    }
+    (function(){
       var btn = document.getElementById('hamburgerBtn');
-      var nav = document.getElementById('navLinks');
-      var icon = document.getElementById('hamburgerIcon');
-      if (btn && nav) {
-        btn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          nav.classList.toggle('open');
-          if (icon) {
-            icon.className = nav.classList.contains('open') ? 'bx bx-x' : 'bx bx-menu';
-          }
-        });
-        document.addEventListener('click', function(e) {
-          if (!nav.contains(e.target) && !btn.contains(e.target)) {
-            nav.classList.remove('open');
-            if (icon) icon.className = 'bx bx-menu';
-          }
-        });
-      }
+      if(btn) btn.addEventListener('click', function(e){ e.stopPropagation(); openDrawer(); });
     })();
 
     // CSRF token helper
@@ -62,8 +54,10 @@
     }
 
     // Toast notification
-    function showToast(message, type = 'success') {
+    function showToast(message, type) {
+      type = type || 'success';
       const container = document.getElementById('toastContainer');
+      if(!container) return;
       const toast = document.createElement('div');
       toast.className = 'toast toast-' + type;
       toast.innerHTML = '<i class="bx ' + (type === 'success' ? 'bx-check-circle' : 'bx-error-circle') + '"></i> ' + message;
@@ -71,34 +65,36 @@
       setTimeout(() => { toast.remove(); }, 4000);
     }
 
-    // Global copy link function
-    function copyLink(text, btn) {
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(function() {
-          btn.innerHTML = '\u2713 Copied!';
-          setTimeout(function() { btn.innerHTML = 'Copy'; }, 2000);
-        }).catch(function() { fallbackCopy(text, btn); });
-      } else {
-        fallbackCopy(text, btn);
-      }
-    }
-    function fallbackCopy(text, btn) {
-      var temp = document.createElement('textarea');
-      temp.value = text;
-      temp.style.position = 'fixed';
-      temp.style.opacity = '0';
-      document.body.appendChild(temp);
-      temp.focus();
-      temp.select();
+    // Global copy function — guaranteed to work
+    function doCopy(btn, text) {
+      var inp = document.createElement('input');
+      inp.setAttribute('value', text);
+      inp.setAttribute('readonly', '');
+      inp.style.cssText = 'position:absolute;left:-9999px;top:0;';
+      document.body.appendChild(inp);
+      inp.select();
+      inp.setSelectionRange(0, 99999);
+      var success = false;
       try {
-        document.execCommand('copy');
-        btn.innerHTML = '\u2713 Copied!';
-        setTimeout(function() { btn.innerHTML = 'Copy'; }, 2000);
-      } catch(e) {
-        btn.innerHTML = 'Failed';
+        success = document.execCommand('copy');
+      } catch(e) { success = false; }
+      document.body.removeChild(inp);
+      if (success) {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '✓ Copied!';
+        btn.style.background = '#27AE60';
+        btn.style.color = '#fff';
+        setTimeout(function(){
+          btn.innerHTML = orig;
+          btn.style.background = '';
+          btn.style.color = '';
+        }, 2000);
+      } else {
+        alert('Copy failed. Please copy manually:\n'+text);
       }
-      document.body.removeChild(temp);
     }
+    // Backward compat alias
+    function copyLink(text, btn) { doCopy(btn, text); }
 
     // Password show/hide toggle
     document.querySelectorAll('.password-toggle').forEach(function(btn) {
