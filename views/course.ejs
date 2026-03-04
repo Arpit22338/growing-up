@@ -61,9 +61,7 @@
                 <input type="text" readonly 
                   value="<%= baseUrl %>/course/<%= course.key %>?ref=<%= loggedInUser.referralCode %>" 
                   id="courseRefLink">
-                <button type="button" onclick="doCopy(this, document.getElementById('courseRefLink').value)" style="cursor:pointer;pointer-events:all!important;padding:10px 18px;border-radius:8px;border:1px solid #D4A017;background:#fff;color:#0A1F44;font-weight:600;">
-                  Copy
-                </button>
+                <button type="button" style="padding:10px 18px;background:#D4A017;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;" onclick="(function(btn){var text=btn.previousElementSibling.value||btn.previousElementSibling.textContent;var el=document.createElement('textarea');el.value=text;el.style.position='fixed';el.style.opacity='0';document.body.appendChild(el);el.focus();el.select();document.execCommand('copy');document.body.removeChild(el);btn.textContent='✓ Copied!';setTimeout(function(){btn.textContent='Copy';},2000);})(this)">Copy</button>
               </div>
               <a href="https://wa.me/?text=Check%20out%20this%20course%20on%20Growing%20Up!%20<%= encodeURIComponent(baseUrl + '/course/' + course.key + '?ref=' + loggedInUser.referralCode) %>" 
                  target="_blank" class="btn btn-sm" style="background: #25D366; color: white; margin-top: 10px; width: 100%;">

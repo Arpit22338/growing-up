@@ -166,7 +166,7 @@
       <div class="dash-share-label"><i class='bx bx-link'></i> Your Referral Link</div>
       <div class="referral-link-group">
         <input type="text" readonly value="<%= baseUrl %>/register?ref=<%= user.referralCode %>" id="genLink">
-        <button type="button" onclick="doCopy(this, document.getElementById('genLink').value)" style="cursor:pointer;pointer-events:all!important;padding:10px 18px;border-radius:8px;border:1px solid #D4A017;background:#fff;color:#0A1F44;font-weight:600;">Copy</button>
+        <button type="button" style="padding:10px 18px;background:#D4A017;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;" onclick="(function(btn){var text=btn.previousElementSibling.value||btn.previousElementSibling.textContent;var el=document.createElement('textarea');el.value=text;el.style.position='fixed';el.style.opacity='0';document.body.appendChild(el);el.focus();el.select();document.execCommand('copy');document.body.removeChild(el);btn.textContent='✓ Copied!';setTimeout(function(){btn.textContent='Copy';},2000);})(this)">Copy</button>
       </div>
       <a href="https://wa.me/?text=Join%20Growing%20Up%20and%20start%20earning!%20<%= encodeURIComponent(baseUrl + '/register?ref=' + user.referralCode) %>"
          target="_blank" class="btn-whatsapp" style="margin-top: 10px;">
@@ -186,7 +186,7 @@
             <input type="text" readonly
               value="<%= baseUrl %>/course/<%= key %>?ref=<%= user.referralCode %>"
               id="link_<%= key %>">
-            <button type="button" onclick="doCopy(this, document.getElementById('link_<%= key %>').value)" style="cursor:pointer;pointer-events:all!important;padding:10px 18px;border-radius:8px;border:1px solid #D4A017;background:#fff;color:#0A1F44;font-weight:600;">Copy</button>
+            <button type="button" style="padding:10px 18px;background:#D4A017;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;" onclick="(function(btn){var text=btn.previousElementSibling.value||btn.previousElementSibling.textContent;var el=document.createElement('textarea');el.value=text;el.style.position='fixed';el.style.opacity='0';document.body.appendChild(el);el.focus();el.select();document.execCommand('copy');document.body.removeChild(el);btn.textContent='✓ Copied!';setTimeout(function(){btn.textContent='Copy';},2000);})(this)">Copy</button>
           </div>
           <a href="https://wa.me/?text=Check%20out%20<%= encodeURIComponent(courses[key].title) %>%20on%20Growing%20Up!%20<%= encodeURIComponent(baseUrl + '/course/' + key + '?ref=' + user.referralCode) %>"
              target="_blank" class="btn-whatsapp btn-sm" style="width: 100%; justify-content: center; margin-top: 8px;">
