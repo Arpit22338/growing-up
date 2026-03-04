@@ -7,12 +7,12 @@
   </a>
 
   <h2 style="color: var(--navy); margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
-    <i class='bx bx-wallet' style="color: var(--gold);"></i> My Wallet
+    <i class='bx bx-wallet' style="color: var(--gold);"></i> Scroll My Wallet
   </h2>
 <br>
 <br>
-<center><h3 style="color: var(--navy); margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
-    <i class='bx bx-wallet' style="color: var(--gold);"></i> Scroll Down For Withdrawing Your Earnings
+<center><h3>
+    Scroll Down For Withdrawing Your Earnings
   </h3></center>
   <!-- Referral Links -->
   <div class="card" style="padding: 20px; margin-bottom: 24px;">
@@ -64,25 +64,21 @@
   </div>
 
   <script>
-  function copyText(inputId, btn) {
-    var val = document.getElementById(inputId).value;
-    if (!val) { alert('No link found'); return; }
-    var t = document.createElement('textarea');
-    t.value = val;
-    t.style.position = 'fixed';
-    t.style.opacity = '0';
-    document.body.appendChild(t);
-    t.focus();
-    t.select();
-    t.setSelectionRange(0, 99999);
-    document.execCommand('copy');
-    document.body.removeChild(t);
-    btn.textContent = '✓ Copied!';
-    btn.style.background = '#27AE60';
-    setTimeout(function() {
-      btn.textContent = 'Copy';
-      btn.style.background = '#D4A017';
-    }, 2000);
+  function copyText(id, btn) {
+    var el = document.getElementById(id);
+    var text = el.value || el.innerText;
+    navigator.clipboard.writeText(text)
+      .then(function() {
+        btn.textContent = '✓ Copied!';
+        btn.style.background = '#27AE60';
+        setTimeout(function() {
+          btn.textContent = 'Copy';
+          btn.style.background = '#D4A017';
+        }, 2000);
+      })
+      .catch(function(err) {
+        alert('Copy manually:\n' + text);
+      });
   }
   </script>
 

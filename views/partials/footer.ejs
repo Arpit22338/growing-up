@@ -65,36 +65,23 @@
       setTimeout(() => { toast.remove(); }, 4000);
     }
 
-    // Global copy function — guaranteed to work
-    function doCopy(btn, text) {
-      var inp = document.createElement('input');
-      inp.setAttribute('value', text);
-      inp.setAttribute('readonly', '');
-      inp.style.cssText = 'position:absolute;left:-9999px;top:0;';
-      document.body.appendChild(inp);
-      inp.select();
-      inp.setSelectionRange(0, 99999);
-      var success = false;
-      try {
-        success = document.execCommand('copy');
-      } catch(e) { success = false; }
-      document.body.removeChild(inp);
-      if (success) {
-        var orig = btn.innerHTML;
-        btn.innerHTML = '✓ Copied!';
-        btn.style.background = '#27AE60';
-        btn.style.color = '#fff';
-        setTimeout(function(){
-          btn.innerHTML = orig;
-          btn.style.background = '';
-          btn.style.color = '';
-        }, 2000);
-      } else {
-        alert('Copy failed. Please copy manually:\n'+text);
-      }
+    // Global copy function — uses navigator.clipboard
+    function copyText(id, btn) {
+      var el = document.getElementById(id);
+      var text = el.value || el.innerText;
+      navigator.clipboard.writeText(text)
+        .then(function() {
+          btn.textContent = '✓ Copied!';
+          btn.style.background = '#27AE60';
+          setTimeout(function() {
+            btn.textContent = 'Copy';
+            btn.style.background = '#D4A017';
+          }, 2000);
+        })
+        .catch(function(err) {
+          alert('Copy manually:\n' + text);
+        });
     }
-    // Backward compat alias
-    function copyLink(text, btn) { doCopy(btn, text); }
 
     // Password show/hide toggle
     document.querySelectorAll('.password-toggle').forEach(function(btn) {
