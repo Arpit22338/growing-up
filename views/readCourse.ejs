@@ -1,0 +1,47 @@
+<%- include('partials/header', { title: course.title + ' — Read Course' }) %>
+
+<section class="section" style="background: var(--white); padding-top: 40px;">
+  <div class="container" style="max-width: 800px;">
+    <div class="course-detail-card" data-border="<%= course.borderColor || 'var(--gold)' %>">
+      <div class="course-detail-thumb">
+        <img src="<%= course.thumbnail %>" alt="<%= course.title %>">
+        <div class="course-detail-icon">
+          <i class='bx <%= course.icon %>'></i>
+        </div>
+      </div>
+      <div class="course-detail-body">
+        <h1 class="course-detail-title"><%= course.title %></h1>
+        <p class="course-detail-desc"><%= course.description %></p>
+        <hr style="margin: 24px 0;">
+        <h2 style="color: var(--navy); margin-bottom: 16px;">Course Lessons</h2>
+        <% courseLessons.forEach(function(lesson, idx) { %>
+          <div class="lesson-block" style="margin-bottom: 32px;">
+            <h3 style="color: var(--gold-dark); margin-bottom: 8px;">Lesson <%= idx+1 %>: <%= lesson.title %></h3>
+            <div style="font-size: 15px; color: var(--gray-800); margin-bottom: 8px;">
+              <%= lesson.content %>
+            </div>
+            <% if (lesson.tips) { %>
+              <ul style="margin-left: 18px; color: var(--gray-700); font-size: 14px;">
+                <% lesson.tips.forEach(function(tip) { %>
+                  <li><%= tip %></li>
+                <% }); %>
+              </ul>
+            <% } %>
+          </div>
+        <% }); %>
+        <div style="margin-top: 32px;">
+          <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  var card = document.querySelector('.course-detail-card[data-border]');
+  if (card) card.style.borderTop = '5px solid ' + card.dataset.border;
+})();
+</script>
+
+<%- include('partials/footer') %>

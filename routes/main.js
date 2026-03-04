@@ -640,4 +640,27 @@ router.get('/logout', (req, res) => {
   });
 });
 
+
+// GET - Read Course (only for owned courses)
+router.get('/course/:key/read', async (req, res) => {
+  if (!req.session || !req.session.userId) return res.redirect('/login');
+  const courseKey = req.params.key;
+  const course = courses[courseKey];
+  if (!course) return res.redirect('/');
+
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user || !user.isActive) return res.redirect('/pending');
+    // Check if user owns this course (approved only)
+    const owned = user.purchasedCourses.some(c => c.courseKey === courseKey && c.status === 'approved');
+    if (!owned) return res.status(403).render('404', { message: 'You do not have access to this course.' });
+
+    // Map courseKey to partial path
+    const contentPartial = `partials/course-contents/${courseKey}`;
+    res.render('course-read', { course, contentPartial, loggedInUser: user });
+  } catch (err) {
+    return res.status(500).render('404', { message: 'Server error.' });
+  }
+});
+
 module.exports = router;
