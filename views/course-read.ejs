@@ -1,0 +1,1397 @@
+<%- include('partials/header', { loggedInUser }) %>
+<style>
+  .course-read-hero {
+    background: linear-gradient(90deg, #f8fafc 60%, #e0e7ff 100%);
+    border-radius: 18px;
+    padding: 32px 24px 24px 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 16px 0 rgba(60,72,100,0.07);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .course-read-hero h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0;
+  }
+  .course-read-hero p {
+    color: #475569;
+    font-size: 1.1rem;
+    margin-bottom: 0;
+  }
+  .module-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 0 0 24px 0;
+    padding: 0;
+    list-style: none;
+  }
+  .module-list li {
+    background: #fff;
+    border: 1.5px solid #c7d2fe;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 500;
+    color: #3730a3;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    box-shadow: 0 1px 4px 0 rgba(60,72,100,0.04);
+  }
+  .module-list li.active, .module-list li:hover {
+    background: #6366f1;
+    color: #fff;
+    border-color: #6366f1;
+  }
+  .module-content {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px 0 rgba(60,72,100,0.06);
+    padding: 28px 20px;
+    margin-bottom: 32px;
+    min-height: 220px;
+    animation: fadeIn 0.4s;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (max-width: 600px) {
+    .course-read-hero { padding: 18px 8px 16px 8px; }
+    .module-content { padding: 16px 6px; }
+    .module-list li { padding: 8px 10px; font-size: 0.98rem; }
+  }
+</style>
+
+<div class="container course-read">
+  <div class="course-read-hero">
+    <h1><%= course.name %> <span style="font-size:1.1rem;font-weight:400;color:#6366f1;">Course</span></h1>
+    <p><%= course.description %></p>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="background:#6366f1;color:#fff;padding:4px 12px;border-radius:6px;font-size:0.98rem;">Level: <%= course.title %></span>
+      <span style="background:#fbbf24;color:#fff;padding:4px 12px;border-radius:6px;font-size:0.98rem;">Price: <%= course.currency %><%= course.price %></span>
+    </div>
+  </div>
+
+  <!-- Module Navigation -->
+  <ul class="module-list" id="moduleList">
+    <!-- JS will populate modules -->
+  </ul>
+
+  <!-- Module Content -->
+  <div class="module-content" id="moduleContent">
+    <!-- JS will populate content -->
+  </div>
+
+  <a href="/dashboard" class="btn btn-primary mt-4" style="margin-bottom:32px;">Go to Dashboard</a>
+</div>
+
+<script>
+// Define modules for each course (teacher-style, modular, long and real-life content)
+const courseModules = {
+  starter: [
+    {
+      title: 'Module 1: Social Media Basics & Personal Branding',
+      content: `<h2>Module 1: Social Media Basics & Personal Branding</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Understand what personal branding means in the digital world.</li>
+  <li>Learn how to audit and upgrade your Facebook, Instagram, and TikTok profiles.</li>
+  <li>Discover what kind of content to post for professional growth.</li>
+  <li>Grasp the concept of “digital trust” and why it matters for earning online.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>What is Personal Branding Online?</b><br>
+<p><b>Personal branding</b> is the process of creating a unique and consistent image of yourself on the internet. In Nepal, where opportunities are increasingly digital, your online presence is often your first impression. Whether you’re a student in Pokhara, a homemaker in Biratnagar, or a job seeker in Kathmandu, your Facebook, Instagram, and TikTok profiles are your digital business cards.</p>
+<b>Why Does Personal Branding Matter for Earning?</b><br>
+<p>When people search your name, what do they find? Employers, clients, and collaborators will check your social media before working with you. A strong personal brand builds <b>digital trust</b>—the confidence others have in your skills, reliability, and professionalism.</p>
+<b>Auditing and Upgrading Your Profiles</b>
+<ul>
+  <li><b>Profile Photo:</b> Use a clear, friendly, and professional-looking photo. Avoid group shots or blurry images.</li>
+  <li><b>Bio:</b> Write a short, honest description of who you are, what you do, and what you’re passionate about. Example: “Aspiring digital marketer | Learning every day | DM for collaboration.”</li>
+  <li><b>Content Pillars:</b> Choose 2–3 topics you want to be known for (e.g., digital skills, motivation, local culture). Post about these regularly.</li>
+  <li><b>Consistency:</b> Post at least once a week. Consistency builds recognition and trust.</li>
+  <li><b>Personal vs. Professional:</b> It’s okay to share personal moments, but keep your main feed focused on your goals and skills.</li>
+</ul>
+<b>Building Digital Trust</b>
+<ul>
+  <li>Respond to comments and messages politely.</li>
+  <li>Share your learning journey, not just your achievements.</li>
+  <li>Avoid sharing fake news or controversial content.</li>
+  <li>Support others in your network.</li>
+</ul>
+<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> Your online presence is permanent. Think before you post—would you be proud to show this to a future employer or client?</div>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Use the same profile photo and similar bios across all platforms. This makes you instantly recognizable and strengthens your brand.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Sita, a 19-year-old student from Pokhara, started sharing her journey of learning graphic design on Instagram. She posted her projects, shared tips, and engaged with others in the field. Within six months, a local business owner noticed her work and offered her a paid freelance project. Sita’s consistent, positive, and skill-focused online presence turned her hobby into a source of income.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Audit your Facebook, Instagram, and TikTok profiles today. Remove anything unprofessional.</li>
+  <li>Update your bio and profile photo within the next week.</li>
+  <li>Make it a habit to post about your learning or work at least once a week.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Personal branding is your digital reputation. By curating your profiles, posting consistently, and focusing on your strengths, you build trust and open doors to online opportunities. Remember, your online presence is your new CV—make it count!</p>
+<h3>❓ Reflection Question</h3>
+<p>What does your current online presence say about you, and what would you like it to say in six months?</p>`
+    },
+    {
+      title: 'Module 2: Communication Skills for Online Work',
+      content: `<h2>Module 2: Communication Skills for Online Work</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Learn how to write professional messages in English and Nepali.</li>
+  <li>Understand the difference between casual chat and business communication.</li>
+  <li>Master the basics of email etiquette and proposal writing.</li>
+  <li>Handle misunderstandings and client inquiries gracefully.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>The Power of Professional Communication</b>
+<p>In the digital world, your words are your handshake. Whether you’re chatting on WhatsApp, sending an email, or replying to a client on Facebook, clear and polite communication sets you apart.</p>
+<b>Writing Professional Messages</b>
+<ul>
+  <li><b>Greetings:</b> Always start with a polite greeting. (“Namaste, hope you are well…”)</li>
+  <li><b>Clarity:</b> Be concise but complete. Answer all questions in one message.</li>
+  <li><b>Tone:</b> Use polite language. Avoid slang or overly casual words.</li>
+  <li><b>Language:</b> If you’re more comfortable in Nepali, that’s fine—just keep it respectful and clear.</li>
+</ul>
+<b>Business vs. Casual Chat</b>
+<ul>
+  <li><b>Business:</b> “Dear Sir/Madam, I am interested in your project. Please find my proposal attached.”</li>
+  <li><b>Casual:</b> “Hey, what’s up? Check this out!”</li>
+</ul>
+<b>Email Etiquette</b>
+<ul>
+  <li>Use a clear subject line.</li>
+  <li>Start with a greeting.</li>
+  <li>Keep paragraphs short.</li>
+  <li>End with a closing (“Best regards, Suman”).</li>
+  <li>Proofread before sending.</li>
+</ul>
+<b>Writing a Simple Proposal</b>
+<ul>
+  <li>Introduce yourself.</li>
+  <li>State what you can do.</li>
+  <li>Mention your experience or skills.</li>
+  <li>Ask for the next steps.</li>
+</ul>
+<b>Handling Misunderstandings</b>
+<ul>
+  <li>Stay calm and polite.</li>
+  <li>Clarify the issue.</li>
+  <li>Apologize if needed.</li>
+  <li>Offer a solution.</li>
+</ul>
+<b>Response Time</b>
+<p>Reply within 24 hours whenever possible. Quick responses show professionalism and respect.</p>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Save templates for common messages (introductions, proposals, follow-ups) so you can respond quickly and professionally every time.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Ramesh, a job seeker from Biratnagar, applied for a remote data entry job. He wrote a clear, polite email introducing himself and attached his CV. The employer was impressed by his professionalism and quick replies. Even when there was a misunderstanding about the work hours, Ramesh handled it calmly and clarified the details. He got the job—and a reputation for being reliable.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Write a professional introduction message and save it as a template.</li>
+  <li>Send a follow-up message to someone you’ve contacted in the past week.</li>
+  <li>Make it a habit to reply to all work-related messages within 24 hours.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Professional communication is the foundation of online work. By using clear language, polite tone, and quick responses, you build trust and increase your chances of success. Templates and good habits make it easier over time.</p>
+<h3>❓ Reflection Question</h3>
+<p>How would you feel if you received your own messages? What could you improve to sound more professional?</p>`
+    },
+    {
+      title: 'Module 3: Mindset & Goal Setting',
+      content: `<h2>Module 3: Mindset & Goal Setting</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Understand the difference between a growth mindset and a fixed mindset.</li>
+  <li>Learn why most beginners quit and how to avoid it.</li>
+  <li>Apply the SMART goal framework to online income.</li>
+  <li>Build daily habits for digital success.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>Growth Mindset vs. Fixed Mindset</b>
+<p>A <b>growth mindset</b> means believing you can learn and improve with effort. A <b>fixed mindset</b> believes your abilities are set and can’t change. In digital work, a growth mindset helps you overcome challenges and keep learning.</p>
+<b>Why Most Beginners Quit</b>
+<ul>
+  <li>They expect quick results.</li>
+  <li>They get discouraged by failure.</li>
+  <li>They compare themselves to others.</li>
+</ul>
+<b>How to Avoid Quitting</b>
+<ul>
+  <li>Celebrate small wins.</li>
+  <li>Learn from mistakes.</li>
+  <li>Find an accountability partner.</li>
+</ul>
+<b>SMART Goals for Online Income</b>
+<ul>
+  <li><b>Specific:</b> “I want to earn Rs. 2,000 from freelancing in 2 months.”</li>
+  <li><b>Measurable:</b> Track your earnings and progress.</li>
+  <li><b>Achievable:</b> Start with realistic targets.</li>
+  <li><b>Relevant:</b> Choose goals that matter to you.</li>
+  <li><b>Time-bound:</b> Set a deadline.</li>
+</ul>
+<b>Daily Habits of Successful Digital Workers</b>
+<ul>
+  <li>Set aside time each day for learning or working online.</li>
+  <li>Review your goals every week.</li>
+  <li>Visualize your success—imagine achieving your goals.</li>
+</ul>
+<b>Dealing with Imposter Syndrome</b>
+<p>Everyone feels like a beginner at first. Remember, every expert was once a beginner. Focus on progress, not perfection.</p>
+<b>Accountability Partners</b>
+<p>Share your goals with a friend or mentor. Check in weekly to stay on track.</p>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Write your goals on paper and keep them visible. This daily reminder keeps you focused and motivated.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Anita, a homemaker in Kathmandu, wanted to start earning online but felt overwhelmed. She set a SMART goal: “Earn Rs. 1,000 from data entry in 30 days.” She joined a Facebook group for support and checked in with a friend every week. Even when she faced setbacks, her growth mindset and accountability partner kept her going. She reached her goal in three weeks.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Write down one SMART goal for your online journey today.</li>
+  <li>Find an accountability partner and share your goal within a week.</li>
+  <li>Review your progress every Sunday and adjust your plan as needed.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>A growth mindset and clear goals are the keys to digital success. By setting SMART goals, building daily habits, and seeking support, you can overcome challenges and achieve your dreams.</p>
+<h3>❓ Reflection Question</h3>
+<p>What is one limiting belief you have about yourself, and how can you reframe it with a growth mindset?</p>`
+    },
+    {
+      title: 'Module 4: Introduction to Online Earning Methods',
+      content: `<h2>Module 4: Introduction to Online Earning Methods</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Discover 8+ ways to earn money online.</li>
+  <li>Understand the skills and platforms needed for each method.</li>
+  <li>Learn how to choose the best method for your situation.</li>
+  <li>Set realistic expectations for time to first earning.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>1. Freelancing</b>
+<ul>
+  <li><b>What:</b> Offer your skills (writing, design, data entry) to clients worldwide.</li>
+  <li><b>Skills Needed:</b> English, computer basics, specific skill (e.g., writing).</li>
+  <li><b>Platforms:</b> <code>Upwork</code>, <code>Fiverr</code>, <code>Freelancer</code>.</li>
+  <li><b>Time to First Earning:</b> 2–8 weeks.</li>
+</ul>
+<b>2. Affiliate Marketing</b>
+<ul>
+  <li><b>What:</b> Promote products and earn a commission for each sale.</li>
+  <li><b>Skills Needed:</b> Social media, content creation.</li>
+  <li><b>Platforms:</b> <code>Daraz Affiliate</code>, <code>Amazon Associates</code>.</li>
+  <li><b>Time to First Earning:</b> 1–3 months.</li>
+</ul>
+<b>3. Content Creation</b>
+<ul>
+  <li><b>What:</b> Make videos, blogs, or podcasts and earn from ads or sponsorships.</li>
+  <li><b>Skills Needed:</b> Video editing, storytelling.</li>
+  <li><b>Platforms:</b> <code>YouTube</code>, <code>TikTok</code>, <code>Blogspot</code>.</li>
+  <li><b>Time to First Earning:</b> 2–6 months.</li>
+</ul>
+<b>4. Referral Programs</b>
+<ul>
+  <li><b>What:</b> Invite others to join a platform and earn a bonus.</li>
+  <li><b>Skills Needed:</b> Networking, communication.</li>
+  <li><b>Platforms:</b> This course, <code>eSewa</code>, <code>Khalti</code>.</li>
+  <li><b>Time to First Earning:</b> 1–4 weeks.</li>
+</ul>
+<b>5. Online Tutoring</b>
+<ul>
+  <li><b>What:</b> Teach subjects or skills online.</li>
+  <li><b>Skills Needed:</b> Subject knowledge, teaching ability.</li>
+  <li><b>Platforms:</b> <code>Teachmint</code>, <code>Zoom</code>, <code>Facebook Live</code>.</li>
+  <li><b>Time to First Earning:</b> 2–6 weeks.</li>
+</ul>
+<b>6. Data Entry</b>
+<ul>
+  <li><b>What:</b> Enter data for companies or researchers.</li>
+  <li><b>Skills Needed:</b> Typing, attention to detail.</li>
+  <li><b>Platforms:</b> <code>Upwork</code>, <code>Freelancer</code>, local job boards.</li>
+  <li><b>Time to First Earning:</b> 2–4 weeks.</li>
+</ul>
+<b>7. Social Media Management</b>
+<ul>
+  <li><b>What:</b> Manage social media pages for businesses.</li>
+  <li><b>Skills Needed:</b> Social media, content planning.</li>
+  <li><b>Platforms:</b> <code>Facebook</code>, <code>Instagram</code>, <code>LinkedIn</code>.</li>
+  <li><b>Time to First Earning:</b> 1–3 months.</li>
+</ul>
+<b>8. Reselling</b>
+<ul>
+  <li><b>What:</b> Buy products in bulk and sell online.</li>
+  <li><b>Skills Needed:</b> Sales, negotiation.</li>
+  <li><b>Platforms:</b> <code>Daraz</code>, <code>Facebook Marketplace</code>.</li>
+  <li><b>Time to First Earning:</b> 2–6 weeks.</li>
+</ul>
+<b>Choosing the Best Method</b>
+<ul>
+  <li>Assess your skills and interests.</li>
+  <li>Start with one method and master it before trying others.</li>
+</ul>
+<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> Beware of scams. Never pay to get a job. Research platforms before joining.</div>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Join Facebook groups related to your chosen method. You’ll find tips, job leads, and support from others.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Bikash, a college student in Kathmandu, tried freelancing, affiliate marketing, and content creation. He found he enjoyed making TikTok videos the most. After three months of consistent posting, he started earning from brand partnerships. By focusing on one method, he turned his passion into profit.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Research two online earning methods that interest you today.</li>
+  <li>Join one Facebook group related to your chosen method this week.</li>
+  <li>Commit to learning and practicing your chosen method every day.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>There are many ways to earn online, each with its own skills and platforms. By exploring your options and focusing on one method, you can start your digital income journey with confidence.</p>
+<h3>❓ Reflection Question</h3>
+<p>Which online earning method excites you the most, and what is your first step to get started?</p>`
+    },
+    {
+      title: 'Module 5: How Referral Networks Work',
+      content: `<h2>Module 5: How Referral Networks Work</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Understand the mechanics of referral systems and commissions.</li>
+  <li>Learn how to promote platforms ethically and effectively.</li>
+  <li>Discover how to build trust and track your referrals.</li>
+  <li>Develop a long-term referral strategy.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>How Referral Systems Work</b>
+<p>A <b>referral system</b> rewards you for inviting others to join a platform. You get a unique link or code. When someone joins using your link, you earn a commission.</p>
+<b>Commissions and Multi-Level Referrals</b>
+<ul>
+  <li><b>Direct Referral:</b> You earn when someone joins directly through your link.</li>
+  <li><b>Multi-Level:</b> You may also earn a smaller commission when your referrals invite others.</li>
+  <li><b>Calculation:</b> Commissions are usually a percentage of the sale or a fixed bonus.</li>
+</ul>
+<b>Ethics of Promoting Platforms</b>
+<ul>
+  <li>Only promote platforms you trust and use yourself.</li>
+  <li>Be honest about the benefits and limitations.</li>
+  <li>Never pressure or mislead people.</li>
+</ul>
+<b>Sharing Your Referral Link</b>
+<ul>
+  <li>Share your story—why did you join?</li>
+  <li>Use social media, WhatsApp, and word of mouth.</li>
+  <li>Avoid spamming groups or sending unsolicited messages.</li>
+</ul>
+<b>Building Trust Before Promoting</b>
+<ul>
+  <li>Provide value first (tips, support, information).</li>
+  <li>Answer questions honestly.</li>
+  <li>Respect people’s decisions.</li>
+</ul>
+<b>Tracking Your Referrals</b>
+<ul>
+  <li>Use the platform’s dashboard or a simple spreadsheet.</li>
+  <li>Follow up with your referrals to support them.</li>
+</ul>
+<b>Long-Term Referral Strategy</b>
+<ul>
+  <li>Focus on quality, not just quantity.</li>
+  <li>Build relationships with your network.</li>
+  <li>Keep learning and improving your approach.</li>
+</ul>
+<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> Your reputation is your most valuable asset. Protect it by being ethical and supportive.</div>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Create a simple welcome message for new referrals. Offer to help them get started and answer their questions.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Sunita from Biratnagar joined a referral program for an online course. She shared her experience on Facebook and WhatsApp, focusing on how the course helped her. Instead of spamming, she answered questions and supported her referrals. Over six months, she built a network of 20 active members and earned steady commissions.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Write your personal story about why you joined a platform.</li>
+  <li>Share your referral link with three friends this week, focusing on helping them.</li>
+  <li>Track your referrals in a notebook or spreadsheet and follow up regularly.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Referral networks are a powerful way to earn online, but success comes from trust, ethics, and support. By focusing on relationships and providing value, you can build a sustainable income stream.</p>
+<h3>❓ Reflection Question</h3>
+<p>How can you add value to your network before asking them to join or buy something?</p>`
+    }
+  ],
+  prime: [
+    {
+      title: 'Module 1: Advanced Referral Strategies',
+      content: `<h2>Module 1: Advanced Referral Strategies</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Understand why most referrals fail and how to fix it.</li>
+  <li>Learn the psychology of persuasion: social proof, scarcity, authority.</li>
+  <li>Master the follow-up sequence and objection handling.</li>
+  <li>Build a funnel using WhatsApp/Telegram/Facebook Groups.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>Why Most Referrals Fail</b>
+<p>Most people share a link and hope for the best. But real success comes from understanding human psychology and building trust. Referrals fail when:</p>
+<ul>
+  <li>The message is generic or spammy.</li>
+  <li>There’s no social proof (testimonials, results).</li>
+  <li>The follow-up is weak or non-existent.</li>
+  <li>Objections are ignored.</li>
+</ul>
+<b>The Psychology of Persuasion</b>
+<ul>
+  <li><b>Social Proof:</b> People trust what others have tried. Share real testimonials, screenshots, or stories.</li>
+  <li><b>Scarcity:</b> Limited-time offers or spots create urgency.</li>
+  <li><b>Authority:</b> Show your expertise or results to build credibility.</li>
+</ul>
+<b>Creating a Compelling Testimonial Post</b>
+<ul>
+  <li>Use a real photo or video.</li>
+  <li>Share your personal story and results.</li>
+  <li>Include a call to action: “DM me to learn more.”</li>
+</ul>
+<b>The Follow-Up Sequence</b>
+<ul>
+  <li>1st message: Share your story and invite questions.</li>
+  <li>2nd message (2 days later): Share a testimonial or result.</li>
+  <li>3rd message (1 week later): Ask if they have questions or need help.</li>
+  <li>4th message: Respect their decision, but keep them in your network.</li>
+</ul>
+<b>Building a Funnel</b>
+<ul>
+  <li>Create a WhatsApp or Telegram group for interested people.</li>
+  <li>Share value (tips, stories, Q&A) before promoting.</li>
+  <li>Use Facebook Groups to build community and trust.</li>
+</ul>
+<b>Warm vs. Cold Outreach</b>
+<ul>
+  <li>Warm: Friends, family, people who know you.</li>
+  <li>Cold: Strangers or online contacts. Start with value, not a pitch.</li>
+</ul>
+<b>Handling Objections</b>
+<ul>
+  <li>“Is this a scam?” — Share your experience and proof.</li>
+  <li>“I have no time.” — Show how little time is needed.</li>
+  <li>“I have no money.” — Explain the return on investment and payment options.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Keep a spreadsheet of everyone you contact, their responses, and follow-up dates. This keeps your outreach organized and effective.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Prakash from Kathmandu started by sharing his referral link on Facebook, but got little response. He changed his approach: created a WhatsApp group, shared his own earnings, and posted testimonials from friends. He followed up with each person, answered questions, and addressed concerns. Within two months, he had 15 active referrals and doubled his income.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Write your own testimonial post with a real photo.</li>
+  <li>Create a group chat for interested people this week.</li>
+  <li>Track your outreach and follow-ups in a spreadsheet.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Advanced referral strategies rely on psychology, trust, and consistent follow-up. By sharing real stories, building community, and handling objections, you can dramatically increase your referral success.</p>
+<h3>❓ Reflection Question</h3>
+<p>What’s one objection you’ve faced in referrals, and how can you address it better next time?</p>`
+    },
+    {
+      title: 'Module 2: Target Audience & Marketing Basics',
+      content: `<h2>Module 2: Target Audience & Marketing Basics</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Define your target audience and create a simple buyer persona.</li>
+  <li>Learn the 3 key questions every audience has.</li>
+  <li>Master content marketing basics and the AIDA formula.</li>
+  <li>Write Facebook posts that generate leads.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>What is a Target Audience?</b>
+<p>Your target audience is the group of people most likely to benefit from your offer. Knowing your audience helps you create messages that resonate and convert.</p>
+<b>Creating a Buyer Persona</b>
+<ul>
+  <li>Age, location, job, interests.</li>
+  <li>Pain points: What problems do they have?</li>
+  <li>Goals: What do they want to achieve?</li>
+</ul>
+<b>The 3 Questions Every Audience Has</b>
+<ol>
+  <li>What is it?</li>
+  <li>Why should I care?</li>
+  <li>What do I do next?</li>
+</ol>
+<b>Content Marketing Basics</b>
+<ul>
+  <li><b>Educate:</b> Share tips, how-tos, and valuable information.</li>
+  <li><b>Engage:</b> Ask questions, run polls, reply to comments.</li>
+  <li><b>Convert:</b> Share testimonials, results, and clear calls to action.</li>
+</ul>
+<b>The AIDA Formula</b>
+<ul>
+  <li><b>Attention:</b> Grab with a bold statement or question.</li>
+  <li><b>Interest:</b> Share a story or benefit.</li>
+  <li><b>Desire:</b> Show results or testimonials.</li>
+  <li><b>Action:</b> Tell them exactly what to do next.</li>
+</ul>
+<b>Writing a Facebook Post That Generates Leads</b>
+<ul>
+  <li>Start with a hook: “Are you tired of…?”</li>
+  <li>Share your story or a client’s result.</li>
+  <li>End with a call to action: “Comment ‘info’ if you want to learn more.”</li>
+</ul>
+<b>Hashtags and Storytelling</b>
+<ul>
+  <li>Use 2–5 relevant hashtags to increase reach.</li>
+  <li>Tell stories, not just facts—people remember stories.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Use Facebook Insights to see which posts get the most engagement. Double down on what works.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Mina, a homemaker in Lalitpur, wanted to earn online but struggled to get responses. She created a buyer persona: women aged 25–40, interested in flexible income. She wrote posts addressing their challenges and shared her own journey. Her posts started getting more comments and leads, and she built a supportive community.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Write a buyer persona for your ideal referral today.</li>
+  <li>Draft a Facebook post using the AIDA formula this week.</li>
+  <li>Review your post engagement every Sunday and adjust your strategy.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Knowing your audience and crafting targeted messages is the foundation of digital marketing. Use stories, the AIDA formula, and regular reviews to attract and convert more leads.</p>
+<h3>❓ Reflection Question</h3>
+<p>Who is your ideal audience, and what problem can you solve for them?</p>`
+    },
+    {
+      title: 'Module 3: Free Tools for Digital Workers',
+      content: `<h2>Module 3: Free Tools for Digital Workers</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Discover 10+ free tools for digital work.</li>
+  <li>Learn what each tool does and how to get started.</li>
+  <li>Apply practical use cases for each tool.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>Essential Free Tools</b>
+<ol>
+  <li><b>Canva</b> — Design graphics, social posts, and presentations. Start with templates and drag-and-drop editing.</li>
+  <li><b>Google Workspace</b> — Docs, Sheets, Forms, Calendar. Collaborate in real time, store files in the cloud.</li>
+  <li><b>Notion</b> — Project management, notes, and databases. Organize your work and track progress.</li>
+  <li><b>Trello</b> — Visual task tracking with boards and cards. Great for managing projects and teams.</li>
+  <li><b>Telegram</b> — Community management, group chats, and channels. Share updates and resources.</li>
+  <li><b>CapCut</b> — Free video editing for TikTok, YouTube, and Instagram.</li>
+  <li><b>Linktree</b> — Create a single link for all your social profiles and offers.</li>
+  <li><b>Mailchimp</b> — Email marketing, newsletters, and audience management.</li>
+  <li><b>Bitly</b> — Shorten and track links for better analytics.</li>
+  <li><b>ChatGPT</b> — Writing assistance, brainstorming, and research.</li>
+</ol>
+<b>How to Get Started</b>
+<ul>
+  <li>Search for each tool online and sign up for a free account.</li>
+  <li>Explore tutorials on YouTube for step-by-step guides.</li>
+  <li>Start with one tool and master it before adding more.</li>
+</ul>
+<b>Practical Use Cases</b>
+<ul>
+  <li>Use Canva to design your referral post.</li>
+  <li>Track your outreach in Google Sheets.</li>
+  <li>Manage your team’s tasks in Trello or Notion.</li>
+  <li>Edit your testimonial video in CapCut.</li>
+  <li>Use Bitly to track clicks on your referral link.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Bookmark all your essential tools in a browser folder for quick access.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Suman, a freelancer in Pokhara, struggled to keep track of his projects and clients. He started using Notion for project management and Google Calendar for deadlines. Within a month, he felt more organized, missed fewer deadlines, and his client satisfaction improved.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Sign up for one new tool from the list today.</li>
+  <li>Watch a YouTube tutorial for that tool this week.</li>
+  <li>Use the tool daily for a week to build the habit.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Free digital tools can save you time, keep you organized, and help you grow your online income. Start with one, master it, and gradually build your digital toolkit.</p>
+<h3>❓ Reflection Question</h3>
+<p>Which tool could make your digital work easier, and how will you start using it this week?</p>`
+    },
+    {
+      title: 'Module 4: Tracking Your Growth & Earnings',
+      content: `<h2>Module 4: Tracking Your Growth & Earnings</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Understand why tracking is essential for success.</li>
+  <li>Learn how to build a simple referral tracking sheet.</li>
+  <li>Identify key metrics and review your progress.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>Why Tracking Matters</b>
+<p>Successful digital earners don’t guess—they measure. Tracking helps you see what’s working, what’s not, and where to focus your efforts.</p>
+<b>Building a Referral Tracking Sheet</b>
+<ul>
+  <li>Use Google Sheets or Excel.</li>
+  <li>Columns: Name, Contact, Date Contacted, Response, Joined (Y/N), Earnings.</li>
+  <li>Update after every outreach or referral.</li>
+</ul>
+<b>Key Metrics to Track</b>
+<ul>
+  <li>Reach: How many people saw your message?</li>
+  <li>Clicks: How many clicked your link?</li>
+  <li>Conversions: How many joined or bought?</li>
+  <li>Earnings: How much did you make?</li>
+</ul>
+<b>Weekly vs. Monthly Reviews</b>
+<ul>
+  <li>Weekly: Quick check-in on progress and challenges.</li>
+  <li>Monthly: Deeper review, set new goals, celebrate wins.</li>
+</ul>
+<b>Identifying Best-Performing Content/Channel</b>
+<ul>
+  <li>Use Facebook Insights, YouTube Studio, or Bitly analytics.</li>
+  <li>Double down on what brings the most results.</li>
+</ul>
+<b>Setting Income Milestones</b>
+<ul>
+  <li>Break big goals into smaller steps (e.g., Rs. 1,000, then Rs. 5,000, then Rs. 10,000).</li>
+</ul>
+<b>Staying Motivated Through Data</b>
+<ul>
+  <li>Celebrate every milestone.</li>
+  <li>Share your progress with your accountability partner or group.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Set a recurring reminder in Google Calendar for your weekly and monthly reviews.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Priya, a digital marketer in Kathmandu, started tracking her outreach and earnings in Google Sheets. She noticed that her Instagram stories brought more referrals than Facebook posts. By focusing on Instagram, she doubled her conversions in two months.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Create a referral tracking sheet in Google Sheets today.</li>
+  <li>Set a weekly review reminder in your calendar.</li>
+  <li>Share your progress with a friend or mentor every month.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Tracking your growth and earnings turns guesswork into strategy. By measuring your actions and results, you can focus on what works and achieve your goals faster.</p>
+<h3>❓ Reflection Question</h3>
+<p>What’s one metric you haven’t tracked before that could help you grow faster?</p>`
+    },
+    {
+      title: 'Module 5: Building Your Team & Network',
+      content: `<h2>Module 5: Building Your Team & Network</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Understand the difference between a network and a community.</li>
+  <li>Learn how to onboard and support new referrals.</li>
+  <li>Master group culture, online events, and recognition strategies.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>Network vs. Community</b>
+<ul>
+  <li><b>Network:</b> A group of people connected to you.</li>
+  <li><b>Community:</b> A group with shared goals, support, and culture.</li>
+</ul>
+<b>Onboarding New Referrals</b>
+<ul>
+  <li>Welcome them personally.</li>
+  <li>Share a quick-start guide or checklist.</li>
+  <li>Introduce them to the group.</li>
+</ul>
+<b>Creating Group Culture</b>
+<ul>
+  <li>Set norms: Be supportive, share wins, ask questions.</li>
+  <li>Encourage sharing and collaboration.</li>
+  <li>Address negativity quickly and fairly.</li>
+</ul>
+<b>Hosting Online Events</b>
+<ul>
+  <li>Zoom calls, Facebook Live, webinars.</li>
+  <li>Share tips, answer questions, celebrate wins.</li>
+  <li>Record sessions for those who can’t attend.</li>
+</ul>
+<b>Recognizing and Rewarding Top Performers</b>
+<ul>
+  <li>Shoutouts in the group.</li>
+  <li>Small prizes or certificates.</li>
+  <li>Feature their stories in your posts.</li>
+</ul>
+<b>Dealing with Inactive Members</b>
+<ul>
+  <li>Reach out privately to check in.</li>
+  <li>Offer support or resources.</li>
+  <li>If needed, remove inactive members to keep the group engaged.</li>
+</ul>
+<b>Compound Effect of a Well-Managed Network</b>
+<ul>
+  <li>Active, supportive communities grow faster.</li>
+  <li>Members bring in new referrals and ideas.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Create a monthly “Hall of Fame” post to recognize top contributors and inspire others.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Deepak, a network leader in Chitwan, started hosting weekly Zoom calls for his team. He welcomed new members, shared tips, and celebrated small wins. Over six months, his group became more active, referrals increased, and members felt more connected.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Welcome a new member personally this week.</li>
+  <li>Host or attend an online event for your group.</li>
+  <li>Recognize someone’s contribution publicly every month.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Building a strong team and community multiplies your results. By onboarding, supporting, and recognizing members, you create a culture of growth and success.</p>
+<h3>❓ Reflection Question</h3>
+<p>How can you make your network feel more like a supportive community?</p>`
+    }
+  ],
+  master: [
+    {
+      title: 'Module 1: Leadership in Digital Networks',
+      content: `<h2>Module 1: Leadership in Digital Networks</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Understand the difference between leading online and offline.</li>
+  <li>Learn the principles of servant leadership in digital communities.</li>
+  <li>Build credibility, authority, and mentorship structures.</li>
+  <li>Handle team conflicts and inspire consistency.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>What Does It Mean to Lead Online?</b>
+<p>Leadership in digital spaces is about influence, not just authority. Unlike traditional leadership, you may never meet your team in person. Your words, actions, and digital presence set the tone.</p>
+<b>Servant Leadership in Digital Communities</b>
+<ul>
+  <li>Put your team’s needs first.</li>
+  <li>Listen actively and respond to feedback.</li>
+  <li>Share credit for successes and take responsibility for failures.</li>
+</ul>
+<b>Building Credibility and Authority</b>
+<ul>
+  <li>Be consistent in your communication and actions.</li>
+  <li>Share your own learning journey and results.</li>
+  <li>Support others publicly and privately.</li>
+</ul>
+<b>Mentorship Structures</b>
+<ul>
+  <li>1-on-1: Regular check-ins, personalized feedback.</li>
+  <li>Group: Weekly calls, group chats, shared resources.</li>
+</ul>
+<b>Setting Team KPIs</b>
+<ul>
+  <li>Define clear, measurable goals (e.g., number of referrals, engagement rate).</li>
+  <li>Review progress together and celebrate wins.</li>
+</ul>
+<b>Recognizing Different Learning Styles</b>
+<ul>
+  <li>Some team members prefer written guides, others like video or voice notes.</li>
+  <li>Adapt your training and communication to fit your team.</li>
+</ul>
+<b>Handling Team Conflicts and Drama</b>
+<ul>
+  <li>Address issues quickly and fairly.</li>
+  <li>Listen to all sides before making decisions.</li>
+  <li>Keep discussions respectful and focused on solutions.</li>
+</ul>
+<b>Leading by Example</b>
+<ul>
+  <li>Model the behavior you want to see: punctuality, positivity, and professionalism.</li>
+  <li>Share your own struggles and how you overcome them.</li>
+</ul>
+<b>Inspiring Consistency</b>
+<ul>
+  <li>Set routines (weekly calls, daily check-ins).</li>
+  <li>Recognize and reward consistent effort.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Record short video messages for your team. Seeing your face and hearing your voice builds trust and connection.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Rajan, a digital leader in Kathmandu, managed a team of 20 across Nepal. He held weekly Zoom calls, shared his own progress, and encouraged open discussion. When a conflict arose between two members, he listened to both sides and helped them find common ground. His team became more engaged, and their results improved.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Schedule a weekly team call or check-in.</li>
+  <li>Share your own learning journey with your team this week.</li>
+  <li>Address any unresolved team issues within 48 hours.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Digital leadership is about service, consistency, and adaptability. By putting your team first, modeling positive behavior, and addressing challenges quickly, you build a strong, motivated network.</p>
+<h3>❓ Reflection Question</h3>
+<p>How can you better serve and inspire your digital team this month?</p>`
+    },
+    {
+      title: 'Module 2: Scaling Your Earnings',
+      content: `<h2>Module 2: Scaling Your Earnings</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Understand the difference between linear and leveraged income.</li>
+  <li>Learn how to build systems and delegate tasks.</li>
+  <li>Master content repurposing and automation.</li>
+  <li>Explore passive income and income diversification.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>Linear vs. Leveraged Income</b>
+<ul>
+  <li><b>Linear income:</b> You earn only for the work you do (e.g., one referral = one payment).</li>
+  <li><b>Leveraged income:</b> You earn from systems, teams, or content that works for you (e.g., team referrals, evergreen videos).</li>
+</ul>
+<b>Building Systems</b>
+<ul>
+  <li>Document your processes (how you onboard, follow up, train).</li>
+  <li>Use tools (Trello, Notion) to track tasks and progress.</li>
+  <li>Delegate routine tasks to team members or virtual assistants.</li>
+</ul>
+<b>Content Repurposing</b>
+<ul>
+  <li>Turn one video into a blog post, Instagram story, and WhatsApp broadcast.</li>
+  <li>Schedule content in advance using tools like Buffer or Facebook Creator Studio.</li>
+</ul>
+<b>Automating Follow-Ups</b>
+<ul>
+  <li>Use WhatsApp broadcast lists or email sequences.</li>
+  <li>Set reminders for follow-ups in Google Calendar.</li>
+</ul>
+<b>Hiring Virtual Assistants</b>
+<ul>
+  <li>Find VAs on platforms like Upwork or local Facebook groups.</li>
+  <li>Delegate tasks like data entry, scheduling, or customer support.</li>
+  <li>Pay fairly and provide clear instructions.</li>
+</ul>
+<b>Creating Passive Income Streams</b>
+<ul>
+  <li>Build a YouTube channel with evergreen content.</li>
+  <li>Create digital products (e-books, templates).</li>
+  <li>Set up affiliate links in your content.</li>
+</ul>
+<b>Income Diversification</b>
+<ul>
+  <li>Don’t rely on one platform or method.</li>
+  <li>Explore new opportunities as your skills grow.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Batch your content creation—record or write several pieces at once, then schedule them over the week.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Sujata, a digital entrepreneur in Pokhara, started by doing everything herself. She documented her processes, hired a VA for admin work, and focused on creating evergreen YouTube videos. Within six months, her income doubled, and she had more free time.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Document one process you repeat often and delegate it this week.</li>
+  <li>Repurpose one piece of content into two new formats.</li>
+  <li>Research one new passive income stream to start this month.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Scaling your earnings means building systems, delegating, and creating content that works for you. By leveraging your time and diversifying income, you build a more sustainable digital career.</p>
+<h3>❓ Reflection Question</h3>
+<p>What’s one task you could automate or delegate to free up your time for higher-value work?</p>`
+    },
+    {
+      title: 'Module 3: Handling Challenges & Rejections',
+      content: `<h2>Module 3: Handling Challenges & Rejections</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Understand the neuroscience of rejection and how to reframe failure.</li>
+  <li>Build emotional resilience and handle objections.</li>
+  <li>Learn to get honest feedback and deal with negativity.</li>
+  <li>Prevent burnout and bounce back from setbacks.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>The Neuroscience of Rejection</b>
+<p>Rejection activates the same brain regions as physical pain. That’s why it hurts! But it’s also a sign you’re taking action and growing.</p>
+<b>Reframing Failure as Data</b>
+<ul>
+  <li>Every “no” is feedback, not a personal attack.</li>
+  <li>Ask: What can I learn? How can I improve?</li>
+</ul>
+<b>Building Emotional Resilience</b>
+<ul>
+  <li>Practice self-care: sleep, exercise, talk to friends.</li>
+  <li>Celebrate effort, not just results.</li>
+</ul>
+<b>5-Stage Objection Handling Framework</b>
+<ol>
+  <li>Listen fully.</li>
+  <li>Empathize: “I understand how you feel.”</li>
+  <li>Clarify: “Can you tell me more about your concern?”</li>
+  <li>Respond with facts or stories.</li>
+  <li>Ask for a small next step.</li>
+</ol>
+<b>Getting Honest Feedback</b>
+<ul>
+  <li>Ask people who said no: “What held you back?”</li>
+  <li>Use their answers to improve your approach.</li>
+</ul>
+<b>Developing a Thick Skin Without Losing Empathy</b>
+<ul>
+  <li>Don’t take rejection personally.</li>
+  <li>Stay kind and open to feedback.</li>
+</ul>
+<b>Dealing with Online Negativity and Trolls</b>
+<ul>
+  <li>Don’t engage with trolls—block or ignore.</li>
+  <li>Respond to genuine criticism with respect.</li>
+</ul>
+<b>Burnout Prevention</b>
+<ul>
+  <li>Set boundaries: work hours, screen time.</li>
+  <li>Take regular breaks and celebrate small wins.</li>
+</ul>
+<b>Bouncing Back from a Bad Month</b>
+<ul>
+  <li>Review what worked and what didn’t.</li>
+  <li>Set a new, realistic goal and start fresh.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Keep a “rejection journal” to track what happened, how you felt, and what you learned. Review it monthly to see your growth.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Manish, a digital worker in Biratnagar, faced 20 rejections in his first month. He started asking for feedback, improved his pitch, and took breaks when feeling low. By month three, his acceptance rate doubled, and he felt more confident.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Write down your last rejection and what you learned from it.</li>
+  <li>Ask for feedback from someone who said no this week.</li>
+  <li>Set a daily self-care habit to build resilience.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Rejection is part of the digital journey. By reframing failure, seeking feedback, and caring for yourself, you turn setbacks into stepping stones for success.</p>
+<h3>❓ Reflection Question</h3>
+<p>How can you use your next rejection as a tool for growth?</p>`
+    },
+    {
+      title: 'Module 4: Advanced Team Management',
+      content: `<h2>Module 4: Advanced Team Management</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Learn the difference between delegation and micromanagement.</li>
+  <li>Run effective online meetings and use project management tools.</li>
+  <li>Track team performance and create SOPs.</li>
+  <li>Handle underperformers and plan for succession.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>Delegation vs. Micromanagement</b>
+<ul>
+  <li><b>Delegation:</b> Trusting team members to complete tasks with guidance.</li>
+  <li><b>Micromanagement:</b> Controlling every detail, which reduces motivation.</li>
+</ul>
+<b>Running Effective Online Meetings</b>
+<ul>
+  <li>Set an agenda and share it in advance.</li>
+  <li>Time-box each topic to stay on track.</li>
+  <li>Assign action items and follow up.</li>
+</ul>
+<b>Using Trello or Notion for Team Project Management</b>
+<ul>
+  <li>Create boards for each project.</li>
+  <li>Assign tasks, set deadlines, and track progress.</li>
+  <li>Share updates in group chats.</li>
+</ul>
+<b>Performance Tracking for Team Members</b>
+<ul>
+  <li>Set clear KPIs (e.g., number of referrals, content posted).</li>
+  <li>Review progress in regular check-ins.</li>
+</ul>
+<b>Creating SOPs (Standard Operating Procedures)</b>
+<ul>
+  <li>Document step-by-step guides for common tasks.</li>
+  <li>Make SOPs accessible to all team members.</li>
+</ul>
+<b>Incentive Structures</b>
+<ul>
+  <li>Offer rewards for top performers (recognition, bonuses).</li>
+  <li>Celebrate team wins publicly.</li>
+</ul>
+<b>Handling Underperformers Compassionately</b>
+<ul>
+  <li>Check in privately to understand challenges.</li>
+  <li>Offer support and resources.</li>
+  <li>Set clear expectations for improvement.</li>
+</ul>
+<b>Succession Planning</b>
+<ul>
+  <li>Identify team members with leadership potential.</li>
+  <li>Train them to take on more responsibility.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Record your screen while doing a task and share the video as an SOP for your team.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Sabina, a team leader in Lalitpur, struggled with team motivation. She started delegating tasks, created SOPs, and held short, focused meetings. She recognized top performers and supported those struggling. Her team became more productive and happier.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Delegate one task you usually do yourself this week.</li>
+  <li>Create a simple SOP (written or video) for a common process.</li>
+  <li>Recognize a team member’s achievement publicly.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Advanced team management is about trust, clear communication, and support. By delegating, documenting, and recognizing effort, you build a high-performing, motivated team.</p>
+<h3>❓ Reflection Question</h3>
+<p>What’s one process you can document or delegate to help your team grow?</p>`
+    },
+    {
+      title: 'Module 5: Long-Term Success Strategies',
+      content: `<h2>Module 5: Long-Term Success Strategies</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Create a 1-year, 3-year, and 5-year digital career roadmap.</li>
+  <li>Build a personal brand that outlasts any platform.</li>
+  <li>Diversify platforms and stay updated with trends.</li>
+  <li>Mentor others and define personal success.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>The Digital Career Roadmap</b>
+<ul>
+  <li><b>1-year:</b> Master your current platform, build a strong network.</li>
+  <li><b>3-year:</b> Expand to new platforms, create digital products, lead a team.</li>
+  <li><b>5-year:</b> Become a recognized expert, mentor others, diversify income streams.</li>
+</ul>
+<b>Building a Personal Brand That Lasts</b>
+<ul>
+  <li>Focus on values, not just skills.</li>
+  <li>Share your story and lessons learned.</li>
+  <li>Be consistent across platforms.</li>
+</ul>
+<b>Diversifying Platforms</b>
+<ul>
+  <li>Don’t rely on one app or method.</li>
+  <li>Explore new trends (e.g., LinkedIn, YouTube, podcasts).</li>
+</ul>
+<b>Staying Updated with Trends</b>
+<ul>
+  <li>Subscribe to newsletters, follow industry leaders on YouTube and LinkedIn.</li>
+  <li>Attend webinars and online events.</li>
+</ul>
+<b>Mentoring Others as a Growth Strategy</b>
+<ul>
+  <li>Teach what you know to new team members.</li>
+  <li>Share resources and support their growth.</li>
+</ul>
+<b>Giving Back to Your Community</b>
+<ul>
+  <li>Volunteer your skills for social causes.</li>
+  <li>Organize free workshops or Q&A sessions.</li>
+</ul>
+<b>Defining Success Beyond Money</b>
+<ul>
+  <li>Success is about impact, growth, and fulfillment.</li>
+  <li>Set personal goals for learning, relationships, and contribution.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Block one hour a week for learning—watch a webinar, read an article, or try a new tool.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Amit, a digital veteran in Kathmandu, started as a freelancer, then built a team, and now mentors others. He diversified his income, stayed updated with trends, and gives back by running free digital skills workshops. His success is measured by the impact he has on others.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Write your 1-year, 3-year, and 5-year digital career goals.</li>
+  <li>Subscribe to one new industry newsletter or YouTube channel this week.</li>
+  <li>Mentor a new team member or share a resource with your network.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Long-term success in digital work comes from planning, learning, and giving back. By building your brand, diversifying, and mentoring others, you create a legacy that lasts.</p>
+<h3>❓ Reflection Question</h3>
+<p>What does long-term success look like for you, beyond just money?</p>`
+    }
+  ],
+  everything: [
+    {
+      title: 'Module 1: All-in-One Success Blueprint',
+      content: `
+<b>Comprehensive Learning Journey</b><br>
+This module combines the best lessons from Starter, Prime, and Master. You’ll learn how to build your brand, grow your network, lead teams, and manage your finances.<br><br>
+<b>Action Plan:</b> Create a personal roadmap—list your goals for each area (branding, referrals, leadership, finance).`
+    },
+    {
+      title: 'Module 2: Bonus: Digital Productivity',
+      content: `
+<b>Mastering Productivity</b><br>
+Use time management tools (Google Calendar, Todoist), set daily routines, and avoid distractions (turn off notifications during work blocks).<br><br>
+<b>Real Life Tip:</b> Set a timer for 25 minutes (Pomodoro Technique), work on one task, then take a 5-minute break. Repeat!`
+    },
+    {
+      title: 'Module 3: Bonus: Financial Literacy',
+      content: `
+<b>Money Matters</b><br>
+Learn to budget, save, and invest your online earnings. Open a digital wallet (eSewa, Khalti), track your expenses, and set savings goals.<br><br>
+<b>Case Study:</b> Anil saved 20% of his online income for 6 months and used it to start a small business.`
+    },
+    {
+      title: 'Module 4: Bonus: Community Leadership',
+      content: `
+<b>Leading with Impact</b><br>
+Organize online events, support new members, and create a positive, inclusive community. Share your knowledge and encourage others to do the same.<br><br>
+<b>Action:</b> Host a monthly Q&A session for your network and invite guest speakers.`
+    }
+  ]
+};
+
+// Get current course key from server variable
+const courseKey = '<%= course.key %>';
+const modules = courseModules[courseKey] || [];
+
+const moduleList = document.getElementById('moduleList');
+const moduleContent = document.getElementById('moduleContent');
+
+function renderModuleList() {
+  moduleList.innerHTML = '';
+  modules.forEach((mod, idx) => {
+    const li = document.createElement('li');
+    li.textContent = mod.title;
+    li.onclick = () => selectModule(idx);
+    if (idx === 0) li.classList.add('active');
+    moduleList.appendChild(li);
+  });
+}
+
+function selectModule(idx) {
+  Array.from(moduleList.children).forEach((li, i) => {
+    li.classList.toggle('active', i === idx);
+  });
+  moduleContent.innerHTML = `<h3 style='color:#3730a3;font-weight:600;margin-bottom:10px;'>${modules[idx].title}</h3><div style='font-size:1.08rem;color:#334155;'>${modules[idx].content}</div>`;
+}
+
+if (modules.length) {
+  renderModuleList();
+  selectModule(0);
+} else {
+  moduleContent.innerHTML = '<div class="alert alert-danger">Course content not found.</div>';
+}
+  everything: [
+    {
+      title: 'Module 1: The Digital Mindset',
+      content: `<h2>Module 1: The Digital Mindset</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Understand what a digital mindset is and why it matters.</li>
+  <li>Embrace lifelong learning and adaptability.</li>
+  <li>Overcome fear of technology and failure.</li>
+  <li>Develop a growth mindset for digital success.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>What is a Digital Mindset?</b>
+<p>A digital mindset means being open to new ideas, tools, and ways of working. It’s about curiosity, flexibility, and seeing technology as an opportunity, not a threat.</p>
+<b>Embracing Lifelong Learning</b>
+<ul>
+  <li>Set aside time each week to learn something new online.</li>
+  <li>Follow industry leaders on YouTube, LinkedIn, or local groups.</li>
+  <li>Take free courses or attend webinars regularly.</li>
+</ul>
+<b>Overcoming Fear of Technology</b>
+<ul>
+  <li>Start small—try one new app or tool at a time.</li>
+  <li>Ask for help from friends, family, or online communities.</li>
+  <li>Remember: Everyone was a beginner once!</li>
+</ul>
+<b>Learning from Failure</b>
+<ul>
+  <li>See mistakes as lessons, not setbacks.</li>
+  <li>Share your failures and what you learned with others.</li>
+</ul>
+<b>Developing a Growth Mindset</b>
+<ul>
+  <li>Believe that skills can be learned and improved.</li>
+  <li>Celebrate progress, not just perfection.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Join a local or online study group to stay motivated and accountable.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Sunita, a homemaker in Nepalgunj, was afraid of using computers. She started with YouTube tutorials, joined a Facebook group for digital learners, and now teaches others in her community.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Pick one new digital tool or app to try this week.</li>
+  <li>Share a recent learning or failure with a friend or group.</li>
+  <li>Set a weekly learning goal and track your progress.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>A digital mindset is about curiosity, resilience, and growth. By embracing change and learning from mistakes, you set yourself up for long-term success.</p>
+<h3>❓ Reflection Question</h3>
+<p>What’s one digital skill you want to learn this month, and what’s your first step?</p>`
+    },
+    {
+      title: 'Module 2: Building Multiple Income Streams',
+      content: `<h2>Module 2: Building Multiple Income Streams</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Understand the importance of income diversification.</li>
+  <li>Explore different digital income streams.</li>
+  <li>Learn how to start and manage multiple streams.</li>
+  <li>Balance time and energy across projects.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>Why Diversify?</b>
+<ul>
+  <li>Relying on one income source is risky—platforms change, trends shift.</li>
+  <li>Diversification provides stability and more opportunities.</li>
+</ul>
+<b>Types of Digital Income Streams</b>
+<ul>
+  <li>Freelancing (writing, design, coding, etc.)</li>
+  <li>Affiliate marketing</li>
+  <li>Digital products (e-books, courses, templates)</li>
+  <li>Online teaching or tutoring</li>
+  <li>Content creation (YouTube, TikTok, Instagram)</li>
+  <li>Remote jobs (customer support, virtual assistant)</li>
+</ul>
+<b>How to Start a New Stream</b>
+<ul>
+  <li>Research: What skills or interests do you have?</li>
+  <li>Start small—test one new stream before adding more.</li>
+  <li>Leverage your existing network for your first clients or customers.</li>
+</ul>
+<b>Managing Multiple Streams</b>
+<ul>
+  <li>Use a planner or digital tool to track tasks and deadlines.</li>
+  <li>Set boundaries to avoid burnout.</li>
+  <li>Review your progress monthly and adjust as needed.</li>
+</ul>
+<b>Balancing Time and Energy</b>
+<ul>
+  <li>Prioritize streams that bring the most value or joy.</li>
+  <li>Automate or delegate routine tasks where possible.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Start with one new income stream, master it, then add another. Don’t try to do everything at once.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Sita, a college student in Dharan, began with referral marketing. She then started freelance writing and later launched a digital course. Now, she earns from three sources and feels more secure.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>List your current and potential income streams.</li>
+  <li>Pick one new stream to research and start this month.</li>
+  <li>Set a monthly review to track your progress and adjust.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Building multiple income streams increases your stability and growth. Start small, stay organized, and keep learning as you diversify.</p>
+<h3>❓ Reflection Question</h3>
+<p>Which digital income stream excites you most, and what’s your first step to start?</p>`
+    },
+    {
+      title: 'Module 3: Networking & Collaboration',
+      content: `<h2>Module 3: Networking & Collaboration</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Understand the value of networking in the digital world.</li>
+  <li>Learn how to build and nurture professional relationships online.</li>
+  <li>Explore collaboration opportunities for growth.</li>
+  <li>Leverage communities for support and learning.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>The Power of Networking</b>
+<ul>
+  <li>Your network is your net worth—opportunities often come from connections.</li>
+  <li>Online communities break geographic barriers.</li>
+</ul>
+<b>Building Professional Relationships Online</b>
+<ul>
+  <li>Be genuine—offer help before asking for it.</li>
+  <li>Engage in group discussions, comment on posts, and share resources.</li>
+  <li>Follow up with new contacts and stay in touch.</li>
+</ul>
+<b>Collaboration Opportunities</b>
+<ul>
+  <li>Co-create content (podcasts, webinars, articles).</li>
+  <li>Partner on projects or events.</li>
+  <li>Refer clients or share job leads.</li>
+</ul>
+<b>Leveraging Communities</b>
+<ul>
+  <li>Join groups related to your field or interests (Facebook, LinkedIn, WhatsApp).</li>
+  <li>Attend virtual events, webinars, or workshops.</li>
+  <li>Ask questions and share your experiences.</li>
+</ul>
+<b>Giving and Receiving Support</b>
+<ul>
+  <li>Offer encouragement and feedback to others.</li>
+  <li>Don’t be afraid to ask for help when needed.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Set a goal to connect with one new person in your field every week.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Prakash, a freelancer in Butwal, joined a digital marketing group on Facebook. He collaborated on a webinar with another member, which led to new clients and friendships.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Join one new online community this week and introduce yourself.</li>
+  <li>Reach out to someone you admire and start a conversation.</li>
+  <li>Offer help or feedback to a peer in your network.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Networking and collaboration open doors to new opportunities and learning. Be proactive, genuine, and supportive in your digital relationships.</p>
+<h3>❓ Reflection Question</h3>
+<p>Who is one person you’d like to connect or collaborate with this month, and how will you reach out?</p>`
+    },
+    {
+      title: 'Module 4: Giving Back & Mentoring',
+      content: `<h2>Module 4: Giving Back & Mentoring</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Understand the value of giving back in digital communities.</li>
+  <li>Learn how to mentor and support newcomers.</li>
+  <li>Explore ways to create helpful content and resources.</li>
+  <li>Build a legacy through service and teaching.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>Why Give Back?</b>
+<ul>
+  <li>Helping others strengthens your own skills and reputation.</li>
+  <li>Communities grow stronger when members support each other.</li>
+</ul>
+<b>How to Mentor Newcomers</b>
+<ul>
+  <li>Share your story and lessons learned.</li>
+  <li>Offer guidance through messages, calls, or group chats.</li>
+  <li>Encourage questions and celebrate progress.</li>
+</ul>
+<b>Creating Helpful Content</b>
+<ul>
+  <li>Write guides, record videos, or host Q&A sessions.</li>
+  <li>Share resources and answer common questions.</li>
+</ul>
+<b>Building a Legacy</b>
+<ul>
+  <li>Mentor others to continue your work and values.</li>
+  <li>Organize free workshops or online events.</li>
+</ul>
+<b>Balancing Giving and Earning</b>
+<ul>
+  <li>Set boundaries to avoid burnout.</li>
+  <li>Remember: Giving back is an investment in your community and yourself.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Host a free Q&A session or write a beginner’s guide to help newcomers in your field.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Amit, a digital mentor in Chitwan, started a weekly online Q&A for beginners. His sessions became popular, and many of his mentees now mentor others, creating a ripple effect.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Share one helpful resource or tip in a group this week.</li>
+  <li>Offer to mentor a newcomer or answer their questions.</li>
+  <li>Plan a small online event or Q&A session for your community.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Giving back and mentoring build stronger communities and lasting impact. By sharing your knowledge and supporting others, you create a legacy of growth and service.</p>
+<h3>❓ Reflection Question</h3>
+<p>What’s one way you can give back to your digital community this month?</p>`
+    },
+    {
+      title: 'Module 5: Designing Your Digital Future',
+      content: `<h2>Module 5: Designing Your Digital Future</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Set short-term and long-term digital career goals.</li>
+  <li>Track progress and celebrate milestones.</li>
+  <li>Adapt to changes and stay motivated.</li>
+  <li>Own your unique digital journey.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<b>Setting Digital Career Goals</b>
+<ul>
+  <li>Write down your 1-year, 3-year, and 5-year goals.</li>
+  <li>Break big goals into smaller, actionable steps.</li>
+</ul>
+<b>Tracking Progress</b>
+<ul>
+  <li>Use a journal, spreadsheet, or app to monitor your achievements.</li>
+  <li>Review your progress monthly and adjust as needed.</li>
+</ul>
+<b>Celebrating Milestones</b>
+<ul>
+  <li>Reward yourself for reaching goals, big or small.</li>
+  <li>Share your wins with your community for encouragement.</li>
+</ul>
+<b>Adapting to Change</b>
+<ul>
+  <li>Stay flexible—digital trends and platforms evolve quickly.</li>
+  <li>Be willing to learn new skills and pivot when needed.</li>
+</ul>
+<b>Owning Your Unique Journey</b>
+<ul>
+  <li>Everyone’s path is different—don’t compare your progress to others.</li>
+  <li>Focus on your strengths and passions.</li>
+</ul>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Set a recurring reminder to review your goals and progress every month.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Rina, a digital worker in Janakpur, set clear goals for her online business. She tracked her progress, celebrated each milestone, and adapted her strategy as trends changed. Her journey inspired others in her community to start their own digital careers.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Write down your digital career goals for the next 1, 3, and 5 years.</li>
+  <li>Choose a method to track your progress and set a review date.</li>
+  <li>Celebrate a recent milestone and share your story with others.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Designing your digital future is about setting goals, tracking progress, and staying adaptable. Celebrate your journey and inspire others along the way.</p>
+<h3>❓ Reflection Question</h3>
+<p>What’s your biggest digital goal for the next year, and what’s your first step to achieve it?</p>`
+    }
+  ]
