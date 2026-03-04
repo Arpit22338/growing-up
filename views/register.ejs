@@ -98,16 +98,15 @@
         <div class="reg-course-grid">
           <% Object.keys(courses).forEach(key => { %>
             <div class="reg-course-option<%= selectedCourse === key ? ' selected' : '' %> course-border-<%= key %>" 
-                 data-course="<%= key %>" 
-                 onclick="selectRegCourse(this, '<%= key %>')">
+                 data-course="<%= key %>">
               <% if (courses[key].badge) { %>
                 <span style="position:absolute;top:8px;right:8px;background:var(--gold);color:var(--navy);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;"><%= courses[key].badge %></span>
               <% } %>
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
                 <i class='bx <%= courses[key].icon %>' style="font-size:20px;color:var(--gold);"></i>
-                <strong style="font-size:14px;color:var(--navy);"><%= courses[key].title %></strong>
+                <strong class="course-title" style="font-size:14px;color:var(--navy);"><%= courses[key].title %></strong>
               </div>
-              <div style="font-size:22px;font-weight:800;color:var(--gold-dark);margin-bottom:4px;"><%= courses[key].currency %><%= courses[key].price %></div>
+              <div class="course-price" style="font-size:22px;font-weight:800;color:var(--gold-dark);margin-bottom:4px;"><%= courses[key].currency %><%= courses[key].price %></div>
               <p style="font-size:11px;color:var(--gray-500);margin-bottom:6px;"><%= courses[key].description %></p>
               <ul style="list-style:none;padding:0;">
                 <% courses[key].content.slice(0,3).forEach(item => { %>
@@ -153,7 +152,6 @@
           <a id="khaltiQrLink" href="/esewa.png" target="_blank" title="Tap to open full size">
             <img id="khaltiQrImg" src="/esewa.png" alt="Khalti QR Code" onerror="this.style.border='2px solid red';this.alt='Image not found: /esewa.png';" style="width:200px;height:200px;object-fit:contain;display:block;margin:0 auto;background:#fff;border-radius:8px;cursor:pointer;">
           </a>
-          
           <h4 style="margin-top: 8px;">eSewa</h4>
           <p style="font-size: 11px; color: var(--gray-500);">Tap QR to enlarge</p>
         </div>
@@ -240,25 +238,57 @@
 </div>
 
 <script>
-// Course card selection for step 2
-function selectRegCourse(el, key) {
-  document.querySelectorAll('.reg-course-option').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('courseSelect').value = key;
-  var info = document.getElementById('selectedCourseInfo');
-  var text = document.getElementById('selectedCourseText');
-  info.style.display = 'flex';
-  text.textContent = 'You selected: ' + el.querySelector('strong').textContent + ' — ' + el.querySelector('[style*="font-size:22px"]').textContent;
-}
-// Auto-trigger if pre-selected
+// Course card selection for step 2 — using event delegation (no inline onclick)
 (function() {
+  var grid = document.querySelector('.reg-course-grid');
+  if (!grid) return;
+
+  grid.addEventListener('click', function(e) {
+    var card = e.target.closest('.reg-course-option');
+    if (!card) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    var key = card.getAttribute('data-course');
+    if (!key) return;
+
+    // Remove selected from all
+    document.querySelectorAll('.reg-course-option').forEach(function(c) { c.classList.remove('selected'); });
+    // Select this one
+    card.classList.add('selected');
+    // Set hidden input value
+    document.getElementById('courseSelect').value = key;
+
+    // Show info text
+    var info = document.getElementById('selectedCourseInfo');
+    var text = document.getElementById('selectedCourseText');
+    if (info && text) {
+      var titleEl = card.querySelector('.course-title') || card.querySelector('strong');
+      var priceEl = card.querySelector('.course-price');
+      var titleText = titleEl ? titleEl.textContent : key;
+      var priceText = priceEl ? priceEl.textContent : '';
+      info.style.display = 'flex';
+      text.textContent = 'You selected: ' + titleText + (priceText ? ' \u2014 ' + priceText : '');
+    }
+  });
+
+  // Touch support for mobile
+  grid.addEventListener('touchend', function(e) {
+    var card = e.target.closest('.reg-course-option');
+    if (!card) return;
+    // Trigger a click instead
+    card.click();
+  });
+
+  // Auto-trigger if pre-selected
   var pre = document.querySelector('.reg-course-option.selected');
   if (pre) {
     var info = document.getElementById('selectedCourseInfo');
     var text = document.getElementById('selectedCourseText');
     if (info && text) {
+      var titleEl = pre.querySelector('.course-title') || pre.querySelector('strong');
       info.style.display = 'flex';
-      text.textContent = 'You selected: ' + pre.querySelector('strong').textContent;
+      text.textContent = 'You selected: ' + (titleEl ? titleEl.textContent : '');
     }
   }
 })();

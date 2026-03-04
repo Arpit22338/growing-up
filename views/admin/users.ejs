@@ -76,7 +76,7 @@
                         <i class='bx bx-show'></i>
                       </a>
                       <% if (role === 'superadmin') { %>
-                        <button class="btn btn-danger btn-sm" onclick="deleteUser('<%= u._id %>', '<%= u.firstName %>')">
+                        <button class="btn btn-danger btn-sm delete-user-btn" data-id="<%= u._id %>" data-name="<%= u.firstName %>">
                           <i class='bx bx-trash'></i>
                         </button>
                       <% } %>
@@ -93,18 +93,20 @@
 
   <div class="toast-container" id="toastContainer"></div>
   <script>
-    function showToast(msg, type='success') {
-      const c = document.getElementById('toastContainer');
-      const t = document.createElement('div');
+    function showToast(msg, type) {
+      type = type || 'success';
+      var c = document.getElementById('toastContainer');
+      if (!c) return;
+      var t = document.createElement('div');
       t.className = 'toast toast-' + type;
       t.innerHTML = '<i class="bx ' + (type === 'success' ? 'bx-check-circle' : 'bx-error-circle') + '"></i> ' + msg;
       c.appendChild(t);
-      setTimeout(() => t.remove(), 4000);
+      setTimeout(function() { t.remove(); }, 4000);
     }
 
     function filterUsers(q) {
       q = q.toLowerCase();
-      document.querySelectorAll('.user-row').forEach(row => {
+      document.querySelectorAll('.user-row').forEach(function(row) {
         row.style.display = row.dataset.search.includes(q) ? '' : 'none';
       });
     }
@@ -112,35 +114,51 @@
     var csrfMeta = document.querySelector('meta[name="csrf-token"]');
     var CSRF = csrfMeta ? csrfMeta.content : '';
 
-    async function deleteUser(id, name) {
+    // Event delegation for delete user button
+    document.addEventListener('click', function(e) {
+      var deleteBtn = e.target.closest('.delete-user-btn');
+      if (!deleteBtn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var id = deleteBtn.getAttribute('data-id');
+      var name = deleteBtn.getAttribute('data-name');
+      if (!id) return;
       if (!confirm('Delete user "' + name + '"? This cannot be undone.')) return;
-      try {
-        const res = await fetch('/admin/users/' + id + '/delete', {
-          method: 'POST',
-          headers: { 'X-CSRF-Token': CSRF },
-          credentials: 'same-origin'
-        });
+      deleteBtn.disabled = true;
+      fetch('/admin/users/' + id + '/delete', {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': CSRF },
+        credentials: 'same-origin'
+      }).then(function(res) {
         if (res.redirected || res.status === 401) {
           showToast('Session expired. Please login again.', 'error');
           setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
-          return;
+          return null;
         }
-        const data = await res.json();
+        return res.json();
+      }).then(function(data) {
+        if (!data) return;
         if (data.success) {
           showToast('User deleted');
           location.reload();
         } else {
           showToast(data.error || 'Failed', 'error');
+          deleteBtn.disabled = false;
         }
-      } catch (err) {
+      }).catch(function(err) {
         showToast('Error: ' + (err.message || 'Connection failed'), 'error');
-      }
-    }
-  </script>
-  <script>
-    document.getElementById('hamBtn').addEventListener('click', function() {
-      document.getElementById('adminSidebar').classList.toggle('open');
+        deleteBtn.disabled = false;
+      });
     });
+
+    // Hamburger
+    var hamBtn = document.getElementById('hamBtn');
+    if (hamBtn) {
+      hamBtn.addEventListener('click', function() {
+        var sb = document.getElementById('adminSidebar');
+        if (sb) sb.classList.toggle('open');
+      });
+    }
   </script>
 </body>
 </html>

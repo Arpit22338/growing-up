@@ -87,10 +87,10 @@
                   <% if (status === 'pending') { %>
                     <td>
                       <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                        <button class="btn btn-sm" style="background: var(--success); color: white;" onclick="approveWithdrawal('<%= w._id %>')">
+                        <button class="btn btn-sm approve-withdrawal-btn" style="background: var(--success); color: white;" data-id="<%= w._id %>">
                           <i class='bx bx-check'></i> Mark as Paid
                         </button>
-                        <button class="btn btn-sm" style="background: var(--danger); color: white;" onclick="rejectWithdrawal('<%= w._id %>')">
+                        <button class="btn btn-sm reject-withdrawal-btn" style="background: var(--danger); color: white;" data-id="<%= w._id %>">
                           <i class='bx bx-x'></i> Reject
                         </button>
                       </div>
@@ -113,6 +113,7 @@
     function showToast(msg, type) {
       type = type || 'success';
       var c = document.getElementById('toastContainer');
+      if (!c) return;
       var t = document.createElement('div');
       t.className = 'toast toast-' + type;
       t.innerHTML = '<i class="bx ' + (type === 'success' ? 'bx-check-circle' : 'bx-error-circle') + '"></i> ' + msg;
@@ -123,61 +124,97 @@
     var csrfMeta = document.querySelector('meta[name="csrf-token"]');
     var CSRF = csrfMeta ? csrfMeta.content : '';
 
-    async function approveWithdrawal(id) {
-      if (!confirm('Mark as Paid? Make sure you have already sent the money to the user.')) return;
-      try {
-        var res = await fetch('/admin/withdrawals/' + id + '/approve', {
+    // Event delegation for all button clicks
+    document.addEventListener('click', function(e) {
+      // Approve withdrawal
+      var approveBtn = e.target.closest('.approve-withdrawal-btn');
+      if (approveBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = approveBtn.getAttribute('data-id');
+        if (!id) return;
+        if (!confirm('Mark as Paid? Make sure you have already sent the money to the user.')) return;
+        approveBtn.disabled = true;
+        approveBtn.innerHTML = '<span class="spinner"></span> Processing...';
+        fetch('/admin/withdrawals/' + id + '/approve', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF },
           credentials: 'same-origin'
+        }).then(function(res) {
+          if (res.status === 401) {
+            showToast('Session expired. Please login again.', 'error');
+            setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
+            return null;
+          }
+          return res.json();
+        }).then(function(data) {
+          if (!data) return;
+          if (data.success) {
+            showToast('Withdrawal approved!');
+            setTimeout(function(){ location.reload(); }, 1200);
+          } else {
+            showToast(data.error || 'Failed', 'error');
+            approveBtn.disabled = false;
+            approveBtn.innerHTML = '<i class="bx bx-check"></i> Mark as Paid';
+          }
+        }).catch(function(err) {
+          showToast('Error: ' + (err.message || 'Connection failed'), 'error');
+          approveBtn.disabled = false;
+          approveBtn.innerHTML = '<i class="bx bx-check"></i> Mark as Paid';
         });
-        if (res.status === 401) {
-          showToast('Session expired. Please login again.', 'error');
-          setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
-          return;
-        }
-        var data = await res.json();
-        if (data.success) {
-          showToast('Withdrawal approved!');
-          setTimeout(function(){ location.reload(); }, 1200);
-        } else {
-          showToast(data.error || 'Failed', 'error');
-        }
-      } catch (err) {
-        showToast('Error: ' + (err.message || 'Connection failed'), 'error');
+        return;
       }
-    }
 
-    async function rejectWithdrawal(id) {
-      var reason = prompt('Rejection reason (optional):');
-      if (reason === null) return; // cancelled
-      try {
-        var res = await fetch('/admin/withdrawals/' + id + '/reject', {
+      // Reject withdrawal
+      var rejectBtn = e.target.closest('.reject-withdrawal-btn');
+      if (rejectBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        var rid = rejectBtn.getAttribute('data-id');
+        if (!rid) return;
+        var reason = prompt('Rejection reason (optional):');
+        if (reason === null) return;
+        rejectBtn.disabled = true;
+        rejectBtn.innerHTML = '<span class="spinner"></span> Processing...';
+        fetch('/admin/withdrawals/' + rid + '/reject', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF },
           credentials: 'same-origin',
           body: JSON.stringify({ reason: reason })
+        }).then(function(res) {
+          if (res.status === 401) {
+            showToast('Session expired. Please login again.', 'error');
+            setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
+            return null;
+          }
+          return res.json();
+        }).then(function(data) {
+          if (!data) return;
+          if (data.success) {
+            showToast('Withdrawal rejected.');
+            setTimeout(function(){ location.reload(); }, 1200);
+          } else {
+            showToast(data.error || 'Failed', 'error');
+            rejectBtn.disabled = false;
+            rejectBtn.innerHTML = '<i class="bx bx-x"></i> Reject';
+          }
+        }).catch(function(err) {
+          showToast('Error: ' + (err.message || 'Connection failed'), 'error');
+          rejectBtn.disabled = false;
+          rejectBtn.innerHTML = '<i class="bx bx-x"></i> Reject';
         });
-        if (res.status === 401) {
-          showToast('Session expired. Please login again.', 'error');
-          setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
-          return;
-        }
-        var data = await res.json();
-        if (data.success) {
-          showToast('Withdrawal rejected.');
-          setTimeout(function(){ location.reload(); }, 1200);
-        } else {
-          showToast(data.error || 'Failed', 'error');
-        }
-      } catch (err) {
-        showToast('Error: ' + (err.message || 'Connection failed'), 'error');
+        return;
       }
-    }
-
-    document.getElementById('hamBtn').addEventListener('click', function() {
-      document.getElementById('adminSidebar').classList.toggle('open');
     });
+
+    // Hamburger
+    var hamBtn = document.getElementById('hamBtn');
+    if (hamBtn) {
+      hamBtn.addEventListener('click', function() {
+        var sb = document.getElementById('adminSidebar');
+        if (sb) sb.classList.toggle('open');
+      });
+    }
   </script>
 </body>
 </html>

@@ -5,3 +5,5 @@ uploads/qr/*
 uploads/screenshots/*
 !uploads/screenshots/.gitkeep
 .DS_Store
+.vercel
+.env*.local

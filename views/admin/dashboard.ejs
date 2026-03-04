@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="csrf-token" content="<%= csrfToken %>">
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
   <title>Admin Dashboard — Growing Up</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -102,7 +102,7 @@
         <p style="color: var(--gray-500); font-size: 13px; margin-bottom: 16px;">
           This will permanently delete <strong>all payments</strong>, reset <strong>all user earnings to ₹0</strong>, deactivate all users, and clear purchased courses. This action <strong>cannot be undone</strong>.
         </p>
-        <button class="btn btn-danger" onclick="resetEverything()" id="resetBtn">
+        <button class="btn btn-danger" id="resetBtn">
           <i class='bx bx-reset'></i> Reset Everything to Zero
         </button>
       </div>
@@ -125,47 +125,56 @@
     var csrfMeta = document.querySelector('meta[name="csrf-token"]');
     var CSRF = csrfMeta ? csrfMeta.content : '';
 
-    async function resetEverything() {
-      var c1 = confirm('⚠️ WARNING: This will delete ALL payments, reset all earnings to ₹0, deactivate all users, and clear purchased courses.\n\nAre you absolutely sure?');
-      if (!c1) return;
-      var c2 = prompt('Type "RESET" to confirm:');
-      if (c2 !== 'RESET') {
-        showToast('Reset cancelled — you must type RESET exactly.', 'error');
-        return;
-      }
-      var btn = document.getElementById('resetBtn');
-      btn.disabled = true;
-      btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Resetting...';
-      try {
-        var res = await fetch('/admin/reset-everything', {
+    // Reset button — event listener
+    var resetBtn = document.getElementById('resetBtn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function() {
+        var c1 = confirm('⚠️ WARNING: This will delete ALL payments, reset all earnings to ₹0, deactivate all users, and clear purchased courses.\n\nAre you absolutely sure?');
+        if (!c1) return;
+        var c2 = prompt('Type "RESET" to confirm:');
+        if (c2 !== 'RESET') {
+          showToast('Reset cancelled — you must type RESET exactly.', 'error');
+          return;
+        }
+        resetBtn.disabled = true;
+        resetBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Resetting...';
+        fetch('/admin/reset-everything', {
           method: 'POST',
           headers: { 'X-CSRF-Token': CSRF },
           credentials: 'same-origin'
+        }).then(function(res) {
+          if (res.status === 401) {
+            showToast('Session expired. Please login again.', 'error');
+            setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
+            return null;
+          }
+          return res.json();
+        }).then(function(data) {
+          if (!data) return;
+          if (data.success) {
+            showToast('Everything has been reset to zero!');
+            setTimeout(function(){ location.reload(); }, 1500);
+          } else {
+            showToast(data.error || 'Reset failed', 'error');
+            resetBtn.disabled = false;
+            resetBtn.innerHTML = '<i class="bx bx-reset"></i> Reset Everything to Zero';
+          }
+        }).catch(function(err) {
+          showToast('Error: ' + (err.message || 'Connection failed'), 'error');
+          resetBtn.disabled = false;
+          resetBtn.innerHTML = '<i class="bx bx-reset"></i> Reset Everything to Zero';
         });
-        if (res.status === 401) {
-          showToast('Session expired. Please login again.', 'error');
-          setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
-          return;
-        }
-        var data = await res.json();
-        if (data.success) {
-          showToast('Everything has been reset to zero!');
-          setTimeout(function(){ location.reload(); }, 1500);
-        } else {
-          showToast(data.error || 'Reset failed', 'error');
-          btn.disabled = false;
-          btn.innerHTML = '<i class="bx bx-reset"></i> Reset Everything to Zero';
-        }
-      } catch (err) {
-        showToast('Error: ' + (err.message || 'Connection failed'), 'error');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bx bx-reset"></i> Reset Everything to Zero';
-      }
+      });
     }
 
-    document.getElementById('hamBtn').addEventListener('click', function() {
-      document.getElementById('adminSidebar').classList.toggle('open');
-    });
+    // Hamburger
+    var hamBtn = document.getElementById('hamBtn');
+    if (hamBtn) {
+      hamBtn.addEventListener('click', function() {
+        var sb = document.getElementById('adminSidebar');
+        if (sb) sb.classList.toggle('open');
+      });
+    }
   </script>
 </body>
 </html>
