@@ -94,20 +94,28 @@
   </div>
 
   <!-- Withdrawal Modal -->
-  <div id="wModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:420px;position:relative;max-height:90vh;overflow-y:auto;">
-      <button type="button" onclick="document.getElementById('wModal').style.display='none'" style="position:absolute;top:14px;right:18px;background:none;border:none;font-size:24px;cursor:pointer;color:#333;">✕</button>
-      <h3 style="margin:0 0 20px;color:#0A1F44;font-size:20px;">Request Withdrawal</h3>
+  <div id="wModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:99999;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:400px;position:relative;">
+
+      <button type="button" onclick="document.getElementById('wModal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;">✕</button>
+
+      <h3 style="margin:0 0 20px;color:#0A1F44;font-size:20px;">Withdraw Money</h3>
+
       <div style="display:flex;gap:10px;margin-bottom:16px;">
-        <button type="button" id="eBtn" onclick="selP('esewa')" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;cursor:pointer;font-weight:700;font-size:15px;background:#fff;color:#333;">eSewa</button>
-        <button type="button" id="kBtn" onclick="selP('khalti')" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;cursor:pointer;font-weight:700;font-size:15px;background:#fff;color:#333;">Khalti</button>
+        <button type="button" id="eb" onclick="selPlat('esewa')" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;font-weight:700;cursor:pointer;background:#fff;font-size:15px;">eSewa</button>
+        <button type="button" id="kb" onclick="selPlat('khalti')" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;font-weight:700;cursor:pointer;background:#fff;font-size:15px;">Khalti</button>
       </div>
-      <input type="hidden" id="wP"/>
-      <input type="text" id="wN" placeholder="Account Holder Name" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:12px;box-sizing:border-box;"/>
-      <input type="tel" id="wPh" placeholder="Phone Number" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:12px;box-sizing:border-box;"/>
-      <input type="number" id="wAmt" placeholder="Amount (min ₹400)" min="400" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:6px;box-sizing:border-box;"/>
-      <p style="color:#888;font-size:13px;margin:0 0 16px;">Minimum ₹400 | Available: ₹<%= availableBalance %></p>
-      <button type="button" onclick="doWithdraw()" style="width:100%;padding:15px;background:#27AE60;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;">Confirm Request</button>
+      <input type="hidden" id="wplat"/>
+
+      <input type="text" id="wname" placeholder="Account Holder Name" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:12px;box-sizing:border-box;"/>
+
+      <input type="tel" id="wphone" placeholder="Phone Number" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:12px;box-sizing:border-box;"/>
+
+      <input type="number" id="wamt" placeholder="Amount (min ₹400)" min="400" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:6px;box-sizing:border-box;"/>
+
+      <p style="color:#888;font-size:13px;margin:0 0 16px;">Min ₹400 | Available: ₹<%= user.walletBalance || 0 %></p>
+
+      <button type="button" onclick="submitWithdraw()" style="width:100%;padding:15px;background:#27AE60;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;">Confirm Request</button>
     </div>
   </div>
 
@@ -213,50 +221,64 @@
 </div>
 
 <script>
-function selP(p) {
-  document.getElementById('wP').value = p;
-  var isE = p === 'esewa';
-  document.getElementById('eBtn').style.background = isE ? '#D4A017' : '#fff';
-  document.getElementById('eBtn').style.color = isE ? '#fff' : '#333';
-  document.getElementById('eBtn').style.borderColor = isE ? '#D4A017' : '#ddd';
-  document.getElementById('kBtn').style.background = !isE ? '#D4A017' : '#fff';
-  document.getElementById('kBtn').style.color = !isE ? '#fff' : '#333';
-  document.getElementById('kBtn').style.borderColor = !isE ? '#D4A017' : '#ddd';
+function selPlat(p) {
+  document.getElementById('wplat').value = p;
+  document.getElementById('eb').style.background = p==='esewa' ? '#D4A017' : '#fff';
+  document.getElementById('eb').style.color = p==='esewa' ? '#fff' : '#333';
+  document.getElementById('eb').style.borderColor = p==='esewa' ? '#D4A017' : '#ddd';
+  document.getElementById('kb').style.background = p==='khalti' ? '#D4A017' : '#fff';
+  document.getElementById('kb').style.color = p==='khalti' ? '#fff' : '#333';
+  document.getElementById('kb').style.borderColor = p==='khalti' ? '#D4A017' : '#ddd';
 }
 
-async function doWithdraw() {
-  var p = document.getElementById('wP').value;
-  var n = document.getElementById('wN').value.trim();
-  var ph = document.getElementById('wPh').value.trim();
-  var a = parseInt(document.getElementById('wAmt').value);
+async function submitWithdraw() {
+  var p = document.getElementById('wplat').value;
+  var n = document.getElementById('wname').value.trim();
+  var ph = document.getElementById('wphone').value.trim();
+  var a = parseInt(document.getElementById('wamt').value);
   if (!p) { alert('Select eSewa or Khalti'); return; }
   if (!n) { alert('Enter account name'); return; }
-  if (!ph || ph.length < 10) { alert('Enter valid phone number'); return; }
+  if (!ph) { alert('Enter phone number'); return; }
   if (!a || a < 400) { alert('Minimum ₹400'); return; }
   try {
-    var hdrs = { 'Content-Type': 'application/json' };
-    if (typeof csrfHeaders === 'function') hdrs = csrfHeaders(hdrs);
     var r = await fetch('/api/withdrawals', {
       method: 'POST',
-      headers: hdrs,
+      headers: {'Content-Type':'application/json'},
       credentials: 'include',
       body: JSON.stringify({
-        platform: p,
-        accountName: n,
-        phoneNumber: ph,
-        amount: a
+        platform:p, accountName:n,
+        phoneNumber:ph, amount:a
       })
     });
     var d = await r.json();
     if (d.success) {
-      alert('Done! Admin will process in 24 hrs.');
+      alert('Done! Admin processes in 24hrs.');
+      document.getElementById('wModal').style.display = 'none';
       location.reload();
     } else {
-      alert(d.message || d.error || 'Error. Try again.');
+      alert(d.message || 'Error. Try again.');
     }
   } catch(e) {
-    alert('Network error. Check connection.');
+    alert('Network error. Try again.');
   }
+}
+
+function doCopy(btn, text) {
+  var t = document.createElement('textarea');
+  t.value = text;
+  t.style.cssText = 'position:fixed;opacity:0;';
+  document.body.appendChild(t);
+  t.focus();
+  t.select();
+  t.setSelectionRange(0, 99999);
+  document.execCommand('copy');
+  document.body.removeChild(t);
+  btn.textContent = '✓ Copied!';
+  btn.style.background = '#27AE60';
+  setTimeout(function() {
+    btn.textContent = 'Copy';
+    btn.style.background = '#D4A017';
+  }, 2000);
 }
 </script>
 
