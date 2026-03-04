@@ -19,14 +19,12 @@
 
   <!-- Withdraw Button -->
   <% if (availableBalance >= 400) { %>
-    <button type="button" class="btn btn-lg" onclick="openWithdrawModal()" 
-      style="width: 100%; margin-bottom: 24px; background: var(--success); color: white; height: 52px; font-size: 16px; border-radius: 12px; cursor:pointer; pointer-events:all; position:relative; z-index:1;">
-      <i class='bx bx-money-withdraw'></i> Withdraw
+    <button type="button" onclick="document.getElementById('wModal').style.display='flex'" style="width:100%;padding:16px;background:#27AE60;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin:16px 0;">
+      Request Withdrawal
     </button>
   <% } else { %>
-    <button class="btn btn-lg" disabled 
-      style="width: 100%; margin-bottom: 24px; background: var(--gray-200); color: var(--gray-500); height: 52px; font-size: 16px; border-radius: 12px; cursor: not-allowed;">
-      <i class='bx bx-lock-alt'></i> Minimum ₹400 required to withdraw
+    <button disabled style="width:100%;padding:16px;background:#ccc;color:#888;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:not-allowed;margin:16px 0;">
+      Minimum ₹400 required to withdraw
     </button>
   <% } %>
 
@@ -84,167 +82,62 @@
 </div>
 
 <!-- Withdrawal Modal -->
-<div id="withdrawModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; padding:20px;">
-  <div class="card" style="max-width:440px; width:100%; padding:32px; position:relative; max-height:90vh; overflow-y:auto;">
-    <button onclick="document.getElementById('withdrawModal').style.display='none'" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:24px;color:var(--gray-500);cursor:pointer;">
-      <i class='bx bx-x'></i>
-    </button>
-    <h3 style="color:var(--navy);margin-bottom:4px;"><i class='bx bx-money-withdraw' style="color:var(--gold);"></i> Request Withdrawal</h3>
-    <p style="color:var(--gray-500);font-size:13px;margin-bottom:20px;">Available: ₹<%= availableBalance %> · Min: ₹400</p>
-
-    <div id="withdrawError" class="alert alert-danger" style="display:none;"></div>
-
-    <form id="withdrawForm">
-      <!-- Platform Toggle -->
-      <div class="form-group">
-        <label>Platform</label>
-        <div style="display:flex;gap:8px;">
-          <button type="button" class="platform-toggle" data-method="esewa" onclick="selectPlatform('esewa')" 
-            style="flex:1;padding:12px;border:2px solid var(--gray-200);border-radius:var(--radius-sm);background:var(--white);cursor:pointer;font-weight:600;transition:var(--transition);font-size:14px;">
-            eSewa
-          </button>
-          <button type="button" class="platform-toggle" data-method="khalti" onclick="selectPlatform('khalti')" 
-            style="flex:1;padding:12px;border:2px solid var(--gray-200);border-radius:var(--radius-sm);background:var(--white);cursor:pointer;font-weight:600;transition:var(--transition);font-size:14px;">
-            Khalti
-          </button>
-        </div>
-        <input type="hidden" name="method" id="withdrawMethod" value="" required>
-      </div>
-
-      <!-- Account Holder Name -->
-      <div class="form-group">
-        <label>Account Holder Name</label>
-        <input type="text" class="form-control" name="accountHolderName" required placeholder="Full name on account">
-      </div>
-
-      <!-- Phone Number -->
-      <div class="form-group">
-        <label id="phoneLabel">Phone Number</label>
-        <input type="tel" class="form-control" name="walletId" required placeholder="e.g. 98XXXXXXXX">
-      </div>
-
-      <!-- Amount -->
-      <div class="form-group">
-        <label>Amount (₹)</label>
-        <input type="number" class="form-control" name="amount" min="400" max="<%= availableBalance %>" required placeholder="Min ₹400">
-      </div>
-
-      <!-- Confirmation -->
-      <div id="withdrawConfirm" style="display:none;background:rgba(212,168,67,0.1);border:1px solid var(--gold);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px;text-align:center;">
-        <p style="font-weight:600;color:var(--navy);margin-bottom:8px;">Confirm Withdrawal</p>
-        <p style="font-size:14px;color:var(--gray-700);">Amount: <strong id="confirmAmount">₹0</strong></p>
-        <p style="font-size:14px;color:var(--navy);font-weight:700;">You will receive: <strong id="confirmNet">₹0</strong></p>
-      </div>
-
-      <button type="submit" class="btn btn-primary btn-block btn-lg" id="withdrawBtn" disabled>
-        <i class='bx bx-check'></i> Request Withdrawal
-      </button>
-    </form>
+<div id="wModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:420px;position:relative;max-height:90vh;overflow-y:auto;">
+    <button type="button" onclick="document.getElementById('wModal').style.display='none'" style="position:absolute;top:14px;right:18px;background:none;border:none;font-size:24px;cursor:pointer;color:#333;">✕</button>
+    <h3 style="margin:0 0 20px;color:#0A1F44;">Request Withdrawal</h3>
+    <div style="display:flex;gap:10px;margin-bottom:16px;">
+      <button type="button" id="eBtn" onclick="selP('esewa')" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;cursor:pointer;font-weight:700;background:#fff;">eSewa</button>
+      <button type="button" id="kBtn" onclick="selP('khalti')" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;cursor:pointer;font-weight:700;background:#fff;">Khalti</button>
+    </div>
+    <input type="hidden" id="wP"/>
+    <input type="text" id="wN" placeholder="Account Holder Name" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:12px;box-sizing:border-box;"/>
+    <input type="tel" id="wPh" placeholder="Phone Number" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:12px;box-sizing:border-box;"/>
+    <input type="number" id="wAmt" placeholder="Amount (min ₹400)" min="400" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:6px;box-sizing:border-box;"/>
+    <p style="color:#888;font-size:13px;margin:0 0 16px;">Min ₹400 | Available: ₹<%= availableBalance %></p>
+    <button type="button" onclick="doWithdraw()" style="width:100%;padding:15px;background:#27AE60;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;">Confirm Request</button>
   </div>
 </div>
 
 <script>
-  function openWithdrawModal() {
-    document.getElementById('withdrawModal').style.display = 'flex';
-  }
-
-  var selectedPlatform = '';
-
-  function selectPlatform(method) {
-    selectedPlatform = method;
-    document.getElementById('withdrawMethod').value = method;
-    // Update toggle visuals
-    document.querySelectorAll('.platform-toggle').forEach(function(btn) {
-      if (btn.dataset.method === method) {
-        btn.style.borderColor = 'var(--gold)';
-        btn.style.background = 'rgba(212,168,67,0.1)';
-        btn.style.color = 'var(--navy)';
-      } else {
-        btn.style.borderColor = 'var(--gray-200)';
-        btn.style.background = 'var(--white)';
-        btn.style.color = 'var(--gray-700)';
-      }
+function selP(p){
+  document.getElementById('wP').value=p;
+  var e=document.getElementById('eBtn');
+  var k=document.getElementById('kBtn');
+  e.style.background=p==='esewa'?'#D4A017':'#fff';
+  e.style.color=p==='esewa'?'#fff':'#333';
+  e.style.borderColor=p==='esewa'?'#D4A017':'#ddd';
+  k.style.background=p==='khalti'?'#D4A017':'#fff';
+  k.style.color=p==='khalti'?'#fff':'#333';
+  k.style.borderColor=p==='khalti'?'#D4A017':'#ddd';
+}
+async function doWithdraw(){
+  var p=document.getElementById('wP').value;
+  var n=document.getElementById('wN').value.trim();
+  var ph=document.getElementById('wPh').value.trim();
+  var a=parseInt(document.getElementById('wAmt').value);
+  if(!p){alert('Select eSewa or Khalti');return;}
+  if(!n){alert('Enter account name');return;}
+  if(!ph){alert('Enter phone number');return;}
+  if(!a||a<400){alert('Minimum ₹400');return;}
+  try{
+    var hdrs={'Content-Type':'application/json'};
+    if(typeof csrfHeaders==='function') hdrs=csrfHeaders(hdrs);
+    var r=await fetch('/api/withdrawals',{
+      method:'POST',
+      headers:hdrs,
+      credentials:'include',
+      body:JSON.stringify({platform:p,accountName:n,phoneNumber:ph,amount:a})
     });
-    // Update phone label
-    var label = document.getElementById('phoneLabel');
-    if (method === 'esewa') {
-      label.textContent = 'eSewa Number';
-    } else if (method === 'khalti') {
-      label.textContent = 'Khalti Number';
+    var d=await r.json();
+    if(d.success){
+      alert('Requested! Admin processes in 24hrs.');
+      location.reload();
+    }else{
+      alert(d.message||'Error. Try again.');
     }
-    updateConfirm();
-  }
-
-  function updateConfirm() {
-    var form = document.getElementById('withdrawForm');
-    var amount = Number(form.amount.value) || 0;
-    var method = form.method.value;
-    var btn = document.getElementById('withdrawBtn');
-    var confirm = document.getElementById('withdrawConfirm');
-
-    if (amount >= 400 && method) {
-      document.getElementById('confirmAmount').textContent = '₹' + amount;
-      document.getElementById('confirmNet').textContent = '₹' + amount;
-      confirm.style.display = 'block';
-      btn.disabled = false;
-    } else {
-      confirm.style.display = 'none';
-      btn.disabled = true;
-    }
-  }
-
-  (function() {
-    var form = document.getElementById('withdrawForm');
-    if (!form) return;
-    var amountInput = form.querySelector('[name="amount"]');
-    if (amountInput) amountInput.addEventListener('input', updateConfirm);
-
-    form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      var btn = document.getElementById('withdrawBtn');
-      var errDiv = document.getElementById('withdrawError');
-      errDiv.style.display = 'none';
-
-      var data = {
-        amount: form.amount.value,
-        method: form.method.value,
-        walletId: form.walletId.value,
-        accountName: form.accountHolderName.value
-      };
-
-      if (!data.method) {
-        errDiv.textContent = 'Please select a platform (eSewa or Khalti)';
-        errDiv.style.display = 'flex';
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Submitting...';
-
-      try {
-        var res = await fetch('/api/withdraw', {
-          method: 'POST',
-          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify(data)
-        });
-        var result = await res.json();
-        if (result.success) {
-          showToast('Request submitted! Admin will process within 24 hours.');
-          document.getElementById('withdrawModal').style.display = 'none';
-          setTimeout(function() { location.reload(); }, 1200);
-        } else {
-          errDiv.textContent = result.error || 'Failed';
-          errDiv.style.display = 'flex';
-        }
-      } catch (err) {
-        errDiv.textContent = 'Something went wrong. Please try again.';
-        errDiv.style.display = 'flex';
-      }
-
-      btn.disabled = false;
-      btn.innerHTML = '<i class="bx bx-check"></i> Request Withdrawal';
-    });
-  })();
+  }catch(e){alert('Network error.');}
+}
 </script>
 
 <%- include('partials/footer') %>

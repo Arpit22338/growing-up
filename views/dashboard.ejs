@@ -64,8 +64,8 @@
     </div>
 
     <% if (availableBalance >= 400) { %>
-      <button type="button" class="btn btn-gold btn-lg" id="openWithdrawBtn" onclick="openWithdrawModal()" style="width: 100%; margin-bottom: 16px; cursor:pointer; pointer-events:all; position:relative; z-index:10;">
-        <i class='bx bx-money-withdraw'></i> Request Withdrawal
+      <button type="button" onclick="document.getElementById('wModal').style.display='flex'" style="width:100%;padding:16px;background:#27AE60;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:16px;">
+        Request Withdrawal
       </button>
     <% } else { %>
       <div style="background: var(--gray-100); border-radius: var(--radius-sm); padding: 12px 16px; text-align: center; color: var(--gray-500); font-size: 14px; margin-bottom: 16px;">
@@ -94,63 +94,20 @@
   </div>
 
   <!-- Withdrawal Modal -->
-  <div id="withdrawModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; padding:20px;">
-    <div class="card" style="max-width:440px; width:100%; padding:32px; position:relative; max-height:90vh; overflow-y:auto;">
-      <button onclick="document.getElementById('withdrawModal').style.display='none'" style="position:absolute;top:12px;right:12px;background:none;font-size:24px;color:var(--gray-500);cursor:pointer;">
-        <i class='bx bx-x'></i>
-      </button>
-      <h3 style="color:var(--navy);margin-bottom:4px;"><i class='bx bx-money-withdraw' style="color:var(--gold);"></i> Request Withdrawal</h3>
-      <p style="color:var(--gray-500);font-size:13px;margin-bottom:20px;">Available: ₹<%= availableBalance %> · Min: ₹400</p>
-
-      <div id="withdrawError" class="alert alert-danger" style="display:none;"></div>
-
-      <form id="withdrawForm">
-        <div class="form-group">
-          <label>Amount (₹)</label>
-          <input type="number" class="form-control" name="amount" min="400" max="<%= availableBalance %>" required placeholder="Min ₹400">
-        </div>
-        <div class="form-group">
-          <label>Withdrawal Method</label>
-          <select class="form-control" name="method" id="withdrawMethod" required onchange="toggleWithdrawFields()">
-            <option value="">Select method</option>
-            <option value="esewa">eSewa</option>
-            <option value="khalti">Khalti</option>
-            <option value="bank">Bank Transfer (+₹20 fee)</option>
-          </select>
-        </div>
-        <div id="walletFields" style="display:none;">
-          <div class="form-group">
-            <label>Wallet ID / Phone Number</label>
-            <input type="text" class="form-control" name="walletId" placeholder="e.g. 98XXXXXXXX">
-          </div>
-        </div>
-        <div id="bankFields" style="display:none;">
-          <div class="form-group">
-            <label>Bank Name</label>
-            <input type="text" class="form-control" name="bankName" placeholder="e.g. Nepal Bank Ltd">
-          </div>
-          <div class="form-group">
-            <label>Account Holder Name</label>
-            <input type="text" class="form-control" name="accountName" placeholder="Full name on account">
-          </div>
-          <div class="form-group">
-            <label>Account Number</label>
-            <input type="text" class="form-control" name="accountNumber" placeholder="Bank account number">
-          </div>
-          <div style="background:var(--gray-100);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--gray-700);margin-bottom:16px;">
-            <i class='bx bx-info-circle' style="color:var(--warning);"></i> Bank transfers have a ₹20 processing fee.
-          </div>
-        </div>
-        <div id="withdrawConfirm" style="display:none;background:rgba(212,168,67,0.1);border:1px solid var(--gold);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px;text-align:center;">
-          <p style="font-weight:600;color:var(--navy);margin-bottom:8px;">Confirm Withdrawal</p>
-          <p style="font-size:14px;color:var(--gray-700);">Amount: <strong id="confirmAmount">₹0</strong></p>
-          <p style="font-size:14px;color:var(--gray-700);display:none;" id="confirmFee">Fee: <strong>₹20</strong></p>
-          <p style="font-size:14px;color:var(--navy);font-weight:700;">You will receive: <strong id="confirmNet">₹0</strong></p>
-        </div>
-        <button type="submit" class="btn btn-primary btn-block btn-lg" id="withdrawBtn" disabled>
-          <i class='bx bx-check'></i> Submit Withdrawal
-        </button>
-      </form>
+  <div id="wModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:420px;position:relative;max-height:90vh;overflow-y:auto;">
+      <button type="button" onclick="document.getElementById('wModal').style.display='none'" style="position:absolute;top:14px;right:18px;background:none;border:none;font-size:24px;cursor:pointer;color:#333;">✕</button>
+      <h3 style="margin:0 0 20px;color:#0A1F44;font-size:20px;">Request Withdrawal</h3>
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+        <button type="button" id="eBtn" onclick="selP('esewa')" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;cursor:pointer;font-weight:700;font-size:15px;background:#fff;color:#333;">eSewa</button>
+        <button type="button" id="kBtn" onclick="selP('khalti')" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;cursor:pointer;font-weight:700;font-size:15px;background:#fff;color:#333;">Khalti</button>
+      </div>
+      <input type="hidden" id="wP"/>
+      <input type="text" id="wN" placeholder="Account Holder Name" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:12px;box-sizing:border-box;"/>
+      <input type="tel" id="wPh" placeholder="Phone Number" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:12px;box-sizing:border-box;"/>
+      <input type="number" id="wAmt" placeholder="Amount (min ₹400)" min="400" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:6px;box-sizing:border-box;"/>
+      <p style="color:#888;font-size:13px;margin:0 0 16px;">Minimum ₹400 | Available: ₹<%= availableBalance %></p>
+      <button type="button" onclick="doWithdraw()" style="width:100%;padding:15px;background:#27AE60;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;">Confirm Request</button>
     </div>
   </div>
 
@@ -166,7 +123,7 @@
       <div class="dash-share-label"><i class='bx bx-link'></i> Your Referral Link</div>
       <div class="referral-link-group">
         <input type="text" readonly value="<%= baseUrl %>/register?ref=<%= user.referralCode %>" id="genLink">
-        <button type="button" style="padding:10px 18px;background:#D4A017;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;" onclick="(function(btn){var text=btn.previousElementSibling.value||btn.previousElementSibling.textContent;var el=document.createElement('textarea');el.value=text;el.style.position='fixed';el.style.opacity='0';document.body.appendChild(el);el.focus();el.select();document.execCommand('copy');document.body.removeChild(el);btn.textContent='✓ Copied!';setTimeout(function(){btn.textContent='Copy';},2000);})(this)">Copy</button>
+        <button type="button" onclick="doCopy(this,'<%= baseUrl %>/register?ref=<%= user.referralCode %>')" style="padding:8px 16px;background:#D4A017;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">Copy</button>
       </div>
       <a href="https://wa.me/?text=Join%20Growing%20Up%20and%20start%20earning!%20<%= encodeURIComponent(baseUrl + '/register?ref=' + user.referralCode) %>"
          target="_blank" class="btn-whatsapp" style="margin-top: 10px;">
@@ -186,7 +143,7 @@
             <input type="text" readonly
               value="<%= baseUrl %>/course/<%= key %>?ref=<%= user.referralCode %>"
               id="link_<%= key %>">
-            <button type="button" style="padding:10px 18px;background:#D4A017;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;" onclick="(function(btn){var text=btn.previousElementSibling.value||btn.previousElementSibling.textContent;var el=document.createElement('textarea');el.value=text;el.style.position='fixed';el.style.opacity='0';document.body.appendChild(el);el.focus();el.select();document.execCommand('copy');document.body.removeChild(el);btn.textContent='✓ Copied!';setTimeout(function(){btn.textContent='Copy';},2000);})(this)">Copy</button>
+            <button type="button" onclick="doCopy(this,'<%= baseUrl %>/course/<%= key %>?ref=<%= user.referralCode %>')" style="padding:8px 16px;background:#D4A017;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">Copy</button>
           </div>
           <a href="https://wa.me/?text=Check%20out%20<%= encodeURIComponent(courses[key].title) %>%20on%20Growing%20Up!%20<%= encodeURIComponent(baseUrl + '/course/' + key + '?ref=' + user.referralCode) %>"
              target="_blank" class="btn-whatsapp btn-sm" style="width: 100%; justify-content: center; margin-top: 8px;">
@@ -256,94 +213,51 @@
 </div>
 
 <script>
-  function openWithdrawModal() {
-    var modal = document.getElementById('withdrawModal');
-    if (modal) {
-      modal.style.display = 'flex';
-    } else {
-      console.error('withdrawModal not found in DOM');
-    }
-  }
+function selP(p) {
+  document.getElementById('wP').value = p;
+  var isE = p === 'esewa';
+  document.getElementById('eBtn').style.background = isE ? '#D4A017' : '#fff';
+  document.getElementById('eBtn').style.color = isE ? '#fff' : '#333';
+  document.getElementById('eBtn').style.borderColor = isE ? '#D4A017' : '#ddd';
+  document.getElementById('kBtn').style.background = !isE ? '#D4A017' : '#fff';
+  document.getElementById('kBtn').style.color = !isE ? '#fff' : '#333';
+  document.getElementById('kBtn').style.borderColor = !isE ? '#D4A017' : '#ddd';
+}
 
-  // Withdrawal form logic
-  function toggleWithdrawFields() {
-    var method = document.getElementById('withdrawMethod').value;
-    document.getElementById('walletFields').style.display = (method === 'esewa' || method === 'khalti') ? 'block' : 'none';
-    document.getElementById('bankFields').style.display = method === 'bank' ? 'block' : 'none';
-    updateWithdrawConfirm();
-  }
-
-  function updateWithdrawConfirm() {
-    var form = document.getElementById('withdrawForm');
-    var amount = Number(form.amount.value) || 0;
-    var method = form.method.value;
-    var fee = method === 'bank' ? 20 : 0;
-    var net = amount - fee;
-
-    var btn = document.getElementById('withdrawBtn');
-    var confirm = document.getElementById('withdrawConfirm');
-
-    if (amount >= 400 && method) {
-      document.getElementById('confirmAmount').textContent = '₹' + amount;
-      document.getElementById('confirmFee').style.display = fee > 0 ? 'block' : 'none';
-      document.getElementById('confirmNet').textContent = '₹' + net;
-      confirm.style.display = 'block';
-      btn.disabled = false;
-    } else {
-      confirm.style.display = 'none';
-      btn.disabled = true;
-    }
-  }
-
-  // Listen for amount/method changes
-  (function() {
-    var form = document.getElementById('withdrawForm');
-    if (!form) return;
-    var amountInput = form.querySelector('[name="amount"]');
-    if (amountInput) amountInput.addEventListener('input', updateWithdrawConfirm);
-
-    form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      var btn = document.getElementById('withdrawBtn');
-      var errDiv = document.getElementById('withdrawError');
-      errDiv.style.display = 'none';
-
-      var data = {
-        amount: form.amount.value,
-        method: form.method.value,
-        walletId: form.walletId ? form.walletId.value : '',
-        bankName: form.bankName ? form.bankName.value : '',
-        accountName: form.accountName ? form.accountName.value : '',
-        accountNumber: form.accountNumber ? form.accountNumber.value : ''
-      };
-
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Submitting...';
-
-      try {
-        var res = await fetch('/api/withdraw', {
-          method: 'POST',
-          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify(data)
-        });
-        var result = await res.json();
-        if (result.success) {
-          showToast(result.message || 'Withdrawal request submitted!');
-          document.getElementById('withdrawModal').style.display = 'none';
-          setTimeout(function() { location.reload(); }, 1200);
-        } else {
-          errDiv.textContent = result.error || 'Failed';
-          errDiv.style.display = 'flex';
-        }
-      } catch (err) {
-        errDiv.textContent = 'Something went wrong. Please try again.';
-        errDiv.style.display = 'flex';
-      }
-
-      btn.disabled = false;
-      btn.innerHTML = '<i class="bx bx-check"></i> Submit Withdrawal';
+async function doWithdraw() {
+  var p = document.getElementById('wP').value;
+  var n = document.getElementById('wN').value.trim();
+  var ph = document.getElementById('wPh').value.trim();
+  var a = parseInt(document.getElementById('wAmt').value);
+  if (!p) { alert('Select eSewa or Khalti'); return; }
+  if (!n) { alert('Enter account name'); return; }
+  if (!ph || ph.length < 10) { alert('Enter valid phone number'); return; }
+  if (!a || a < 400) { alert('Minimum ₹400'); return; }
+  try {
+    var hdrs = { 'Content-Type': 'application/json' };
+    if (typeof csrfHeaders === 'function') hdrs = csrfHeaders(hdrs);
+    var r = await fetch('/api/withdrawals', {
+      method: 'POST',
+      headers: hdrs,
+      credentials: 'include',
+      body: JSON.stringify({
+        platform: p,
+        accountName: n,
+        phoneNumber: ph,
+        amount: a
+      })
     });
-  })();
+    var d = await r.json();
+    if (d.success) {
+      alert('Done! Admin will process in 24 hrs.');
+      location.reload();
+    } else {
+      alert(d.message || d.error || 'Error. Try again.');
+    }
+  } catch(e) {
+    alert('Network error. Check connection.');
+  }
+}
 </script>
 
 <%- include('partials/footer') %>

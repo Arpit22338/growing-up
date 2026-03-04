@@ -345,6 +345,7 @@ router.post('/admin/reset-everything', isSuperAdmin, async (req, res) => {
           totalEarnings: 0,
           walletBalance: 0,
           withdrawnAmount: 0,
+          dailyWithdrawCount: 0,
           isActive: false,
           purchasedCourses: [],
           referredUsers: []

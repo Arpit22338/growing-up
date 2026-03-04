@@ -88,9 +88,13 @@
                 <td style="padding:10px 8px;font-size:13px;"><%= w.accountName || '-' %></td>
                 <td style="padding:10px 8px;font-size:13px;"><%= w.walletId || '-' %></td>
                 <td style="padding:10px 8px;">
-                  <% var sBg = w.status==='pending' ? '#FFF3CD' : w.status==='approved' ? '#D4EDDA' : '#F8D7DA'; %>
-                  <% var sColor = w.status==='pending' ? '#856404' : w.status==='approved' ? '#155724' : '#721C24'; %>
-                  <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;background:<%= sBg %>;color:<%= sColor %>"><%= w.status.charAt(0).toUpperCase() + w.status.slice(1) %></span>
+                  <% if (w.status === 'pending') { %>
+                    <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;background:#FFF3CD;color:#856404;"><%= w.status.charAt(0).toUpperCase() + w.status.slice(1) %></span>
+                  <% } else if (w.status === 'approved') { %>
+                    <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;background:#D4EDDA;color:#155724;"><%= w.status.charAt(0).toUpperCase() + w.status.slice(1) %></span>
+                  <% } else { %>
+                    <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;background:#F8D7DA;color:#721C24;"><%= w.status.charAt(0).toUpperCase() + w.status.slice(1) %></span>
+                  <% } %>
                 </td>
                 <td style="padding:10px 8px;font-size:13px;color:#888;"><%= new Date(w.createdAt).toLocaleDateString() %></td>
               </tr>
@@ -132,13 +136,15 @@ async function submitWithdraw() {
   if (!n||!ph){alert('Fill all fields');return;}
   if (!a||a<400){alert('Minimum ₹400');return;}
   try {
-    var r = await fetch('/api/withdraw', {
+    var hdrs = {'Content-Type':'application/json'};
+    if (typeof csrfHeaders === 'function') hdrs = csrfHeaders(hdrs);
+    var r = await fetch('/api/withdrawals', {
       method:'POST',
-      headers: csrfHeaders({'Content-Type':'application/json'}),
+      headers: hdrs,
       credentials:'include',
       body:JSON.stringify({
-        method:p,accountName:n,
-        walletId:ph,amount:a
+        platform:p,accountName:n,
+        phoneNumber:ph,amount:a
       })
     });
     var d = await r.json();

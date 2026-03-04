@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <script src="/js/copy.js"></script>
 </head>
 <body>
   <div class="admin-layout">
@@ -39,7 +40,7 @@
               <td>
                 <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                   <input type="text" readonly value="<%= typeof baseUrl !== 'undefined' ? baseUrl : 'https://growingup.tech' %>/register?ref=<%= user.referralCode %>" id="userRefLink" style="font-size: 12px; padding: 4px 8px; border: 1px solid var(--gray-200); border-radius: 4px; background: var(--gray-50); flex: 1; min-width: 200px;">
-                  <button type="button" style="padding:10px 18px;background:#D4A017;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;" onclick="(function(btn){var text=btn.previousElementSibling.value||btn.previousElementSibling.textContent;var el=document.createElement('textarea');el.value=text;el.style.position='fixed';el.style.opacity='0';document.body.appendChild(el);el.focus();el.select();document.execCommand('copy');document.body.removeChild(el);btn.textContent='✓ Copied!';setTimeout(function(){btn.textContent='Copy';},2000);})(this)">Copy</button>
+                  <button type="button" onclick="doCopy(this, document.getElementById('userRefLink').value)" style="padding:8px 16px;background:#D4A017;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">Copy</button>
                 </div>
               </td>
             </tr>
