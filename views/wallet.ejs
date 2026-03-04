@@ -10,6 +10,78 @@
     <i class='bx bx-wallet' style="color: var(--gold);"></i> My Wallet
   </h2>
 
+  <!-- Referral Links -->
+  <div class="card" style="padding: 20px; margin-bottom: 24px;">
+    <h3 style="color: var(--navy); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+      <i class='bx bx-link' style="color: var(--gold);"></i> Referral Links
+    </h3>
+
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div>
+        <label style="display:block;font-weight:600;color:var(--gray-600);margin-bottom:6px;">General</label>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input type="text" id="mainLink" value="<%= referralLink %>" readonly style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;" />
+          <button type="button" onclick="copyText('mainLink', this)" style="padding:10px 14px;border:none;border-radius:8px;background:#D4A017;color:#fff;font-weight:700;cursor:pointer;">Copy</button>
+        </div>
+      </div>
+
+      <div>
+        <label style="display:block;font-weight:600;color:var(--gray-600);margin-bottom:6px;">Starter</label>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input type="text" id="starterLink" value="<%= starterLink %>" readonly style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;" />
+          <button type="button" onclick="copyText('starterLink', this)" style="padding:10px 14px;border:none;border-radius:8px;background:#D4A017;color:#fff;font-weight:700;cursor:pointer;">Copy</button>
+        </div>
+      </div>
+
+      <div>
+        <label style="display:block;font-weight:600;color:var(--gray-600);margin-bottom:6px;">Prime</label>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input type="text" id="primeLink" value="<%= primeLink %>" readonly style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;" />
+          <button type="button" onclick="copyText('primeLink', this)" style="padding:10px 14px;border:none;border-radius:8px;background:#D4A017;color:#fff;font-weight:700;cursor:pointer;">Copy</button>
+        </div>
+      </div>
+
+      <div>
+        <label style="display:block;font-weight:600;color:var(--gray-600);margin-bottom:6px;">Master</label>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input type="text" id="masterLink" value="<%= masterLink %>" readonly style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;" />
+          <button type="button" onclick="copyText('masterLink', this)" style="padding:10px 14px;border:none;border-radius:8px;background:#D4A017;color:#fff;font-weight:700;cursor:pointer;">Copy</button>
+        </div>
+      </div>
+
+      <div>
+        <label style="display:block;font-weight:600;color:var(--gray-600);margin-bottom:6px;">Bundle</label>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input type="text" id="bundleLink" value="<%= bundleLink %>" readonly style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;" />
+          <button type="button" onclick="copyText('bundleLink', this)" style="padding:10px 14px;border:none;border-radius:8px;background:#D4A017;color:#fff;font-weight:700;cursor:pointer;">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  function copyText(inputId, btn) {
+    var val = document.getElementById(inputId).value;
+    if (!val) { alert('No link found'); return; }
+    var t = document.createElement('textarea');
+    t.value = val;
+    t.style.position = 'fixed';
+    t.style.opacity = '0';
+    document.body.appendChild(t);
+    t.focus();
+    t.select();
+    t.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+    document.body.removeChild(t);
+    btn.textContent = '✓ Copied!';
+    btn.style.background = '#27AE60';
+    setTimeout(function() {
+      btn.textContent = 'Copy';
+      btn.style.background = '#D4A017';
+    }, 2000);
+  }
+  </script>
+
   <!-- Wallet Balance Card -->
   <div class="card" style="text-align: center; padding: 40px 24px; margin-bottom: 24px; background: linear-gradient(135deg, #0A1F44, #163265); color: var(--white); border: none;">
     <i class='bx bx-wallet' style="font-size: 48px; color: var(--gold); margin-bottom: 12px;"></i>
@@ -19,9 +91,23 @@
 
   <!-- Withdraw Button -->
   <% if (availableBalance >= 400) { %>
-    <button type="button" onclick="document.getElementById('wModal').style.display='flex'" style="width:100%;padding:16px;background:#27AE60;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin:16px 0;">
+    <button type="button"
+      id="openWBtn"
+      style="width:100%;padding:16px;
+      background:#27AE60;color:#fff;
+      border:none;border-radius:10px;
+      font-size:16px;font-weight:700;
+      cursor:pointer;margin:16px 0;
+      display:block;">
       Request Withdrawal
     </button>
+    <script>
+    document.getElementById('openWBtn')
+      .addEventListener('click', function() {
+        document.getElementById('wModal')
+          .style.display = 'flex';
+      });
+    </script>
   <% } else { %>
     <button disabled style="width:100%;padding:16px;background:#ccc;color:#888;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:not-allowed;margin:16px 0;">
       Minimum ₹400 required to withdraw
@@ -82,62 +168,139 @@
 </div>
 
 <!-- Withdrawal Modal -->
-<div id="wModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:420px;position:relative;max-height:90vh;overflow-y:auto;">
-    <button type="button" onclick="document.getElementById('wModal').style.display='none'" style="position:absolute;top:14px;right:18px;background:none;border:none;font-size:24px;cursor:pointer;color:#333;">✕</button>
-    <h3 style="margin:0 0 20px;color:#0A1F44;">Request Withdrawal</h3>
-    <div style="display:flex;gap:10px;margin-bottom:16px;">
-      <button type="button" id="eBtn" onclick="selP('esewa')" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;cursor:pointer;font-weight:700;background:#fff;">eSewa</button>
-      <button type="button" id="kBtn" onclick="selP('khalti')" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;cursor:pointer;font-weight:700;background:#fff;">Khalti</button>
+<div id="wModal"
+  style="display:none;position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.7);
+  z-index:99999;align-items:center;
+  justify-content:center;">
+  <div style="background:#fff;
+    padding:28px;border-radius:16px;
+    width:90%;max-width:400px;
+    position:relative;">
+    
+    <button type="button"
+      id="closeWBtn"
+      style="position:absolute;top:12px;
+      right:16px;background:none;
+      border:none;font-size:26px;
+      cursor:pointer;">✕</button>
+    
+    <h3 style="margin:0 0 20px;
+      color:#0A1F44;">Withdraw</h3>
+    
+    <div style="display:flex;gap:8px;
+      margin-bottom:14px;">
+      <button type="button" id="eb"
+        style="flex:1;padding:12px;
+        border:2px solid #ddd;
+        border-radius:8px;font-weight:700;
+        cursor:pointer;background:#fff;">
+        eSewa
+      </button>
+      <button type="button" id="kb"
+        style="flex:1;padding:12px;
+        border:2px solid #ddd;
+        border-radius:8px;font-weight:700;
+        cursor:pointer;background:#fff;">
+        Khalti
+      </button>
     </div>
-    <input type="hidden" id="wP"/>
-    <input type="text" id="wN" placeholder="Account Holder Name" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:12px;box-sizing:border-box;"/>
-    <input type="tel" id="wPh" placeholder="Phone Number" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:12px;box-sizing:border-box;"/>
-    <input type="number" id="wAmt" placeholder="Amount (min ₹400)" min="400" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:6px;box-sizing:border-box;"/>
-    <p style="color:#888;font-size:13px;margin:0 0 16px;">Min ₹400 | Available: ₹<%= availableBalance %></p>
-    <button type="button" onclick="doWithdraw()" style="width:100%;padding:15px;background:#27AE60;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;">Confirm Request</button>
+    <input type="hidden" id="wp"/>
+    <input type="text" id="wn"
+      placeholder="Account Holder Name"
+      style="width:100%;padding:12px;
+      border:1.5px solid #ddd;
+      border-radius:8px;font-size:15px;
+      margin-bottom:10px;
+      box-sizing:border-box;"/>
+    <input type="tel" id="wph"
+      placeholder="Phone Number"
+      style="width:100%;padding:12px;
+      border:1.5px solid #ddd;
+      border-radius:8px;font-size:15px;
+      margin-bottom:10px;
+      box-sizing:border-box;"/>
+    <input type="number" id="wa"
+      placeholder="Amount (min ₹400)"
+      style="width:100%;padding:12px;
+      border:1.5px solid #ddd;
+      border-radius:8px;font-size:15px;
+      margin-bottom:6px;
+      box-sizing:border-box;"/>
+    <p style="font-size:13px;color:#888;
+      margin:0 0 14px;">
+      Available: ₹<%= user.walletBalance||0 %>
+    </p>
+    <button type="button" id="submitW"
+      style="width:100%;padding:14px;
+      background:#27AE60;color:#fff;
+      border:none;border-radius:10px;
+      font-size:16px;font-weight:700;
+      cursor:pointer;">
+      Confirm
+    </button>
   </div>
 </div>
 
 <script>
-function selP(p){
-  document.getElementById('wP').value=p;
-  var e=document.getElementById('eBtn');
-  var k=document.getElementById('kBtn');
-  e.style.background=p==='esewa'?'#D4A017':'#fff';
-  e.style.color=p==='esewa'?'#fff':'#333';
-  e.style.borderColor=p==='esewa'?'#D4A017':'#ddd';
-  k.style.background=p==='khalti'?'#D4A017':'#fff';
-  k.style.color=p==='khalti'?'#fff':'#333';
-  k.style.borderColor=p==='khalti'?'#D4A017':'#ddd';
-}
-async function doWithdraw(){
-  var p=document.getElementById('wP').value;
-  var n=document.getElementById('wN').value.trim();
-  var ph=document.getElementById('wPh').value.trim();
-  var a=parseInt(document.getElementById('wAmt').value);
-  if(!p){alert('Select eSewa or Khalti');return;}
-  if(!n){alert('Enter account name');return;}
-  if(!ph){alert('Enter phone number');return;}
-  if(!a||a<400){alert('Minimum ₹400');return;}
-  try{
-    var hdrs={'Content-Type':'application/json'};
-    if(typeof csrfHeaders==='function') hdrs=csrfHeaders(hdrs);
-    var r=await fetch('/api/withdrawals',{
-      method:'POST',
-      headers:hdrs,
-      credentials:'include',
-      body:JSON.stringify({platform:p,accountName:n,phoneNumber:ph,amount:a})
-    });
-    var d=await r.json();
-    if(d.success){
-      alert('Requested! Admin processes in 24hrs.');
-      location.reload();
-    }else{
-      alert(d.message||'Error. Try again.');
-    }
-  }catch(e){alert('Network error.');}
-}
+document.getElementById('closeWBtn')
+  .addEventListener('click',function(){
+    document.getElementById('wModal')
+      .style.display='none';
+  });
+
+document.getElementById('eb')
+  .addEventListener('click',function(){
+    document.getElementById('wp').value='esewa';
+    this.style.background='#D4A017';
+    this.style.color='#fff';
+    this.style.borderColor='#D4A017';
+    document.getElementById('kb').style.background='#fff';
+    document.getElementById('kb').style.color='#333';
+    document.getElementById('kb').style.borderColor='#ddd';
+  });
+
+document.getElementById('kb')
+  .addEventListener('click',function(){
+    document.getElementById('wp').value='khalti';
+    this.style.background='#D4A017';
+    this.style.color='#fff';
+    this.style.borderColor='#D4A017';
+    document.getElementById('eb').style.background='#fff';
+    document.getElementById('eb').style.color='#333';
+    document.getElementById('eb').style.borderColor='#ddd';
+  });
+
+document.getElementById('submitW')
+  .addEventListener('click', async function(){
+    var p=document.getElementById('wp').value;
+    var n=document.getElementById('wn').value.trim();
+    var ph=document.getElementById('wph').value.trim();
+    var a=parseInt(document.getElementById('wa').value);
+    if(!p){alert('Select eSewa or Khalti');return;}
+    if(!n){alert('Enter account name');return;}
+    if(!ph){alert('Enter phone number');return;}
+    if(!a||a<400){alert('Minimum ₹400');return;}
+    try{
+      var r=await fetch('/api/withdrawals',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        credentials:'include',
+        body:JSON.stringify({
+          platform:p,accountName:n,
+          phoneNumber:ph,amount:a
+        })
+      });
+      var d=await r.json();
+      if(d.success){
+        alert('Done! Admin will process in 24hrs.');
+        location.reload();
+      }else{
+        alert(d.message||'Error');
+      }
+    }catch(e){alert('Network error');}
+  });
 </script>
 
 <%- include('partials/footer') %>

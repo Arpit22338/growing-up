@@ -420,7 +420,19 @@ router.get('/dashboard/wallet', async (req, res) => {
     const pendingTotal = withdrawals.filter(w => w.status === 'pending').reduce((s, w) => s + w.amount, 0);
     const availableBalance = user.totalEarnings - approvedTotal - pendingTotal;
 
-    res.render('wallet', { user, withdrawals, availableBalance });
+    const baseUrl = 'https://growingup.tech';
+    const code = user.referralCode;
+
+    res.render('wallet', {
+      user,
+      withdrawals,
+      availableBalance,
+      referralLink: baseUrl + '/register?ref=' + code,
+      starterLink: baseUrl + '/course/starter?ref=' + code,
+      primeLink: baseUrl + '/course/prime?ref=' + code,
+      masterLink: baseUrl + '/course/master?ref=' + code,
+      bundleLink: baseUrl + '/course/bundle?ref=' + code
+    });
   } catch (err) {
     res.redirect('/dashboard');
   }
