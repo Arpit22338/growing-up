@@ -7,7 +7,7 @@ const Settings = require('../models/Settings');
 const Withdrawal = require('../models/Withdrawal');
 const courses = require('../config/courses');
 const multer = require('multer');
-const { isAuthenticated, isActiveUser } = require('../middleware/auth');
+const { isAuthenticated, isActiveUser, noCache } = require('../middleware/auth');
 
 // Multer config — memory storage (for Vercel/serverless compatibility)
 const upload = multer({
@@ -34,7 +34,8 @@ router.get('/', async (req, res) => {
       loggedInUser = await User.findById(req.session.userId).select('purchasedCourses isActive referralCode profilePicture');
     } catch (e) {}
   }
-  res.render('index', { courses, loggedInUser });
+  const baseUrl = process.env.BASE_URL || 'https://growingup.vercel.app';
+  res.render('index', { courses, loggedInUser, title: 'Learn & Earn Online', metaDesc: 'Growing Up is Nepal\'s leading referral-based course platform. Learn digital skills and earn 65% referral commission. Courses from ₹499.', canonicalUrl: baseUrl });
 });
 
 // GET - Sitemap.xml (PSEO)
@@ -68,14 +69,16 @@ router.get('/course/:key', async (req, res) => {
   }
   
   const baseUrl = process.env.BASE_URL || '';
-  res.render('course', { course, ref, loggedInUser, baseUrl });
+  const canonicalUrl = (process.env.BASE_URL || 'https://growingup.vercel.app') + '/course/' + req.params.key;
+  res.render('course', { course, ref, loggedInUser, baseUrl, title: course.title + ' Course', metaDesc: course.description, canonicalUrl });
 });
 
 // GET - Register page
 router.get('/register', (req, res) => {
   const ref = req.query.ref || '';
   const course = req.query.course || '';
-  res.render('register', { courses, ref, selectedCourse: course });
+  const canonicalUrl = (process.env.BASE_URL || 'https://growingup.vercel.app') + '/register';
+  res.render('register', { courses, ref, selectedCourse: course, title: 'Register', metaDesc: 'Join Growing Up Nepal. Register to access online courses and start earning through referrals.', canonicalUrl });
 });
 
 // POST - Validate referral code (AJAX)
@@ -88,8 +91,7 @@ router.post('/api/validate-referral', async (req, res) => {
     }
     return res.json({
       valid: true,
-      name: referrer.fullName,
-      whatsapp: referrer.whatsapp
+      name: referrer.fullName
     });
   } catch (err) {
     return res.status(500).json({ error: 'Server error' });
@@ -272,7 +274,8 @@ router.get('/login', (req, res) => {
     }
     return res.redirect('/dashboard');
   }
-  res.render('login');
+  const canonicalUrl = (process.env.BASE_URL || 'https://growingup.vercel.app') + '/login';
+  res.render('login', { title: 'Login', metaDesc: 'Login to your Growing Up Nepal account to access courses, track earnings, and manage referrals.', canonicalUrl });
 });
 
 // POST - Login
@@ -297,17 +300,23 @@ router.post('/api/login', async (req, res) => {
         });
         await admin.save();
       }
-      // Set session (safe for serverless — avoids regenerate issues)
-      req.session.userId = admin._id;
-      req.session.role = 'superadmin';
-      req.session.userName = admin.firstName || 'Admin';
-      req.session.profilePicture = admin.profilePicture || '';
-      req.session.isActive = true;
-      req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
-      req.session.loginAt = Date.now();
-      return req.session.save((err) => {
-        if (err) console.error('Session save error:', err);
-        return res.json({ success: true, redirect: '/admin' });
+      // Regenerate session to prevent session fixation attacks
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error('Session regenerate error:', err);
+          return res.status(500).json({ error: 'Server error' });
+        }
+        req.session.userId = admin._id;
+        req.session.role = 'superadmin';
+        req.session.userName = admin.firstName || 'Admin';
+        req.session.profilePicture = admin.profilePicture || '';
+        req.session.isActive = true;
+        req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
+        req.session.loginAt = Date.now();
+        return req.session.save((err) => {
+          if (err) console.error('Session save error:', err);
+          return res.json({ success: true, redirect: '/admin' });
+        });
       });
     }
 
@@ -327,17 +336,23 @@ router.post('/api/login', async (req, res) => {
         });
         await finSec.save();
       }
-      // Set session (safe for serverless)
-      req.session.userId = finSec._id;
-      req.session.role = 'financial_secretary';
-      req.session.userName = finSec.firstName || 'Finance';
-      req.session.profilePicture = finSec.profilePicture || '';
-      req.session.isActive = true;
-      req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
-      req.session.loginAt = Date.now();
-      return req.session.save((err) => {
-        if (err) console.error('Session save error:', err);
-        return res.json({ success: true, redirect: '/admin' });
+      // Regenerate session to prevent session fixation attacks
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error('Session regenerate error:', err);
+          return res.status(500).json({ error: 'Server error' });
+        }
+        req.session.userId = finSec._id;
+        req.session.role = 'financial_secretary';
+        req.session.userName = finSec.firstName || 'Finance';
+        req.session.profilePicture = finSec.profilePicture || '';
+        req.session.isActive = true;
+        req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
+        req.session.loginAt = Date.now();
+        return req.session.save((err) => {
+          if (err) console.error('Session save error:', err);
+          return res.json({ success: true, redirect: '/admin' });
+        });
       });
     }
 
@@ -365,19 +380,25 @@ router.post('/api/login', async (req, res) => {
       return res.json({ success: true, redirect: '/pending' });
     }
 
-    // Set session (safe for serverless — avoids regenerate issues)
-    req.session.userId = user._id;
-    req.session.role = user.role;
-    req.session.userName = user.firstName || 'User';
-    req.session.profilePicture = user.profilePicture || '';
-    req.session.isActive = user.isActive;
-    req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
-    req.session.loginAt = Date.now();
+    // Regenerate session to prevent session fixation attacks
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error('Session regenerate error:', err);
+        return res.status(500).json({ error: 'Server error' });
+      }
+      req.session.userId = user._id;
+      req.session.role = user.role;
+      req.session.userName = user.firstName || 'User';
+      req.session.profilePicture = user.profilePicture || '';
+      req.session.isActive = user.isActive;
+      req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
+      req.session.loginAt = Date.now();
 
-    const redirect = (user.role === 'superadmin' || user.role === 'financial_secretary') ? '/admin' : '/dashboard';
-    return req.session.save((err) => {
-      if (err) console.error('Session save error:', err);
-      return res.json({ success: true, redirect });
+      const redirect = (user.role === 'superadmin' || user.role === 'financial_secretary') ? '/admin' : '/dashboard';
+      return req.session.save((err) => {
+        if (err) console.error('Session save error:', err);
+        return res.json({ success: true, redirect });
+      });
     });
   } catch (err) {
     console.error(err);
@@ -387,11 +408,12 @@ router.post('/api/login', async (req, res) => {
 
 // GET - Pending page
 router.get('/pending', (req, res) => {
-  res.render('pending');
+  const canonicalUrl = (process.env.BASE_URL || 'https://growingup.vercel.app') + '/pending';
+  res.render('pending', { title: 'Account Pending', metaDesc: 'Your Growing Up account is pending activation. Please wait for admin approval.', canonicalUrl, robots: 'noindex, nofollow' });
 });
 
 // GET - User Dashboard
-router.get('/dashboard', async (req, res) => {
+router.get('/dashboard', noCache, async (req, res) => {
   if (!req.session || !req.session.userId) return res.redirect('/login');
   try {
     const user = await User.findById(req.session.userId).populate('referredUsers', 'firstName lastName email isActive');
@@ -402,14 +424,15 @@ router.get('/dashboard', async (req, res) => {
     const pendingTotal = withdrawals.filter(w => w.status === 'pending').reduce((s, w) => s + w.amount, 0);
     const availableBalance = user.totalEarnings - approvedTotal - pendingTotal;
     
-    res.render('dashboard', { user, courses, baseUrl: process.env.BASE_URL, withdrawals, availableBalance });
+    const canonicalUrl = (process.env.BASE_URL || 'https://growingup.vercel.app') + '/dashboard';
+    res.render('dashboard', { user, courses, baseUrl: process.env.BASE_URL, withdrawals, availableBalance, title: user.firstName + '\'s Dashboard', metaDesc: 'Your Growing Up dashboard. Track earnings, referrals, withdrawals, and course progress.', canonicalUrl, robots: 'noindex, nofollow' });
   } catch (err) {
     res.redirect('/login');
   }
 });
 
 // GET - My Wallet page
-router.get('/dashboard/wallet', async (req, res) => {
+router.get('/dashboard/wallet', noCache, async (req, res) => {
   if (!req.session || !req.session.userId) return res.redirect('/login');
   try {
     const user = await User.findById(req.session.userId);
@@ -423,6 +446,7 @@ router.get('/dashboard/wallet', async (req, res) => {
     const baseUrl = 'https://growingup.tech';
     const code = user.referralCode;
 
+    const canonicalUrl = (process.env.BASE_URL || 'https://growingup.vercel.app') + '/dashboard/wallet';
     res.render('wallet', {
       user,
       withdrawals,
@@ -431,7 +455,11 @@ router.get('/dashboard/wallet', async (req, res) => {
       starterLink: baseUrl + '/course/starter?ref=' + code,
       primeLink: baseUrl + '/course/prime?ref=' + code,
       masterLink: baseUrl + '/course/master?ref=' + code,
-      bundleLink: baseUrl + '/course/bundle?ref=' + code
+      bundleLink: baseUrl + '/course/bundle?ref=' + code,
+      title: 'My Wallet & Referrals',
+      metaDesc: 'View your Growing Up earnings, referral links, and withdrawal history.',
+      canonicalUrl,
+      robots: 'noindex, nofollow'
     });
   } catch (err) {
     res.redirect('/dashboard');
@@ -439,7 +467,7 @@ router.get('/dashboard/wallet', async (req, res) => {
 });
 
 // GET - Withdraw page
-router.get('/dashboard/withdraw', async (req, res) => {
+router.get('/dashboard/withdraw', noCache, async (req, res) => {
   if (!req.session || !req.session.userId) return res.redirect('/login');
   try {
     const user = await User.findById(req.session.userId);
@@ -450,14 +478,15 @@ router.get('/dashboard/withdraw', async (req, res) => {
     const pendingTotal = withdrawals.filter(w => w.status === 'pending').reduce((s, w) => s + w.amount, 0);
     const availableBalance = user.totalEarnings - approvedTotal - pendingTotal;
 
-    res.render('withdraw', { user, withdrawals, availableBalance });
+    const canonicalUrl = (process.env.BASE_URL || 'https://growingup.vercel.app') + '/dashboard/withdraw';
+    res.render('withdraw', { user, withdrawals, availableBalance, title: 'Withdraw Earnings', metaDesc: 'Request withdrawal of your Growing Up earnings. Secure payouts via eSewa, Khalti, and bank transfer.', canonicalUrl, robots: 'noindex, nofollow' });
   } catch (err) {
     res.redirect('/dashboard');
   }
 });
 
 // POST - Request withdrawal (HARDENED)
-router.post('/api/withdraw', async (req, res) => {
+router.post('/api/withdraw', noCache, async (req, res) => {
   // 1. Auth check
   if (!req.session || !req.session.userId) {
     return res.status(401).json({ success: false, message: 'Please login first' });
@@ -555,7 +584,7 @@ router.post('/api/withdraw', async (req, res) => {
 });
 
 // POST - Withdrawal alias route (maps /api/withdrawals → same logic as /api/withdraw)
-router.post('/api/withdrawals', async (req, res) => {
+router.post('/api/withdrawals', noCache, async (req, res) => {
   // Map alternate field names to canonical ones
   if (req.body.platform && !req.body.method) req.body.method = req.body.platform;
   if (req.body.phoneNumber && !req.body.walletId) req.body.walletId = req.body.phoneNumber;
@@ -620,7 +649,7 @@ router.get('/dashboard/profile', (req, res) => {
 });
 
 // GET - User withdrawals history (JSON)
-router.get('/api/my-withdrawals', async (req, res) => {
+router.get('/api/my-withdrawals', noCache, async (req, res) => {
   if (!req.session || !req.session.userId) {
     return res.status(401).json({ error: 'Please login first' });
   }
@@ -633,7 +662,7 @@ router.get('/api/my-withdrawals', async (req, res) => {
 });
 
 // GET - Logout — destroy session fully and clear cookie
-router.get('/logout', (req, res) => {
+router.get('/logout', noCache, (req, res) => {
   req.session.destroy((err) => {
     res.clearCookie('gu_sid', { path: '/' });
     res.redirect('/');
@@ -642,7 +671,7 @@ router.get('/logout', (req, res) => {
 
 
 // GET - Read Course (only for owned courses)
-router.get('/course/:key/read', async (req, res) => {
+router.get('/course/:key/read', noCache, async (req, res) => {
   if (!req.session || !req.session.userId) return res.redirect('/login');
   const courseKey = req.params.key;
   const course = courses[courseKey];
@@ -657,7 +686,8 @@ router.get('/course/:key/read', async (req, res) => {
 
     // Map courseKey to partial path
     const contentPartial = `partials/course-contents/${courseKey}`;
-    res.render('course-read', { course, contentPartial, loggedInUser: user });
+    const canonicalUrl = (process.env.BASE_URL || 'https://growingup.vercel.app') + '/course/' + courseKey + '/read';
+    res.render('course-read', { course, contentPartial, loggedInUser: user, title: course.title + ' — Learn', metaDesc: 'Access your purchased ' + course.title + ' course content. Learn digital skills and grow your income with Growing Up Nepal.', canonicalUrl, robots: 'noindex, nofollow' });
   } catch (err) {
     return res.status(500).render('404', { message: 'Server error.' });
   }

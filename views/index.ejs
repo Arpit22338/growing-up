@@ -1,5 +1,6 @@
 <%- include('partials/header') %>
 
+<main>
 <!-- Hero Section -->
 <section class="hero">
   <img src="/images/logo-web.png" alt="Growing Up" class="hero-logo" width="100" height="100">
@@ -126,5 +127,55 @@
     </div>
   </div>
 </section>
+</main>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How does the referral program work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "After purchasing a course, you receive a unique referral link. Share it with friends and earn 65% commission when they join and purchase a course through your link."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What payment methods are accepted?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We accept payments via eSewa, Khalti, and direct bank transfer within Nepal. Choose your preferred method during checkout."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I get a certificate after completing the course?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, our courses are focused on practical knowledge and skill-building rather than certification. You will gain real-world digital skills you can apply immediately."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I buy multiple courses?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Each account can purchase one course package. We recommend the Everything Bundle if you want access to all content at the best value."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I withdraw my earnings?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can request a withdrawal from your dashboard once you have earnings. Withdrawals are processed securely to your eSewa, Khalti, or bank account."
+      }
+    }
+  ]
+}
+</script>
 
 <%- include('partials/footer') %>

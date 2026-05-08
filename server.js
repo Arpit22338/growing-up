@@ -46,6 +46,7 @@ app.use(helmet({
     }
   },
   crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: { policy: 'same-origin' },
   crossOriginResourcePolicy: { policy: 'cross-origin' },
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
@@ -117,7 +118,7 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24, // 24 hours (not 7 days)
     httpOnly: true,               // Prevents JS access to cookie
     secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
-    sameSite: 'lax',              // CSRF protection
+    sameSite: 'strict',           // CSRF protection
     path: '/'
   },
   name: 'gu_sid',                 // Custom session name (hide tech stack)
@@ -164,6 +165,12 @@ app.use((req, res, next) => {
 // Routes
 app.use('/', require('./routes/main'));
 app.use('/', require('./routes/admin'));
+
+// robots.txt
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.send(`User-agent: *\nDisallow: /admin/\nDisallow: /dashboard/\nDisallow: /api/\nDisallow: /login\nDisallow: /register\nAllow: /\nAllow: /course/\nSitemap: ${process.env.BASE_URL || 'https://growingup.vercel.app'}/sitemap.xml\n`);
+});
 
 // 404
 app.use((req, res) => {

@@ -1,7 +1,22 @@
 // Authentication & Role-based Access Middleware
 // All admin checks verify against DB to prevent session tampering / privilege escalation
 
+const mongoose = require('mongoose');
 const User = require('../models/User');
+
+function noCache(req, res, next) {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+}
+
+function isValidObjectId(req, res, next) {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid ID format' });
+  }
+  next();
+}
 
 function isAuthenticated(req, res, next) {
   if (req.session && req.session.userId) {
@@ -30,7 +45,7 @@ async function isAdmin(req, res, next) {
     req.session.role = user.role;
     next();
   } catch (err) {
-    return res.status(500).send('Server error');
+    return res.status(500).json({ error: 'Server error' });
   }
 }
 
@@ -88,4 +103,4 @@ async function isActiveUser(req, res, next) {
   }
 }
 
-module.exports = { isAuthenticated, isAdmin, isSuperAdmin, isFinancialSecretary, isActiveUser };
+module.exports = { isAuthenticated, isAdmin, isSuperAdmin, isFinancialSecretary, isActiveUser, noCache, isValidObjectId };

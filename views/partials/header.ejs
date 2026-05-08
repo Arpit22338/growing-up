@@ -9,7 +9,7 @@
   <meta name="description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : 'Growing Up is Nepal\'s leading referral-based course platform. Learn skills, earn 65% referral commission. Starter ₹499, Prime ₹699, Master ₹1599, Everything Bundle ₹1999.' %>">
   <meta name="keywords" content="Growing Up Nepal, online courses Nepal, referral earnings Nepal, skill development, eSewa Khalti courses, learn and earn Nepal, Nepali education platform, digital skills Nepal">
   <meta name="author" content="Growing Up">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="<%= typeof robots !== 'undefined' ? robots : 'index, follow' %>">
   <meta name="theme-color" content="#0B1D3A">
   <link rel="canonical" href="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://growingup.vercel.app' %>">
 
@@ -19,14 +19,16 @@
   <meta property="og:title" content="<%= typeof title !== 'undefined' ? title + ' — ' : '' %>Growing Up — Learn & Earn in Nepal">
   <meta property="og:description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : 'Join thousands of Nepali learners building skills and earning through referrals. Courses from ₹499.' %>">
   <meta property="og:image" content="https://growingup.vercel.app/images/logo-512.png">
+  <meta property="og:image:alt" content="Growing Up Nepal - Learn & Earn Online">
   <meta property="og:site_name" content="Growing Up">
   <meta property="og:locale" content="en_US">
 
   <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="<%= typeof title !== 'undefined' ? title + ' — ' : '' %>Growing Up — Learn & Earn in Nepal">
   <meta name="twitter:description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : 'Nepal\'s leading referral-based course platform. Learn skills, earn commissions.' %>">
   <meta name="twitter:image" content="https://growingup.vercel.app/images/logo-512.png">
+  <meta name="twitter:image:alt" content="Growing Up Nepal - Learn & Earn Online">
 
   <!-- Favicons (optimized sizes) -->
   <link rel="icon" type="image/x-icon" href="/images/favicon.ico">

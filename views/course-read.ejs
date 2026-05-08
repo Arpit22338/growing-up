@@ -65,7 +65,7 @@
   }
 </style>
 
-<div class="course-read-container">
+<main class="course-read-container">
   <div class="course-read-hero">
     <h1><%= course.name %></h1>
     <p><%= course.description %></p>
@@ -80,6 +80,18 @@
   </div>
 
   <a href="/dashboard" class="btn btn-primary" style="margin-bottom:32px;">Go to Dashboard</a>
-</div>
+</main>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl.replace('/course/' + course.key + '/read', '') : 'https://growingup.vercel.app' %>" },
+    { "@type": "ListItem", "position": 2, "name": "<%= course.title %>", "item": "<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl.replace('/read', '') : 'https://growingup.vercel.app/course/' + course.key %>" },
+    { "@type": "ListItem", "position": 3, "name": "Learn", "item": "<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://growingup.vercel.app/course/' + course.key + '/read' %>" }
+  ]
+}
+</script>
 
 <%- include('partials/footer') %>

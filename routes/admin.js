@@ -7,7 +7,7 @@ const Payment = require('../models/Payment');
 const Settings = require('../models/Settings');
 const Withdrawal = require('../models/Withdrawal');
 const courses = require('../config/courses');
-const { isAdmin, isSuperAdmin, isFinancialSecretary } = require('../middleware/auth');
+const { isAdmin, isSuperAdmin, isFinancialSecretary, isValidObjectId, noCache } = require('../middleware/auth');
 
 // Multer config — memory storage (for Vercel/serverless)
 const upload = multer({
@@ -25,11 +25,11 @@ router.get('/admin/login', (req, res) => {
   if (req.session && (req.session.role === 'superadmin' || req.session.role === 'financial_secretary')) {
     return res.redirect('/admin');
   }
-  res.render('admin/login');
+  res.render('admin/login', { title: 'Admin Login', robots: 'noindex, nofollow' });
 });
 
 // Admin dashboard
-router.get('/admin', isAdmin, async (req, res) => {
+router.get('/admin', noCache, isAdmin, async (req, res) => {
   try {
     const totalUsers = await User.countDocuments({ role: 'user' });
     const activeUsers = await User.countDocuments({ role: 'user', isActive: true });
@@ -41,6 +41,8 @@ router.get('/admin', isAdmin, async (req, res) => {
 
     res.render('admin/dashboard', {
       role: req.session.role,
+      title: 'Admin Dashboard',
+      robots: 'noindex, nofollow',
       totalUsers,
       activeUsers,
       pendingPayments,
@@ -55,11 +57,11 @@ router.get('/admin', isAdmin, async (req, res) => {
 });
 
 // GET - Pending payments
-router.get('/admin/payments', isAdmin, async (req, res) => {
+router.get('/admin/payments', noCache, isAdmin, async (req, res) => {
   try {
     const status = req.query.status || 'pending';
     const payments = await Payment.find({ status }).populate('user', 'firstName lastName email whatsapp').sort({ createdAt: -1 });
-    res.render('admin/payments', { payments, status, role: req.session.role });
+    res.render('admin/payments', { payments, status, role: req.session.role, title: 'Payments — Admin', robots: 'noindex, nofollow' });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
@@ -67,7 +69,7 @@ router.get('/admin/payments', isAdmin, async (req, res) => {
 });
 
 // POST - Approve payment
-router.post('/admin/payments/:id/approve', isFinancialSecretary, async (req, res) => {
+router.post('/admin/payments/:id/approve', noCache, isValidObjectId, isFinancialSecretary, async (req, res) => {
   try {
     const payment = await Payment.findById(req.params.id);
     if (!payment) return res.status(404).json({ error: 'Payment not found' });
@@ -105,7 +107,7 @@ router.post('/admin/payments/:id/approve', isFinancialSecretary, async (req, res
 });
 
 // POST - Reject payment (Super Admin only)
-router.post('/admin/payments/:id/reject', isSuperAdmin, async (req, res) => {
+router.post('/admin/payments/:id/reject', noCache, isValidObjectId, isSuperAdmin, async (req, res) => {
   try {
     const payment = await Payment.findById(req.params.id);
     if (!payment) return res.status(404).json({ error: 'Payment not found' });
@@ -136,12 +138,12 @@ router.post('/admin/payments/:id/reject', isSuperAdmin, async (req, res) => {
 });
 
 // GET - All users
-router.get('/admin/users', isAdmin, async (req, res) => {
+router.get('/admin/users', noCache, isAdmin, async (req, res) => {
   try {
     const users = await User.find({ role: 'user' })
       .populate('referredBy', 'firstName lastName referralCode')
       .sort({ createdAt: -1 });
-    res.render('admin/users', { users, role: req.session.role });
+    res.render('admin/users', { users, role: req.session.role, title: 'Users — Admin', robots: 'noindex, nofollow' });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
@@ -149,12 +151,12 @@ router.get('/admin/users', isAdmin, async (req, res) => {
 });
 
 // GET - Add user page (Super Admin only)
-router.get('/admin/add-user', isSuperAdmin, (req, res) => {
-  res.render('admin/addUser', { role: req.session.role });
+router.get('/admin/add-user', noCache, isSuperAdmin, (req, res) => {
+  res.render('admin/addUser', { role: req.session.role, title: 'Add User — Admin', robots: 'noindex, nofollow' });
 });
 
 // GET - User detail / referral tree
-router.get('/admin/users/:id', isAdmin, async (req, res) => {
+router.get('/admin/users/:id', noCache, isValidObjectId, isAdmin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
       .populate('referredBy', 'firstName lastName referralCode email')
@@ -162,7 +164,7 @@ router.get('/admin/users/:id', isAdmin, async (req, res) => {
     if (!user) return res.status(404).send('User not found');
 
     const payments = await Payment.find({ user: user._id }).sort({ createdAt: -1 });
-    res.render('admin/userDetail', { user, payments, role: req.session.role, baseUrl: process.env.BASE_URL || 'https://growingup.tech' });
+    res.render('admin/userDetail', { user, payments, role: req.session.role, baseUrl: process.env.BASE_URL || 'https://growingup.tech', title: 'User Detail — Admin', robots: 'noindex, nofollow' });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
@@ -170,7 +172,7 @@ router.get('/admin/users/:id', isAdmin, async (req, res) => {
 });
 
 // POST - Delete user (Super Admin only)
-router.post('/admin/users/:id/delete', isSuperAdmin, async (req, res) => {
+router.post('/admin/users/:id/delete', noCache, isValidObjectId, isSuperAdmin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
@@ -250,7 +252,7 @@ router.post('/admin/users/add', isSuperAdmin, async (req, res) => {
 
 // POST - Update user role (Super Admin only)
 // SECURITY: Cannot promote to superadmin — only env-defined superadmin exists
-router.post('/admin/users/:id/role', isSuperAdmin, async (req, res) => {
+router.post('/admin/users/:id/role', noCache, isValidObjectId, isSuperAdmin, async (req, res) => {
   try {
     const { role } = req.body;
     // Only allow promoting to 'user' or 'financial_secretary' — never 'superadmin'
@@ -273,18 +275,18 @@ router.post('/admin/users/:id/role', isSuperAdmin, async (req, res) => {
 });
 
 // GET - QR settings page
-router.get('/admin/settings', isSuperAdmin, async (req, res) => {
+router.get('/admin/settings', noCache, isSuperAdmin, async (req, res) => {
   try {
     let settings = await Settings.findOne();
     if (!settings) settings = new Settings();
-    res.render('admin/settings', { settings, role: req.session.role });
+    res.render('admin/settings', { settings, role: req.session.role, title: 'Settings — Admin', robots: 'noindex, nofollow' });
   } catch (err) {
     res.status(500).send('Server error');
   }
 });
 
 // POST - Upload QR codes (stored as base64 in DB)
-router.post('/admin/settings/qr', isSuperAdmin, (req, res, next) => {
+router.post('/admin/settings/qr', noCache, isSuperAdmin, (req, res, next) => {
   upload.fields([
     { name: 'esewaQR', maxCount: 1 },
     { name: 'khaltiQR', maxCount: 1 }
@@ -313,7 +315,7 @@ router.post('/admin/settings/qr', isSuperAdmin, (req, res, next) => {
 });
 
 // GET - Earnings overview (Super Admin only)
-router.get('/admin/earnings', isSuperAdmin, async (req, res) => {
+router.get('/admin/earnings', noCache, isSuperAdmin, async (req, res) => {
   try {
     const payments = await Payment.find({ status: 'approved' })
       .populate('user', 'firstName lastName email')
@@ -324,14 +326,14 @@ router.get('/admin/earnings', isSuperAdmin, async (req, res) => {
     const totalPlatform = payments.reduce((sum, p) => sum + p.platformCommission, 0);
     const totalReferrer = payments.reduce((sum, p) => sum + p.referrerCommission, 0);
 
-    res.render('admin/earnings', { payments, totalRevenue, totalPlatform, totalReferrer, role: req.session.role });
+    res.render('admin/earnings', { payments, totalRevenue, totalPlatform, totalReferrer, role: req.session.role, title: 'Earnings — Admin', robots: 'noindex, nofollow' });
   } catch (err) {
     res.status(500).send('Server error');
   }
 });
 
 // POST - Reset everything to zero (Super Admin only)
-router.post('/admin/reset-everything', isSuperAdmin, async (req, res) => {
+router.post('/admin/reset-everything', noCache, isSuperAdmin, async (req, res) => {
   try {
     // Delete all payments and withdrawals
     await Payment.deleteMany({});
@@ -362,13 +364,13 @@ router.post('/admin/reset-everything', isSuperAdmin, async (req, res) => {
 });
 
 // GET - Withdrawal requests (Super Admin only — FinSec cannot touch withdrawals)
-router.get('/admin/withdrawals', isSuperAdmin, async (req, res) => {
+router.get('/admin/withdrawals', noCache, isSuperAdmin, async (req, res) => {
   try {
     const status = req.query.status || 'pending';
     const withdrawals = await Withdrawal.find({ status })
       .populate('user', 'firstName lastName email whatsapp totalEarnings')
       .sort({ createdAt: -1 });
-    res.render('admin/withdrawals', { withdrawals, status, role: req.session.role });
+    res.render('admin/withdrawals', { withdrawals, status, role: req.session.role, title: 'Withdrawals — Admin', robots: 'noindex, nofollow' });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
@@ -376,7 +378,7 @@ router.get('/admin/withdrawals', isSuperAdmin, async (req, res) => {
 });
 
 // POST - Approve withdrawal (Super Admin only)
-router.post('/admin/withdrawals/:id/approve', isSuperAdmin, async (req, res) => {
+router.post('/admin/withdrawals/:id/approve', noCache, isValidObjectId, isSuperAdmin, async (req, res) => {
   try {
     const withdrawal = await Withdrawal.findById(req.params.id);
     if (!withdrawal) return res.status(404).json({ error: 'Withdrawal not found' });
@@ -395,7 +397,7 @@ router.post('/admin/withdrawals/:id/approve', isSuperAdmin, async (req, res) => 
 });
 
 // POST - Reject withdrawal (Super Admin only)
-router.post('/admin/withdrawals/:id/reject', isSuperAdmin, async (req, res) => {
+router.post('/admin/withdrawals/:id/reject', noCache, isValidObjectId, isSuperAdmin, async (req, res) => {
   try {
     const withdrawal = await Withdrawal.findById(req.params.id);
     if (!withdrawal) return res.status(404).json({ error: 'Withdrawal not found' });
@@ -415,7 +417,7 @@ router.post('/admin/withdrawals/:id/reject', isSuperAdmin, async (req, res) => {
 });
 
 // GET - Recursive referral tree API (Admin)
-router.get('/admin/users/:id/tree', isAdmin, async (req, res) => {
+router.get('/admin/users/:id/tree', noCache, isValidObjectId, isAdmin, async (req, res) => {
   try {
     async function buildTree(userId, depth) {
       if (depth > 10) return []; // Prevent infinite loops
@@ -449,10 +451,10 @@ router.get('/admin/users/:id/tree', isAdmin, async (req, res) => {
 });
 
 // GET - Referral tree viewer page (Super Admin only)
-router.get('/admin/referral-tree', isSuperAdmin, async (req, res) => {
+router.get('/admin/referral-tree', noCache, isSuperAdmin, async (req, res) => {
   try {
     const users = await User.find({ role: 'user' }).select('firstName lastName email referralCode isActive').sort({ firstName: 1 });
-    res.render('admin/referralTree', { users, role: req.session.role });
+    res.render('admin/referralTree', { users, role: req.session.role, title: 'Referral Tree — Admin', robots: 'noindex, nofollow' });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
@@ -460,7 +462,7 @@ router.get('/admin/referral-tree', isSuperAdmin, async (req, res) => {
 });
 
 // Also add withdrawals quick action count to admin dashboard
-router.get('/admin/dashboard-data', isAdmin, async (req, res) => {
+router.get('/admin/dashboard-data', noCache, isAdmin, async (req, res) => {
   try {
     const pendingWithdrawals = await Withdrawal.countDocuments({ status: 'pending' });
     return res.json({ pendingWithdrawals });
@@ -470,7 +472,7 @@ router.get('/admin/dashboard-data', isAdmin, async (req, res) => {
 });
 
 // Admin profile - redirects to dashboard (no separate profile page for admins)
-router.get('/admin/profile', isAdmin, (req, res) => {
+router.get('/admin/profile', noCache, isAdmin, (req, res) => {
   res.redirect('/admin');
 });
 
