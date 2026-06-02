@@ -490,10 +490,10 @@ router.post('/api/withdraw', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid platform. Must be esewa or khalti.' });
     }
 
-    // Amount must be valid positive integer >= 400
+    // Amount must be valid positive integer >= 1
     const requestedAmount = parseInt(amount, 10);
-    if (!requestedAmount || isNaN(requestedAmount) || requestedAmount < 400) {
-      return res.status(400).json({ success: false, message: 'Minimum withdrawal is ₹400.' });
+    if (!requestedAmount || isNaN(requestedAmount) || requestedAmount < 1) {
+      return res.status(400).json({ success: false, message: 'Withdrawal amount must be at least ₹1.' });
     }
     if (requestedAmount > 100000) {
       return res.status(400).json({ success: false, message: 'Maximum withdrawal is ₹1,00,000 per request.' });
@@ -578,7 +578,7 @@ router.post('/api/withdrawals', async (req, res) => {
     if (!['esewa', 'khalti'].includes(method)) return res.status(400).json({ success: false, message: 'Select eSewa or Khalti' });
 
     const amt = parseInt(req.body.amount, 10);
-    if (!amt || amt < 400) return res.status(400).json({ success: false, message: 'Minimum ₹400' });
+    if (!amt || amt < 1) return res.status(400).json({ success: false, message: 'Enter a valid amount.' });
 
     // Compute available balance the same way the frontend does
     const allWithdrawals = await Withdrawal.find({ user: user._id });
@@ -650,10 +650,13 @@ router.get('/course/:key/read', async (req, res) => {
 
   try {
     const user = await User.findById(req.session.userId);
-    if (!user || !user.isActive) return res.redirect('/pending');
-    // Check if user owns this course (approved only)
-    const owned = user.purchasedCourses.some(c => c.courseKey === courseKey && c.status === 'approved');
-    if (!owned) return res.status(403).render('404', { message: 'You do not have access to this course.' });
+    const isAdminRole = user && (user.role === 'superadmin' || user.role === 'financial_secretary');
+    if (!user || (!user.isActive && !isAdminRole)) return res.redirect('/pending');
+    // Check if user owns this course (approved only) unless admin
+    if (!isAdminRole) {
+      const owned = user.purchasedCourses.some(c => c.courseKey === courseKey && c.status === 'approved');
+      if (!owned) return res.status(403).render('404', { message: 'You do not have access to this course.' });
+    }
 
     // Map courseKey to partial path
     const contentPartial = `partials/course-contents/${courseKey}`;

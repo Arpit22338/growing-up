@@ -63,7 +63,7 @@
       </div>
     </div>
 
-    <% if (availableBalance >= 400) { %>
+    <% if (availableBalance > 0) { %>
      <a href="/dashboard/wallet"> <button type="button"
      
       style="width:100%;padding:16px;
@@ -76,7 +76,7 @@
     </button></a>
     <% } else { %>
       <div style="background: var(--gray-100); border-radius: var(--radius-sm); padding: 12px 16px; text-align: center; color: var(--gray-500); font-size: 14px; margin-bottom: 16px;">
-        <i class='bx bx-info-circle'></i> Minimum ₹400 required to withdraw. Available: ₹<%= availableBalance %>
+        <i class='bx bx-info-circle'></i> No withdrawable balance yet. Available: ₹<%= availableBalance %>
       </div>
     <% } %>
 
@@ -118,9 +118,9 @@
 
       <input type="tel" id="wphone" placeholder="Phone Number" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:12px;box-sizing:border-box;"/>
 
-      <input type="number" id="wamt" placeholder="Amount (min ₹400)" min="400" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:6px;box-sizing:border-box;"/>
+      <input type="number" id="wamt" placeholder="Amount" min="1" style="width:100%;padding:13px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:6px;box-sizing:border-box;"/>
 
-      <p style="color:#888;font-size:13px;margin:0 0 16px;">Min ₹400 | Available: ₹<%= availableBalance || 0 %></p>
+      <p style="color:#888;font-size:13px;margin:0 0 16px;">Available: ₹<%= availableBalance || 0 %></p>
 
       <button type="button" onclick="submitWithdraw()" style="width:100%;padding:15px;background:#27AE60;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;">Confirm Request</button>
     </div>
@@ -248,7 +248,7 @@ async function submitWithdraw() {
   if (!p) { alert('Select eSewa or Khalti'); return; }
   if (!n) { alert('Enter account name'); return; }
   if (!ph) { alert('Enter phone number'); return; }
-  if (!a || a < 400) { alert('Minimum ₹400'); return; }
+  if (!a || a < 1) { alert('Enter a valid amount'); return; }
   try {
     var r = await fetch('/api/withdrawals', {
       method: 'POST',
