@@ -961,7 +961,13 @@ router.get('/certificates', async (req, res) => {
         };
       });
 
-    res.render('certificates', { user, completed, baseUrl: process.env.BASE_URL });
+    // Also pass all approved courses so the client can check localStorage
+    // for completions that haven't been synced to DB yet.
+    const approved = (user.purchasedCourses || [])
+      .filter(c => c.status === 'approved' && !c.completedAt)
+      .map(c => ({ courseKey: c.courseKey, courseName: c.courseName }));
+
+    res.render('certificates', { user, completed, approved, baseUrl: process.env.BASE_URL });
   } catch (err) {
     console.error('Certificates list error:', err);
     res.status(500).send('Server error');
@@ -1000,8 +1006,13 @@ router.get('/verify/:certId', verifyLimiter, async (req, res) => {
   }
 
   try {
-    // Parse "{COURSE3}-{USER6}" — reject if shape is wrong (defense + UX)
-    const m = certId.match(/^([A-Z]{2,4})-([A-Z0-9]{4,8})$/);
+    // Parse cert ID. Two formats accepted:
+    //   GU-{COURSE3}-{USER6}  (full format from certificate page)
+    //   {COURSE3}-{USER6}     (short format)
+    // The GU- prefix is optional; after normalization we strip it if present.
+    let parseId = certId;
+    if (parseId.startsWith('GU-')) parseId = parseId.substring(3);
+    const m = parseId.match(/^([A-Z]{2,4})-([A-Z0-9]{4,8})$/);
     if (!m) {
       return res.render('verify', { result: { valid: false }, certId });
     }
