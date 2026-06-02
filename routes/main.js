@@ -111,14 +111,55 @@ router.post('/api/register/step1', async (req, res) => {
   try {
     const { firstName, middleName, lastName, whatsapp, email, gender, referralCode, pfpUrl } = req.body;
 
+    // ── Strict input validation (defense in depth) ──
+    // Names: 2-50 chars, letters/spaces/hyphens/dots/apostrophes only.
+    const NAME_RE = /^[\p{L}\s.\-']{2,50}$/u;
+    if (!firstName || !NAME_RE.test(String(firstName).trim())) {
+      return res.status(400).json({ error: 'First name must be 2-50 letters.' });
+    }
+    if (middleName && !NAME_RE.test(String(middleName).trim())) {
+      return res.status(400).json({ error: 'Middle name must be 2-50 letters (or leave blank).' });
+    }
+    if (!lastName || !NAME_RE.test(String(lastName).trim())) {
+      return res.status(400).json({ error: 'Last name must be 2-50 letters.' });
+    }
+
+    // Email: real email regex, max 254 chars
+    const cleanEmail = String(email || '').trim().toLowerCase().substring(0, 254);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail) || cleanEmail.length > 254) {
+      return res.status(400).json({ error: 'Please enter a valid email address.' });
+    }
+
+    // WhatsApp: exactly 10 digits (Nepal mobile)
+    const cleanPhone = String(whatsapp || '').trim();
+    if (!/^\d{10}$/.test(cleanPhone)) {
+      return res.status(400).json({ error: 'WhatsApp number must be exactly 10 digits.' });
+    }
+
+    // Gender: M or F
+    if (!['M', 'F'].includes(String(gender || ''))) {
+      return res.status(400).json({ error: 'Please select your gender.' });
+    }
+
+    // Referral code: 6-10 uppercase alphanumerics
+    const cleanRef = String(referralCode || '').trim().toUpperCase();
+    if (!/^[A-Z0-9]{6,10}$/.test(cleanRef)) {
+      return res.status(400).json({ error: 'Invalid referral code format.' });
+    }
+
+    // PFP: only accept a Cloudinary URL
+    const cleanPfp = (typeof pfpUrl === 'string' && /^https:\/\/res\.cloudinary\.com\/[a-z0-9-]+\/image\/upload\//.test(pfpUrl))
+      ? pfpUrl.substring(0, 500)
+      : '';
+
     // Check if email already exists
-    const existing = await User.findOne({ email: email.toLowerCase() });
+    const existing = await User.findOne({ email: cleanEmail });
     if (existing) {
       return res.status(400).json({ error: 'Email already registered' });
     }
 
     // Validate referral code
-    const referrer = await User.findOne({ referralCode: referralCode.toUpperCase(), isActive: true });
+    const referrer = await User.findOne({ referralCode: cleanRef, isActive: true });
     if (!referrer) {
       return res.status(400).json({ error: 'Invalid referral code' });
     }
@@ -128,12 +169,12 @@ router.post('/api/register/step1', async (req, res) => {
       firstName: firstName.trim(),
       middleName: (middleName || '').trim(),
       lastName: lastName.trim(),
-      whatsapp: whatsapp.trim(),
-      email: email.trim().toLowerCase(),
+      whatsapp: cleanPhone,
+      email: cleanEmail,
       gender,
       referrerId: referrer._id,
-      referralCode: referralCode.toUpperCase(),
-      pfpUrl: (typeof pfpUrl === 'string' && pfpUrl.startsWith('https://res.cloudinary.com/')) ? pfpUrl : ''
+      referralCode: cleanRef,
+      pfpUrl: cleanPfp
     };
 
     return res.json({ success: true });
@@ -744,6 +785,41 @@ router.get('/certificate/:courseKey', async (req, res) => {
     res.render('certificate', { user, course, certId, issuedAt });
   } catch (err) {
     console.error('Certificate error:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+// GET - Download certificate as a standalone HTML file (the user can open it
+// in any browser and use "Print → Save as PDF" for a real PDF download).
+// Same auth + ownership + completion gates as the render route.
+router.get('/certificate/:courseKey/download', async (req, res) => {
+  if (!req.session || !req.session.userId) return res.redirect('/login');
+  const courseKey = req.params.courseKey;
+  const course = courses[courseKey];
+  if (!course) return res.status(404).send('Course not found');
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user) return res.redirect('/logout');
+    const owned = user.purchasedCourses && user.purchasedCourses.some(c => c.courseKey === courseKey && c.status === 'approved');
+    const isAdmin = user.role === 'superadmin' || user.role === 'financial_secretary';
+    if (!owned && !isAdmin) {
+      return res.status(403).send('You need to own this course to get a certificate.');
+    }
+    if (!isAdmin) {
+      const moduleCount = getModuleCount(courseKey);
+      const entry = user.purchasedCourses.find(c => c.courseKey === courseKey);
+      const completed = (entry && entry.completedModules) || [];
+      if (moduleCount > 0 && completed.length < moduleCount) {
+        return res.redirect('/course/' + courseKey + '/read?cert=locked');
+      }
+    }
+    const short = String(user._id).slice(-6).toUpperCase();
+    const ck = courseKey.toUpperCase().slice(0, 3);
+    const certId = `${ck}-${short}`;
+    const issuedAt = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    res.render('certificate', { user, course, certId, issuedAt, downloadMode: true });
+  } catch (err) {
+    console.error('Certificate download error:', err);
     res.status(500).send('Server error');
   }
 });

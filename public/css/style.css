@@ -1062,8 +1062,11 @@ td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--gray-10
     width: 100% !important;
   }
   
-  /* Everything fits screen */
-  * {
+  /* Everything fits screen — but only target the elements that
+     need a max-width cap, not literally every element (the previous
+     `* { max-width: 100% !important }` was clobbering intentional
+     sizes like .qr-box img, .course-thumb, .cert-logo img, etc.) */
+  img, video, iframe, embed, object, table, pre, code {
     max-width: 100% !important;
     box-sizing: border-box !important;
   }

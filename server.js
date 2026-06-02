@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 const path = require('path');
 const connectDB = require('./config/db');
+const { securityHardening } = require('./middleware/security');
 
 const Payment = require('./models/Payment');
 const User = require('./models/User');
@@ -109,6 +110,13 @@ app.set('trust proxy', 1); // Trust first proxy (Vercel/Nginx)
 // Body parsing with size limits (2mb for profile picture uploads as base64)
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+
+// ── Security hardening middleware (strict input filter) ──
+// Runs right after body parsing so it can sanitize req.body, req.query,
+// req.params. Strips method-override headers, auth-spoofing headers, and
+// forbidden identity fields from the body (req.body.userId/role/_id).
+// Auth always comes from the server-side session, NEVER from request data.
+app.use(securityHardening);
 
 // Static files with cache headers
 app.use(express.static(path.join(__dirname, 'public'), {

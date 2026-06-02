@@ -109,7 +109,8 @@
       <!-- System Info -->
       <div class="card">
         <h3 style="margin-bottom: 16px;"><i class='bx bx-info-circle' style="color: var(--gold);"></i> System Info</h3>
-        <table class="info-table" style="width: 100%;">
+        <div class="table-container">
+          <table class="info-table" style="width: 100%;">
           <tr>
             <td>Last QR Update</td>
             <td><%= settings.updatedAt ? new Date(settings.updatedAt).toLocaleString() : 'Never' %></td>
@@ -119,6 +120,7 @@
             <td>Growing Up v1.0</td>
           </tr>
         </table>
+        </div>
       </div>
     </div>
   </div>

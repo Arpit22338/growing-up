@@ -28,9 +28,10 @@
   .cr-layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
   @media (max-width: 880px) { .cr-layout { grid-template-columns: 1fr; } }
 
-  /* Sidebar */
-  .cr-sidebar { background: #fff; border: 1px solid #EEF2F7; border-radius: 14px; padding: 14px; box-shadow: 0 2px 8px rgba(10,31,68,0.05); position: sticky; top: 80px; align-self: start; max-height: calc(100vh - 100px); overflow-y: auto; }
-  .cr-sidebar h3 { font-size: 13px; text-transform: uppercase; color: #64748B; letter-spacing: 0.5px; margin: 0 0 10px; padding: 0 4px; }
+  /* Sidebar (renamed from .cr-sidebar to .cr-modnav so the global
+     [class*="sidebar"] mobile-hide rule in style.css doesn't clobber it) */
+  .cr-modnav { background: #fff; border: 1px solid #EEF2F7; border-radius: 14px; padding: 14px; box-shadow: 0 2px 8px rgba(10,31,68,0.05); position: sticky; top: 80px; align-self: start; max-height: calc(100vh - 100px); overflow-y: auto; }
+  .cr-modnav h3 { font-size: 13px; text-transform: uppercase; color: #64748B; letter-spacing: 0.5px; margin: 0 0 10px; padding: 0 4px; }
   .cr-mod-item {
     display: flex; align-items: flex-start; gap: 10px;
     padding: 10px 12px; border-radius: 10px;
@@ -97,7 +98,7 @@
 
   /* Responsive */
   @media (max-width: 880px) {
-    .cr-sidebar { position: static; max-height: none; }
+    .cr-modnav { position: static; max-height: none; }
     .cr-main { padding: 22px 18px 20px; }
   }
   @media (max-width: 600px) {
@@ -141,8 +142,8 @@
 
   <!-- Layout -->
   <div class="cr-layout">
-    <!-- Sidebar -->
-    <aside class="cr-sidebar" id="crSidebar">
+    <!-- Module nav (renamed from cr-sidebar to avoid global mobile-hide) -->
+    <aside class="cr-modnav" id="crSidebar">
       <h3><i class='bx bx-list-ul'></i> Modules</h3>
       <% modules.forEach(function(mod, idx) { %>
         <div class="cr-mod-item <%= idx === 0 ? 'active' : '' %> <%= completedModules.indexOf(mod.id) !== -1 ? 'done' : '' %>" data-idx="<%= idx %>" data-id="<%= mod.id %>">

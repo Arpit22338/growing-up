@@ -185,8 +185,9 @@
 <body>
 
   <div class="no-print">
-    <a href="/profile" class="back-btn" style="text-decoration:none;"><i class='bx bx-arrow-back'></i> Back</a>
-    <button type="button" class="print-btn" onclick="window.print()"><i class='bx bx-printer'></i> Print / Save as PDF</button>
+    <a href="/profile" class="back-btn" style="text-decoration:none;"><i class='bx bx-arrow-back'></i> Back to Profile</a>
+    <button type="button" class="print-btn" data-action="print"><i class='bx bx-printer'></i> Print / Save as PDF</button>
+    <button type="button" class="print-btn" data-action="download" style="background:#10B981;color:#fff;"><i class='bx bx-download'></i> Download</button>
   </div>
 
   <div class="certificate">
@@ -199,41 +200,13 @@
       <div class="cert-logo">
         <img src="/images/logo-web.png" alt="Growing Up">
         Growing <span>Up</span>
-      </div>
-    </div>
-
-    <div class="cert-body">
-      <h1 class="cert-title">Certificate of Completion</h1>
-      <p class="cert-subtitle">— Awarded by Growing Up —</p>
-
-      <p class="cert-presented">This certificate is proudly presented to</p>
-      <div class="cert-name"><%= user.fullName %></div>
-
-      <p class="cert-completion">
-        for successfully completing the
-      </p>
-      <div class="cert-course"><%= course.title %></div>
-
-      <div class="cert-seal"><i class='bx bx-medal'></i></div>
-    </div>
-
-    <div class="cert-footer">
-      <div class="cert-sig">
-        <div class="line">Arpit Kafle</div>
-        <div class="role">Founder, Growing Up</div>
-      </div>
-      <div class="cert-id">
-        <strong>Certificate ID</strong>
-        GU-<%= certId %>
-        <br>
-        Issued <%= issuedAt %>
-      </div>
-      <div class="cert-sig">
-        <div class="line"><%= new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></div>
-        <div class="role">Date of Issue</div>
-      </div>
-    </div>
   </div>
 
+  <% if (typeof downloadMode !== 'undefined' && downloadMode) { %>
+  <script>
+    // Download mode: auto-open print dialog so user can save as PDF
+    setTimeout(function() { window.print(); }, 600);
+  </script>
+  <% } %>
 </body>
 </html>

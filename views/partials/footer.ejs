@@ -83,6 +83,69 @@
       setTimeout(() => { toast.remove(); }, 4000);
     }
 
+    // Global copy-to-clipboard helper. Used by every page that has a
+    // copy button (dashboard, profile, wallet, etc.). Tries the modern
+    // Clipboard API in a secure context, falls back to the legacy
+    // execCommand('copy') trick for HTTP / older browsers. Always
+    // fires success or error callbacks so the caller can update its UI.
+    window.copyToClipboard = function(text, onSuccess, onError) {
+      function done() { if (onSuccess) onSuccess(); }
+      function fail() { if (onError) onError(); }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done, function() {
+          fallbackCopy(text, done, fail);
+        });
+      } else {
+        fallbackCopy(text, done, fail);
+      }
+    };
+    function fallbackCopy(t, onSuccess, onError) {
+      var ta = document.createElement('textarea');
+      ta.value = t;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.left = '0';
+      ta.style.width = '1px';
+      ta.style.height = '1px';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      if (ok && onSuccess) onSuccess();
+      else if (!ok && onError) onError();
+    }
+
+    // Auto-wire any element with [data-copy-text] so we can drop buttons
+    // anywhere without writing per-page JS. Click → copy the text in
+    // data-copy-text, flash a ✓ confirmation, show a toast.
+    (function(){
+      function flash(btn) {
+        var orig = btn.getAttribute('data-copy-orig') || btn.innerHTML;
+        btn.setAttribute('data-copy-orig', orig);
+        btn.innerHTML = "<i class='bx bx-check'></i> Copied";
+        btn.disabled = true;
+        setTimeout(function(){
+          btn.innerHTML = orig;
+          btn.disabled = false;
+        }, 1500);
+      }
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-copy-text]');
+        if (!btn) return;
+        e.preventDefault();
+        var text = btn.getAttribute('data-copy-text') || '';
+        if (!text) return;
+        window.copyToClipboard(text,
+          function() { showToast('Copied!', 'success'); flash(btn); },
+          function() { showToast('Copy failed — long-press to copy manually', 'error'); }
+        );
+      });
+    })();
+
     // Password show/hide toggle
     document.querySelectorAll('.password-toggle').forEach(function(btn) {
       btn.addEventListener('click', function() {

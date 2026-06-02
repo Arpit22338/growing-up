@@ -16,7 +16,7 @@
         <p style="opacity: 0.9; margin: 6px 0 10px; display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
           <span style="font-size:13px;opacity:0.85;">Your referral code:</span>
           <strong id="dashRefCode" style="color: var(--gold); background: rgba(212,168,67,0.15); padding: 4px 12px; border-radius: 20px; font-size: 15px; letter-spacing: 0.5px;"><%= user.referralCode %></strong>
-          <button type="button" id="dashCopyRefBtn" title="Copy referral link" aria-label="Copy referral link"
+          <button type="button" id="dashCopyRefBtn" data-copy-text="<%= baseUrl %>/register?ref=<%= user.referralCode %>" title="Copy referral link" aria-label="Copy referral link"
             style="background: var(--gold); border:none; color: #0A1F44; padding: 6px 14px; border-radius: 20px; cursor:pointer; font-size: 13px; font-weight: 700; display:inline-flex; align-items:center; gap:4px; transition: transform 0.1s;">
             <i class='bx bx-copy'></i><span>Copy</span>
           </button>
@@ -236,65 +236,9 @@
 </div>
 
 <script>
-// Robust copy helper — tries modern API, falls back to execCommand,
-// always reports success/failure to the user.
-window.copyToClipboard = function(text, onSuccess, onError) {
-  function done() { if (onSuccess) onSuccess(); }
-  function fail() { if (onError) onError(); }
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text).then(done, function() { fallbackCopy(text, done, fail); });
-  } else {
-    fallbackCopy(text, done, fail);
-  }
-};
-function fallbackCopy(t, onSuccess, onError) {
-  var ta = document.createElement('textarea');
-  ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
-  document.body.appendChild(ta); ta.select();
-  try { document.execCommand('copy'); if (onSuccess) onSuccess(); }
-  catch(e) { if (onError) onError(); }
-  document.body.removeChild(ta);
-}
-
-// Wire up the copy button on load (avoids inline onclick + timing issues)
-(function(){
-  var btn = document.getElementById('dashCopyRefBtn');
-  if (!btn) return;
-  btn.addEventListener('click', function(e) {
-    e.preventDefault();
-    var code = document.getElementById('dashRefCode').textContent.trim();
-    var link = '<%= baseUrl %>/register?ref=' + code;
-    var orig = btn.innerHTML;
-    copyToClipboard(link,
-      function() {
-        showToast('Referral link copied!', 'success');
-        btn.innerHTML = "<i class='bx bx-check'></i><span>Copied</span>";
-        setTimeout(function(){ btn.innerHTML = orig; }, 1800);
-      },
-      function() {
-        showToast('Copy failed — long-press the code to copy', 'error');
-      }
-    );
-  });
-})();
-function showToast(msg, type) {
-  var t = document.getElementById('dashToast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'dashToast';
-    t.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;z-index:99999;opacity:0;transition:opacity 0.2s,transform 0.2s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.2);';
-    document.body.appendChild(t);
-  }
-  t.textContent = msg;
-  t.style.background = type === 'error' ? '#DC2626' : '#0E7C66';
-  t.style.opacity = '1';
-  t.style.transform = 'translateX(-50%) translateY(0)';
-  clearTimeout(showToast._t);
-  showToast._t = setTimeout(function() {
-    t.style.opacity = '0';
-    t.style.transform = 'translateX(-50%) translateY(-20px)';
-  }, 2500);
-}
+// (Copy-to-clipboard + global toast helpers live in views/partials/footer.ejs
+// and are available on every page that includes the footer. They auto-wire
+// any element with a [data-copy-text] attribute.)
 
 function selPlat(p) {
   document.getElementById('wplat').value = p;

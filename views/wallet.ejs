@@ -1,5 +1,18 @@
 <%- include('partials/header') %>
 
+<style>
+  .copy-btn-sm {
+    background: #D4A017; color: #0A1F44; border: none;
+    padding: 10px 16px; border-radius: 8px; cursor: pointer;
+    font-size: 13px; font-weight: 700; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 4px;
+    transition: transform 0.1s, background 0.2s;
+  }
+  .copy-btn-sm:hover { background: #E5B22A; }
+  .copy-btn-sm:active { transform: scale(0.97); }
+  .copy-btn-sm:disabled { opacity: 0.7; cursor: wait; }
+</style>
+
 <div class="container" style="max-width: 640px; padding-top: 32px; padding-bottom: 48px;">
   <!-- Back to Dashboard -->
   <a href="/dashboard" style="display: inline-flex; align-items: center; gap: 6px; color: var(--gray-500); font-size: 14px; text-decoration: none; margin-bottom: 20px;">
@@ -9,11 +22,8 @@
   <h2 style="color: var(--navy); margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
     <i class='bx bx-wallet' style="color: var(--gold);"></i> Scroll My Wallet
   </h2>
-<br>
-<br>
-<center><h3>
-    Scroll Down For Withdrawing Your Earnings
-  </h3></center>
+  <h3 style="text-align:center;color:var(--gray-500);font-weight:500;margin:8px 0 24px;">Scroll down to withdraw your earnings</h3>
+
   <!-- Referral Links -->
   <div class="card" style="padding: 20px; margin-bottom: 24px;">
     <h3 style="color: var(--navy); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
@@ -23,36 +33,41 @@
     <div style="display: flex; flex-direction: column; gap: 12px;">
       <div>
         <label style="display:block;font-weight:600;color:var(--gray-600);margin-bottom:6px;">General</label>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <input type="text" id="mainLink" value="<%= referralLink %>" readonly style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;" />
+        <div class="referral-link-group">
+          <input type="text" id="mainLink" value="<%= referralLink %>" readonly onclick="this.select()">
+          <button type="button" class="copy-btn-sm" data-copy-text="<%= referralLink %>"><i class='bx bx-copy'></i> Copy</button>
         </div>
       </div>
 
       <div>
         <label style="display:block;font-weight:600;color:var(--gray-600);margin-bottom:6px;">Starter</label>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <input type="text" id="starterLink" value="<%= starterLink %>" readonly style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;" />
+        <div class="referral-link-group">
+          <input type="text" id="starterLink" value="<%= starterLink %>" readonly onclick="this.select()">
+          <button type="button" class="copy-btn-sm" data-copy-text="<%= starterLink %>"><i class='bx bx-copy'></i> Copy</button>
         </div>
       </div>
 
       <div>
         <label style="display:block;font-weight:600;color:var(--gray-600);margin-bottom:6px;">Prime</label>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <input type="text" id="primeLink" value="<%= primeLink %>" readonly style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;" />
+        <div class="referral-link-group">
+          <input type="text" id="primeLink" value="<%= primeLink %>" readonly onclick="this.select()">
+          <button type="button" class="copy-btn-sm" data-copy-text="<%= primeLink %>"><i class='bx bx-copy'></i> Copy</button>
         </div>
       </div>
 
       <div>
         <label style="display:block;font-weight:600;color:var(--gray-600);margin-bottom:6px;">Master</label>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <input type="text" id="masterLink" value="<%= masterLink %>" readonly style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;" />
+        <div class="referral-link-group">
+          <input type="text" id="masterLink" value="<%= masterLink %>" readonly onclick="this.select()">
+          <button type="button" class="copy-btn-sm" data-copy-text="<%= masterLink %>"><i class='bx bx-copy'></i> Copy</button>
         </div>
       </div>
 
       <div>
         <label style="display:block;font-weight:600;color:var(--gray-600);margin-bottom:6px;">Bundle</label>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <input type="text" id="bundleLink" value="<%= bundleLink %>" readonly style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;" />
+        <div class="referral-link-group">
+          <input type="text" id="bundleLink" value="<%= bundleLink %>" readonly onclick="this.select()">
+          <button type="button" class="copy-btn-sm" data-copy-text="<%= bundleLink %>"><i class='bx bx-copy'></i> Copy</button>
         </div>
       </div>
     </div>

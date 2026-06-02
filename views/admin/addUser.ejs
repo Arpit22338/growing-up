@@ -16,6 +16,11 @@
     <%- include('sidebar', { role, active: 'add-user' }) %>
 
     <div class="admin-content">
+      <style>
+        @media (max-width: 600px) {
+          .au-row { grid-template-columns: 1fr !important; }
+        }
+      </style>
       <div class="admin-topbar">
         <button class="hamburger" id="hamBtn"><i class='bx bx-menu'></i></button>
         <div style="flex: 1; display: flex; align-items: center; gap: 12px;">
@@ -29,7 +34,7 @@
         <div id="addSuccess" class="alert alert-success" style="display:none;"></div>
 
         <form id="addUserForm">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="au-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
               <label>First Name <span class="required">*</span></label>
               <input type="text" class="form-control" name="firstName" required placeholder="e.g. Ram">
@@ -45,7 +50,7 @@
             <input type="email" class="form-control" name="email" required placeholder="user@example.com">
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="au-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
               <label>WhatsApp <span class="required">*</span></label>
               <input type="text" class="form-control" name="whatsapp" required placeholder="98XXXXXXXX">
@@ -67,7 +72,7 @@
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="au-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
               <label>Referral Code <small style="color:var(--gray-500);">(optional)</small></label>
               <input type="text" class="form-control" name="referralCode" placeholder="e.g. GURAMK4X2">
