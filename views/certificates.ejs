@@ -59,96 +59,61 @@
 
   <div class="certs-hero">
     <h1><i class='bx bx-certification'></i> My Certificates</h1>
-    <p>Complete all modules in a course to earn your certificate. Your progress is saved in your browser.</p>
+    <p>Complete all modules in a course to earn your Certificate of Completion. Certificates are saved to your account.</p>
   </div>
 
-  <div id="certsList"></div>
+  <% if (completed.length === 0) { %>
+    <div class="empty">
+      <i class='bx bx-award'></i>
+      <h3 style="color:#0A1F44;margin:0 0 6px;">No certificates yet</h3>
+      <p style="margin:0 0 18px;">Complete all modules in a course to earn your Certificate of Completion.</p>
+      <a href="/dashboard" style="background:#D4A017;color:#0A1F44;padding:10px 18px;border-radius:8px;font-weight:700;text-decoration:none;display:inline-block;">Go to Dashboard</a>
+    </div>
+  <% } else { %>
+    <% completed.forEach(function(c) { %>
+      <div class="cert-card" id="cert-<%= c.courseKey %>">
+        <div class="seal"><i class='bx bx-medal'></i></div>
+        <div class="body">
+          <h3><%= c.courseName %><% if (c.granted) { %><span class="granted-badge">Granted</span><% } %></h3>
+          <div class="meta">
+            Completed <%= new Date(c.completedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+            &middot; Cert ID: <code>GU-<%= c.certId %></code>
+          </div>
+        </div>
+        <div class="actions">
+          <a href="/certificate/<%= c.courseKey %>" class="btn btn-gold" target="_blank"><i class='bx bx-show'></i> View</a>
+          <a href="/certificate/<%= c.courseKey %>/download" class="btn btn-outline" target="_blank"><i class='bx bx-download'></i> Download</a>
+          <button type="button" class="btn btn-outline" data-copy-text="GU-<%= c.certId %>"><i class='bx bx-copy'></i> Copy ID</button>
+          <a href="/verify/GU-<%= c.certId %>" class="btn btn-outline" target="_blank"><i class='bx bx-shield-check'></i> Verify</a>
+          <button type="button" class="btn btn-danger" onclick="deleteCert('<%= c.courseKey %>')"><i class='bx bx-trash'></i> Delete</button>
+        </div>
+      </div>
+    <% }); %>
+  <% } %>
 </div>
 
 <script>
-  // All approved courses from the server
-  var allCourses = <%- JSON.stringify(courses) %>;
-  var userId = '<%= user._id %>';
-  var short = userId.slice(-6).toUpperCase();
-
-  function getCompletedKeys() {
-    var keys = [];
-    allCourses.forEach(function(c) {
-      var raw = localStorage.getItem('gu_completed_' + c.courseKey);
-      if (raw) {
-        try {
-          var arr = JSON.parse(raw);
-          if (Array.isArray(arr) && arr.length > 0) keys.push(c.courseKey);
-        } catch (e) {}
-      }
-    });
-    return keys;
-  }
+  var CSRF = document.querySelector('meta[name="csrf-token"]');
+  CSRF = CSRF ? CSRF.content : '';
 
   function deleteCert(courseKey) {
-    if (!confirm('Remove completion progress for this course? You will need to complete all modules again.')) return;
-    localStorage.removeItem('gu_completed_' + courseKey);
-    render();
+    if (!confirm('Remove this certificate? You can earn it again by completing all modules.')) return;
+    fetch('/api/course/' + courseKey + '/delete-cert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF },
+      credentials: 'same-origin',
+      body: JSON.stringify({ courseKey: courseKey })
+    }).then(function(r) { return r.json(); }).then(function(d) {
+      if (d.success) {
+        var card = document.getElementById('cert-' + courseKey);
+        if (card) card.remove();
+        // If no cards left, show empty state
+        if (!document.querySelector('.cert-card')) location.reload();
+      } else {
+        alert(d.error || 'Failed to delete');
+      }
+    }).catch(function() { alert('Connection error'); });
   }
-
-  function render() {
-    var container = document.getElementById('certsList');
-    var completedKeys = getCompletedKeys();
-    var completed = allCourses.filter(function(c) { return completedKeys.indexOf(c.courseKey) !== -1; });
-
-    if (completed.length === 0) {
-      container.innerHTML = '<div class="empty">' +
-        '<i class="bx bx-award"></i>' +
-        '<h3 style="color:#0A1F44;margin:0 0 6px;">No certificates yet</h3>' +
-        '<p style="margin:0 0 18px;">Complete all modules in a course to earn your Certificate of Completion.</p>' +
-        '<a href="/dashboard" style="background:#D4A017;color:#0A1F44;padding:10px 18px;border-radius:8px;font-weight:700;text-decoration:none;display:inline-block;">Go to Dashboard</a>' +
-        '</div>';
-      return;
-    }
-
-    var html = '';
-    completed.forEach(function(c) {
-      html += '<div class="cert-card">';
-      html += '<div class="seal"><i class="bx bx-medal"></i></div>';
-      html += '<div class="body">';
-      html += '<h3>' + c.courseName;
-      if (c.granted) html += '<span class="granted-badge">Granted</span>';
-      html += '</h3>';
-      html += '<div class="meta">Cert ID: <code>GU-' + c.certId + '</code></div>';
-      html += '</div>';
-      html += '<div class="actions">';
-      html += '<a href="/certificate/' + c.courseKey + '" class="btn btn-gold" target="_blank"><i class="bx bx-show"></i> View</a>';
-      html += '<a href="/certificate/' + c.courseKey + '/download" class="btn btn-outline" target="_blank"><i class="bx bx-download"></i> Download</a>';
-      html += '<button type="button" class="btn btn-outline" data-copy-text="GU-' + c.certId + '"><i class="bx bx-copy"></i> Copy ID</button>';
-      html += '<a href="/verify/GU-' + c.certId + '" class="btn btn-outline" target="_blank"><i class="bx bx-shield-check"></i> Verify</a>';
-      html += '<button type="button" class="btn btn-danger" onclick="deleteCert(\'' + c.courseKey + '\')"><i class="bx bx-trash"></i> Delete</button>';
-      html += '</div>';
-      html += '</div>';
-    });
-    container.innerHTML = html;
-  }
-
-  // Auto-wire [data-copy-text] buttons
-  document.addEventListener('click', function(e) {
-    var btn = e.target.closest('[data-copy-text]');
-    if (!btn) return;
-    e.preventDefault();
-    var text = btn.getAttribute('data-copy-text') || '';
-    if (!text) return;
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(text);
-    } else {
-      var ta = document.createElement('textarea');
-      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-      document.body.removeChild(ta);
-    }
-    var orig = btn.innerHTML;
-    btn.innerHTML = '<i class="bx bx-check"></i> Copied';
-    setTimeout(function() { btn.innerHTML = orig; }, 1500);
-  });
-
-  render();
 </script>
 
 <%- include('partials/footer') %>

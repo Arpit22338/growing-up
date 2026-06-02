@@ -762,9 +762,8 @@ router.get('/profile', async (req, res) => {
 });
 
 // GET - Certificate of completion (per course)
-// Gated on course ownership only. Module completion is tracked in
-// localStorage on the client — the course-read page only shows the
-// "Get Certificate" link when all modules are marked complete locally.
+// Gated on course ownership + completion (completedAt in DB).
+// Completion is synced from localStorage to DB via /api/course/:key/complete.
 router.get('/certificate/:courseKey', async (req, res) => {
   if (!req.session || !req.session.userId) return res.redirect('/login');
   const courseKey = req.params.courseKey;
@@ -773,10 +772,14 @@ router.get('/certificate/:courseKey', async (req, res) => {
   try {
     const user = await User.findById(req.session.userId);
     if (!user) return res.redirect('/logout');
-    const owned = user.purchasedCourses && user.purchasedCourses.some(c => c.courseKey === courseKey && c.status === 'approved');
+    const entry = user.purchasedCourses && user.purchasedCourses.find(c => c.courseKey === courseKey && c.status === 'approved');
     const isAdmin = user.role === 'superadmin' || user.role === 'financial_secretary';
-    if (!owned && !isAdmin) {
+    if (!entry && !isAdmin) {
       return res.status(403).send('You need to own this course to get a certificate.');
+    }
+    // Must have completedAt (set by sync endpoint) unless admin
+    if (!isAdmin && (!entry || !entry.completedAt)) {
+      return res.redirect('/course/' + courseKey + '/read');
     }
 
     // Stable, deterministic cert id: GU-{courseKey 3}-{userId last 6}
@@ -802,10 +805,13 @@ router.get('/certificate/:courseKey/download', async (req, res) => {
   try {
     const user = await User.findById(req.session.userId);
     if (!user) return res.redirect('/logout');
-    const owned = user.purchasedCourses && user.purchasedCourses.some(c => c.courseKey === courseKey && c.status === 'approved');
+    const entry = user.purchasedCourses && user.purchasedCourses.find(c => c.courseKey === courseKey && c.status === 'approved');
     const isAdmin = user.role === 'superadmin' || user.role === 'financial_secretary';
-    if (!owned && !isAdmin) {
+    if (!entry && !isAdmin) {
       return res.status(403).send('You need to own this course to get a certificate.');
+    }
+    if (!isAdmin && (!entry || !entry.completedAt)) {
+      return res.redirect('/course/' + courseKey + '/read');
     }
     const short = String(user._id).slice(-6).toUpperCase();
     const ck = courseKey.toUpperCase().slice(0, 3);
@@ -939,23 +945,23 @@ router.get('/certificates', async (req, res) => {
     const user = await User.findById(req.session.userId);
     if (!user) return res.redirect('/logout');
 
-    // Pass all approved courses to the template. Completion is now
-    // tracked in localStorage on the client — the template JS reads
-    // it and filters/shows only completed courses.
+    // Build a list of completed courses from DB (completedAt is set by
+    // the /api/course/:key/complete endpoint when all modules are done).
     const short = String(user._id).slice(-6).toUpperCase();
-    const courses = (user.purchasedCourses || [])
-      .filter(c => c.status === 'approved')
+    const completed = (user.purchasedCourses || [])
+      .filter(c => c.status === 'approved' && c.completedAt)
       .map(c => {
         const ck = (c.courseKey || '').toUpperCase().slice(0, 3);
         return {
           courseKey: c.courseKey,
           courseName: c.courseName,
+          completedAt: c.completedAt,
           certId: `${ck}-${short}`,
           granted: !!c.grantedBy
         };
       });
 
-    res.render('certificates', { user, courses, baseUrl: process.env.BASE_URL });
+    res.render('certificates', { user, completed, baseUrl: process.env.BASE_URL });
   } catch (err) {
     console.error('Certificates list error:', err);
     res.status(500).send('Server error');
@@ -1095,6 +1101,55 @@ router.get('/course/:key/read', async (req, res) => {
   } catch (err) {
     console.error('course-read error:', err);
     return res.status(500).render('404', { message: 'Server error.' });
+  }
+});
+
+// POST - Sync course completion to DB (save certificate ownership).
+// Called from the client when all modules are marked complete in
+// localStorage. Idempotent — if completedAt is already set, no-op.
+// Body: { courseKey: string }
+router.post('/api/course/:key/complete', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, error: 'Please login' });
+  }
+  const courseKey = req.params.key;
+  if (!courses[courseKey]) {
+    return res.status(404).json({ success: false, error: 'Course not found' });
+  }
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user) return res.status(404).json({ success: false, error: 'Account not found' });
+    const entry = user.purchasedCourses.find(c => c.courseKey === courseKey && c.status === 'approved');
+    if (!entry) return res.status(403).json({ success: false, error: 'Course not owned' });
+    if (!entry.completedAt) {
+      entry.completedAt = new Date();
+      await user.save();
+    }
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('Course complete sync error:', err);
+    return res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// POST - Delete a certificate (clear completion from DB).
+// Body: { courseKey: string }
+router.post('/api/course/:key/delete-cert', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, error: 'Please login' });
+  }
+  const courseKey = req.params.key;
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user) return res.status(404).json({ success: false, error: 'Account not found' });
+    const entry = user.purchasedCourses.find(c => c.courseKey === courseKey);
+    if (!entry) return res.status(404).json({ success: false, error: 'Course not found' });
+    entry.completedAt = undefined;
+    await user.save();
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('Delete cert error:', err);
+    return res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 

@@ -294,7 +294,7 @@
     renderCompleteBtn();
   }
 
-  // Toggle completion — localStorage only, no server call
+  // Toggle completion — localStorage only, no server call for individual modules
   function toggleComplete() {
     if (!modules[currentIdx]) return;
     const modId = modules[currentIdx].id;
@@ -311,6 +311,25 @@
     renderProgress();
     renderCertCta();
     renderCompleteBtn();
+
+    // If all modules are now complete, sync certificate ownership to DB
+    if (allComplete()) {
+      syncCertToDB();
+    }
+  }
+
+  // Save certificate ownership to DB (idempotent, called once when all modules done)
+  function syncCertToDB() {
+    var _csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var _csrf = _csrfMeta ? _csrfMeta.content : '';
+    fetch('/api/course/' + courseKey + '/complete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': _csrf },
+      credentials: 'same-origin',
+      body: JSON.stringify({ courseKey: courseKey })
+    }).then(function(r) { return r.json(); }).then(function(d) {
+      if (d.success) console.log('Certificate synced to DB');
+    }).catch(function(e) { console.error('Cert sync failed:', e); });
   }
 
   // Wire sidebar clicks
