@@ -194,11 +194,9 @@
 <div class="cr-toast" id="crToast"></div>
 
 <script>
-  // Module data injected server-side. We split the </script> closing
-  // tag across the JSON.stringify so the HTML parser cannot accidentally
-  // close this script block when a module body contains one.
+  // Server-injected data (module content is HTML from us, safe to set)
   const courseKey = '<%= courseKey %>';
-  const modules = <%- JSON.stringify(modules).replace(/<\/(script)/gi, '<\\/$1') %>;
+  const modules = <%- JSON.stringify(modules).replace(/<\x2Fscript/gi, '<\\x2Fscript') %>;
   let completedModules = <%- JSON.stringify(completedModules) %>;
   const moduleCount = <%= moduleCount %>;
   const isAdminPreview = <%= loggedInUser.role === 'superadmin' || loggedInUser.role === 'financial_secretary' ? 'true' : 'false' %>;

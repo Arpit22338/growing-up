@@ -280,13 +280,20 @@
           setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
           return;
         }
-        const data = await res.json();
+        var data;
+        try { data = await res.json(); } catch (e) {
+          console.error('changeRole: invalid response', e);
+          showToast('Server error (status ' + res.status + ')', 'error');
+          return;
+        }
         if (data.success) {
           showToast('Role updated!');
         } else {
+          console.error('changeRole error:', data.error);
           showToast(data.error || 'Failed', 'error');
         }
       } catch (err) {
+        console.error('changeRole fetch error:', err);
         showToast('Error: ' + (err.message || 'Connection failed'), 'error');
       }
     }
@@ -375,6 +382,11 @@
       var btn = document.getElementById('grantCourseBtn');
       var msg = document.getElementById('grantCourseMsg');
       var key = keyEl.value;
+      if (!key) {
+        msg.innerHTML = "<span style='color:#991B1B;'>Please choose a course.</span>";
+        showToast('Please choose a course', 'error');
+        return;
+      }
       btn.disabled = true;
       btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Granting...';
       msg.innerHTML = '';
@@ -393,21 +405,35 @@
           btn.innerHTML = '<i class="bx bx-gift"></i> Grant Course';
           return;
         }
-        var data = await res.json();
+        var data;
+        try {
+          data = await res.json();
+        } catch (parseErr) {
+          console.error('Grant course: failed to parse response', parseErr);
+          msg.innerHTML = "<span style='color:#991B1B;'>Server returned an invalid response (status " + res.status + ").</span>";
+          showToast('Server error — check console', 'error');
+          btn.disabled = false;
+          updateGrantBtn();
+          btn.innerHTML = '<i class="bx bx-gift"></i> Grant Course';
+          return;
+        }
         if (data.success) {
           showToast(data.message || 'Course granted!');
           msg.innerHTML = "<span style='color:#065F46;'>Course granted. Reloading...</span>";
           setTimeout(function(){ window.location.reload(); }, 900);
         } else {
-          msg.innerHTML = "<span style='color:#991B1B;'>" + (data.error || 'Failed') + "</span>";
-          showToast(data.error || 'Failed', 'error');
+          var errMsg = data.error || 'Failed (status ' + res.status + ')';
+          console.error('Grant course error:', errMsg);
+          msg.innerHTML = "<span style='color:#991B1B;'>" + errMsg + "</span>";
+          showToast(errMsg, 'error');
           btn.disabled = false;
           updateGrantBtn();
           btn.innerHTML = '<i class="bx bx-gift"></i> Grant Course';
         }
       } catch (err) {
-        msg.innerHTML = "<span style='color:#991B1B;'>Connection failed</span>";
-        showToast('Connection failed', 'error');
+        console.error('Grant course fetch error:', err);
+        msg.innerHTML = "<span style='color:#991B1B;'>Connection failed: " + (err.message || 'Unknown error') + "</span>";
+        showToast('Connection failed: ' + (err.message || ''), 'error');
         btn.disabled = false;
         updateGrantBtn();
         btn.innerHTML = '<i class="bx bx-gift"></i> Grant Course';
