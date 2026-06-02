@@ -90,10 +90,10 @@
           <a href="/admin" style="color:#D4A017;text-decoration:none;font-size:14px;font-weight:600;"><i class='bx bx-shield'></i> Admin</a>
         <% } %>
         <div style="position:relative;" id="navMoreWrap">
-          <button type="button" onclick="document.getElementById('navMoreMenu').classList.toggle('open')" style="background:none;border:none;color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;padding:6px 8px;border-radius:6px;">
+          <button type="button" id="navMoreBtn" style="background:none;border:none;color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;padding:6px 8px;border-radius:6px;">
             More <i class='bx bx-chevron-down'></i>
           </button>
-          <div id="navMoreMenu" class="nav-dropdown" style="display:none;position:absolute;right:0;top:100%;margin-top:6px;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:180px;z-index:9999;padding:6px 0;">
+          <div id="navMoreMenu" style="display:none;position:absolute;right:0;top:100%;margin-top:6px;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:180px;z-index:9999;padding:6px 0;">
             <a href="/#courses" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">Courses</a>
             <a href="/how-it-works" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">How It Works</a>
             <a href="/certificates" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">Certificates</a>
@@ -147,22 +147,29 @@
     </div>
   </div>
   <style>
-    .nav-dropdown.open { display: block !important; }
     .nav-dropdown a:hover { background: #F1F5F9; }
     @media(max-width:768px){
       #navLinksDesktop{display:none!important;}
+      #navMoreWrap{display:none!important;}
       #hamburgerBtn{display:block!important;}
       nav{position:sticky!important;top:0!important;z-index:9999!important;}
       .container{width:100%!important;padding-left:16px!important;padding-right:16px!important;box-sizing:border-box!important;}
     }
   </style>
   <script>
-    // Close the "More" dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-      var wrap = document.getElementById('navMoreWrap');
+    (function(){
+      var btn = document.getElementById('navMoreBtn');
       var menu = document.getElementById('navMoreMenu');
-      if (wrap && menu && !wrap.contains(e.target)) {
-        menu.classList.remove('open');
+      if (btn && menu) {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        });
+        document.addEventListener('click', function(e) {
+          if (!btn.contains(e.target) && !menu.contains(e.target)) {
+            menu.style.display = 'none';
+          }
+        });
       }
-    });
+    })();
   </script>
