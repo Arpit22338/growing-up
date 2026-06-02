@@ -63,21 +63,29 @@ router.get('/course/:key', async (req, res) => {
   const course = courses[req.params.key];
   if (!course) return res.redirect('/');
   const ref = req.query.ref || '';
-  
+
   // Check if user is logged in — pass user data for refer button
   let loggedInUser = null;
   if (req.session && req.session.userId) {
     try {
-      loggedInUser = await User.findById(req.session.userId).select('referralCode isActive firstName');
+      loggedInUser = await User.findById(req.session.userId)
+        .select('referralCode isActive firstName role purchasedCourses');
     } catch (e) {}
   }
-  
+
   const baseUrl = process.env.BASE_URL || '';
   res.render('course', { course, ref, loggedInUser, baseUrl });
 });
 
 // GET - Register page
 router.get('/register', (req, res) => {
+  // If already logged in, send them somewhere useful instead of showing the form
+  if (req.session && req.session.userId) {
+    if (req.session.role === 'superadmin' || req.session.role === 'financial_secretary') {
+      return res.redirect('/admin');
+    }
+    return res.redirect('/dashboard');
+  }
   const ref = req.query.ref || '';
   const course = req.query.course || '';
   res.render('register', { courses, ref, selectedCourse: course });
