@@ -11,11 +11,17 @@
           <span><%= user.firstName.charAt(0).toUpperCase() %></span>
         <% } %>
       </div>
-      <div>
+      <div style="flex:1;">
         <h1>Welcome back, <%= user.firstName %> <i class='bx bx-hand' style="color: var(--gold);"></i></h1>
-        <p style="opacity: 0.8;">Your referral code: <strong style="color: var(--gold); background: rgba(212,168,67,0.15); padding: 2px 10px; border-radius: 20px; font-size: 14px;"><%= user.referralCode %></strong></p>
-        <a href="/profile" style="display:inline-block;margin-top:8px;color:#D4A017;text-decoration:none;font-size:13px;font-weight:600;">View full profile <i class='bx bx-right-arrow-alt'></i></a>
-        <a href="/settings" style="display:inline-block;margin-top:8px;margin-left:12px;color:#fff;text-decoration:none;font-size:13px;font-weight:600;background:rgba(255,255,255,0.15);padding:6px 12px;border-radius:6px;"><i class='bx bx-cog'></i> Settings</a>
+        <p style="opacity: 0.9; margin: 6px 0 10px;">
+          <span style="font-size:13px;opacity:0.85;">Your referral code:</span>
+          <strong id="dashRefCode" style="color: var(--gold); background: rgba(212,168,67,0.15); padding: 4px 12px; border-radius: 20px; font-size: 15px; letter-spacing: 0.5px; margin-left: 4px;"><%= user.referralCode %></strong>
+          <button type="button" onclick="copyDashRefCode()" title="Copy referral code" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:30px;height:30px;border-radius:6px;cursor:pointer;margin-left:6px;font-size:14px;vertical-align:middle;">
+            <i class='bx bx-copy'></i>
+          </button>
+        </p>
+        <a href="/profile" style="display:inline-block;color:#D4A017;text-decoration:none;font-size:13px;font-weight:600;">View full profile <i class='bx bx-right-arrow-alt'></i></a>
+        <a href="/settings" style="display:inline-block;margin-left:12px;color:#fff;text-decoration:none;font-size:13px;font-weight:600;background:rgba(255,255,255,0.15);padding:6px 12px;border-radius:6px;"><i class='bx bx-cog'></i> Settings</a>
       </div>
     </div>
   </div>
@@ -229,6 +235,40 @@
 </div>
 
 <script>
+function copyDashRefCode() {
+  var code = document.getElementById('dashRefCode').textContent.trim();
+  var link = '<%= baseUrl %>/register?ref=' + code;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(function() { showToast('Referral link copied!', 'success'); }, function() { fallbackCopy(link); });
+  } else { fallbackCopy(link); }
+}
+function fallbackCopy(t) {
+  var ta = document.createElement('textarea');
+  ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); showToast('Referral link copied!', 'success'); }
+  catch(e) { showToast('Copy failed', 'error'); }
+  document.body.removeChild(ta);
+}
+function showToast(msg, type) {
+  var t = document.getElementById('dashToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'dashToast';
+    t.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;z-index:99999;opacity:0;transition:opacity 0.2s,transform 0.2s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.2);';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.background = type === 'error' ? '#DC2626' : '#0E7C66';
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(function() {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(-20px)';
+  }, 2500);
+}
+
 function selPlat(p) {
   document.getElementById('wplat').value = p;
   document.getElementById('eb').style.background = p==='esewa' ? '#D4A017' : '#fff';

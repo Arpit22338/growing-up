@@ -7,7 +7,7 @@
     border-radius: 16px;
     box-shadow: 0 2px 12px rgba(10,31,68,0.08);
     overflow: hidden;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
   .profile-cover {
     height: 120px;
@@ -90,62 +90,8 @@
     font-weight: 500;
     word-break: break-word;
   }
-  .info-cell .value.muted { color: #888; font-style: italic; }
-  .profile-section-title {
-    color: #0A1F44;
-    margin: 24px 0 12px;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .profile-section-title i { color: #D4A017; }
-  .course-row {
-    background: #fff;
-    border-radius: 12px;
-    padding: 16px 20px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .course-row .name { font-weight: 700; color: #0A1F44; }
-  .course-row .meta { color: #888; font-size: 13px; margin-top: 2px; }
-  .course-row .price { font-weight: 700; color: #D4A017; }
-  .badge {
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-  }
-  .badge-pending { background: #FFF3CD; color: #856404; }
-  .badge-approved { background: #D4EDDA; color: #155724; }
-  .badge-rejected { background: #F8D7DA; color: #721C24; }
-  .ref-link {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    background: #F8FAFC;
-    padding: 10px 14px;
-    border-radius: 10px;
-    margin-top: 8px;
-    font-family: 'Poppins', monospace;
-    font-size: 13px;
-    word-break: break-all;
-  }
-  .ref-link code { color: #0A1F44; font-weight: 600; flex: 1; }
-  .empty {
-    text-align: center;
-    color: #aaa;
-    padding: 24px;
-    font-size: 14px;
-  }
-  .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+  .info-cell .value.muted { color: #888; font-style: italic; font-family: monospace; font-size: 12px; }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
   .btn-row {
     flex: 1;
     min-width: 180px;
@@ -163,12 +109,32 @@
   .btn-primary { background: #0A1F44; color: #fff; }
   .btn-outline { background: #fff; color: #0A1F44; border: 2px solid #0A1F44; }
   .btn-gold { background: #D4A017; color: #0A1F44; }
+  .hint-banner {
+    background: #FFF8E1;
+    border-left: 4px solid #D4A017;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    color: #5C4813;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .hint-banner i { color: #D4A017; margin-right: 6px; }
+  .hint-banner a { color: #0A1F44; font-weight: 700; text-decoration: underline; }
 </style>
 
 <div class="profile-wrap">
   <a href="/dashboard" style="display:inline-flex;align-items:center;gap:6px;color:#888;font-size:14px;text-decoration:none;margin-bottom:16px;">
     <i class='bx bx-arrow-back'></i> Back to Dashboard
   </a>
+
+  <% if (user.role === 'user') { %>
+    <div class="hint-banner">
+      <i class='bx bx-info-circle'></i>
+      Want to update your WhatsApp number or change your password?
+      <a href="/settings">Go to Settings →</a>
+    </div>
+  <% } %>
 
   <!-- Profile Card -->
   <div class="profile-card">
@@ -225,96 +191,21 @@
       <% } %>
       <div class="info-cell">
         <div class="label">Account ID</div>
-        <div class="value muted" style="font-family:monospace;font-size:12px;"><%= user._id %></div>
+        <div class="value muted"><%= user._id %></div>
       </div>
     </div>
   </div>
-
-  <!-- Referral Section -->
-  <h2 class="profile-section-title"><i class='bx bx-link'></i> Your Referral</h2>
-  <div class="profile-card" style="padding:20px 24px;">
-    <div style="font-size:13px;color:#888;margin-bottom:6px;">Your Referral Code</div>
-    <div style="font-size:22px;font-weight:700;color:#0A1F44;letter-spacing:1px;"><%= user.referralCode %></div>
-    <div class="ref-link">
-      <code><%= baseUrl %>/register?ref=<%= user.referralCode %></code>
-      <button type="button" onclick="copyText('<%= baseUrl %>/register?ref=<%= user.referralCode %>')" style="background:#0A1F44;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;">
-        <i class='bx bx-copy'></i> Copy
-      </button>
-    </div>
-    <% if (user.referredBy) { %>
-      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0;">
-        <div style="font-size:13px;color:#888;margin-bottom:4px;">Referred By</div>
-        <div style="font-weight:600;color:#0A1F44;">
-          <%= user.referredBy.firstName %> <%= user.referredBy.lastName %>
-          <span style="color:#888;font-weight:400;font-size:13px;">(<%= user.referredBy.referralCode %>)</span>
-        </div>
-      </div>
-    <% } %>
-    <div style="margin-top:16px;display:flex;gap:24px;flex-wrap:wrap;">
-      <div>
-        <div style="font-size:24px;font-weight:700;color:#0A1F44;"><%= user.referredUsers ? user.referredUsers.length : 0 %></div>
-        <div style="font-size:12px;color:#888;">People Referred</div>
-      </div>
-      <div>
-        <div style="font-size:24px;font-weight:700;color:#10B981;">₹<%= user.totalEarnings %></div>
-        <div style="font-size:12px;color:#888;">Total Earnings</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Courses Section -->
-  <h2 class="profile-section-title"><i class='bx bx-book-open'></i> My Courses</h2>
-  <% if (user.purchasedCourses && user.purchasedCourses.length > 0) { %>
-    <% user.purchasedCourses.forEach(function(course) { %>
-      <div class="course-row">
-        <div>
-          <div class="name"><%= course.courseName || course.courseKey %></div>
-          <div class="meta">
-            ₹<%= course.price %> &bull; Purchased on <%= new Date(course.purchasedAt).toLocaleDateString() %>
-            <% if (course.transactionId) { %> &bull; TX: <%= course.transactionId %><% } %>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <span class="badge badge-<%= course.status %>"><%= course.status %></span>
-          <% if (course.status === 'approved') { %>
-            <a href="/course/<%= course.courseKey %>/read" class="btn-row btn-gold" style="padding:8px 14px;font-size:12px;min-width:auto;">Open</a>
-          <% } %>
-        </div>
-      </div>
-    <% }); %>
-  <% } else { %>
-    <div class="course-row">
-      <div class="empty" style="width:100%;">No courses purchased yet. <a href="/#courses" style="color:#D4A017;font-weight:600;">Browse courses →</a></div>
-    </div>
-  <% } %>
 
   <!-- Actions -->
   <div class="actions">
-    <a href="/dashboard" class="btn-row btn-outline"><i class='bx bx-home'></i> Dashboard</a>
     <% if (user.role === 'user') { %>
-      <a href="/dashboard/wallet" class="btn-row btn-primary"><i class='bx bx-wallet'></i> Wallet</a>
+      <a href="/dashboard" class="btn-row btn-primary"><i class='bx bx-grid-alt'></i> Dashboard</a>
+      <a href="/settings" class="btn-row btn-outline"><i class='bx bx-cog'></i> Settings</a>
     <% } else { %>
       <a href="/admin" class="btn-row btn-primary"><i class='bx bx-shield'></i> Admin Panel</a>
+      <a href="/dashboard" class="btn-row btn-outline"><i class='bx bx-grid-alt'></i> Dashboard</a>
     <% } %>
   </div>
 </div>
-
-<script>
-function copyText(t) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(t).then(function() {
-      showToast('Link copied to clipboard!', 'success');
-    }, function() { fallbackCopy(t); });
-  } else { fallbackCopy(t); }
-}
-function fallbackCopy(t) {
-  var ta = document.createElement('textarea');
-  ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
-  document.body.appendChild(ta); ta.select();
-  try { document.execCommand('copy'); showToast('Link copied!', 'success'); }
-  catch(e) { showToast('Copy failed', 'error'); }
-  document.body.removeChild(ta);
-}
-</script>
 
 <%- include('partials/footer') %>
