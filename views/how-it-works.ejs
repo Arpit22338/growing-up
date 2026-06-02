@@ -86,11 +86,15 @@
   .faq-item {
     background: #fff;
     border-radius: 12px;
-    padding: 0;
     margin-bottom: 10px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     border: 1px solid #E2E8F0;
     overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .faq-item.open {
+    border-color: #D4A017;
+    box-shadow: 0 2px 12px rgba(212,168,67,0.12);
   }
   .faq-q {
     padding: 18px 20px;
@@ -102,18 +106,41 @@
     align-items: center;
     gap: 12px;
     user-select: none;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    transition: background 0.15s;
   }
   .faq-q:hover { background: #F8FAFC; }
-  .faq-q i { color: #D4A017; font-size: 22px; transition: transform 0.2s; }
+  .faq-q:focus-visible {
+    outline: 2px solid #D4A017;
+    outline-offset: -2px;
+  }
+  .faq-q .chev {
+    color: #D4A017;
+    font-size: 22px;
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+  }
+  .faq-item.open .faq-q .chev { transform: rotate(180deg); }
   .faq-a {
-    padding: 0 20px 18px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
     color: #475569;
     font-size: 15px;
     line-height: 1.6;
-    display: none;
+    padding: 0 20px;
   }
-  .faq-item.open .faq-a { display: block; }
-  .faq-item.open .faq-q i { transform: rotate(45deg); }
+  .faq-item.open .faq-a {
+    max-height: 600px;
+    padding: 0 20px 18px;
+  }
+  .faq-a a { color: #0A1F44; font-weight: 600; text-decoration: underline; }
+  .faq-a a:hover { color: #D4A017; }
   .tip-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -271,67 +298,125 @@
 
   <section class="how-section">
     <h2><i class='bx bx-help-circle'></i> Frequently Asked Questions</h2>
+    <p class="lede">Quick answers to the things people ask us most on WhatsApp.</p>
+
     <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+      <button class="faq-q" type="button" aria-expanded="false">
         Do I need to pay to join Growing Up?
-        <i class='bx bx-plus'></i>
-      </div>
+        <i class='bx bx-chevron-down chev' aria-hidden="true"></i>
+      </button>
       <div class="faq-a">
-        You can register for free, but to access any course and start earning through referrals, you need to buy at least one course. The cheapest is Starter at ₹499.
+        You can register for free, but to access any course and start earning through referrals, you need to buy at least one course. The cheapest is <strong>Starter at ₹499</strong>.
       </div>
     </div>
+
     <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+      <button class="faq-q" type="button" aria-expanded="false">
         When do I get paid for a referral?
-        <i class='bx bx-plus'></i>
-      </div>
+        <i class='bx bx-chevron-down chev' aria-hidden="true"></i>
+      </button>
       <div class="faq-a">
         Your 65% commission is added to your wallet balance as soon as the admin approves the referred user's payment — usually within 24 hours.
       </div>
     </div>
+
     <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+      <button class="faq-q" type="button" aria-expanded="false">
         Is there a limit on how much I can earn?
-        <i class='bx bx-plus'></i>
-      </div>
+        <i class='bx bx-chevron-down chev' aria-hidden="true"></i>
+      </button>
       <div class="faq-a">
         No cap. The more people you refer, the more you earn. Our top earners make ₹50,000+ per month.
       </div>
     </div>
+
     <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+      <button class="faq-q" type="button" aria-expanded="false">
         Can I buy more than one course?
-        <i class='bx bx-plus'></i>
-      </div>
+        <i class='bx bx-chevron-down chev' aria-hidden="true"></i>
+      </button>
       <div class="faq-a">
-        The Everything Bundle (₹1,999) includes everything from Starter, Prime, and Master — that's our recommended option if you want full access. To switch tiers, contact admin.
+        The <strong>Everything Bundle (₹1,999)</strong> includes everything from Starter, Prime, and Master — that's our recommended option if you want full access. To switch tiers, contact admin on WhatsApp.
       </div>
     </div>
+
     <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+      <button class="faq-q" type="button" aria-expanded="false">
         How long does it take to get my withdrawal?
-        <i class='bx bx-plus'></i>
-      </div>
+        <i class='bx bx-chevron-down chev' aria-hidden="true"></i>
+      </button>
       <div class="faq-a">
-        Admin reviews and processes withdrawal requests within 24 hours. The money arrives in your eSewa/Khalti wallet almost immediately after approval.
+        Admin reviews and processes withdrawal requests within 24 hours. The money arrives in your eSewa/Khalti wallet almost immediately after approval. We support any amount from ₹1 onwards — no minimum, no fees.
       </div>
     </div>
+
     <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
-        What if my referral doesn't pay me?
-        <i class='bx bx-plus'></i>
-      </div>
+      <button class="faq-q" type="button" aria-expanded="false">
+        What payment methods do you accept?
+        <i class='bx bx-chevron-down chev' aria-hidden="true"></i>
+      </button>
       <div class="faq-a">
-        You don't pay them — we pay you. Once their payment is verified, your 65% is automatically added to your wallet. No chasing anyone.
+        <strong>eSewa</strong> and <strong>Khalti</strong> for both buying courses and receiving withdrawals. Bank transfer is not supported yet — let us know on WhatsApp if you need it.
       </div>
     </div>
+
     <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+      <button class="faq-q" type="button" aria-expanded="false">
         Is this a pyramid scheme or MLM?
-        <i class='bx bx-plus'></i>
-      </div>
+        <i class='bx bx-chevron-down chev' aria-hidden="true"></i>
+      </button>
       <div class="faq-a">
-        No. This is a single-level referral program — you earn 65% of the course price for every direct sale. There are no multi-level payouts, no monthly fees, and no product purchases required to "stay active." It's a fair commission for sharing a real product.
+        <strong>No.</strong> This is a single-level referral program — you earn 65% of the course price for every direct sale. There are no multi-level payouts, no monthly fees, and no product purchases required to "stay active." It's a fair commission for sharing a real product you actually use.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        Do the courses come with a certificate?
+        <i class='bx bx-chevron-down chev' aria-hidden="true"></i>
+      </button>
+      <div class="faq-a">
+        No — and we say this honestly on every course page. Our courses are knowledge and skill-building programs. The real value is what you learn and apply, not a piece of paper. (If you need a certificate for a job or school, this isn't the right product for that.)
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        What if I forget my password?
+        <i class='bx bx-chevron-down chev' aria-hidden="true"></i>
+      </button>
+      <div class="faq-a">
+        Go to <a href="/login">the login page</a>, click "Forgot password" and we'll send a reset link to your registered email. (Reset is a one-time process — if you don't see the email within 5 minutes, check your spam folder or message us on WhatsApp.)
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        Can I get a refund?
+        <i class='bx bx-chevron-down chev' aria-hidden="true"></i>
+      </button>
+      <div class="faq-a">
+        If your payment was <strong>rejected</strong> by admin (e.g. wrong screenshot), your account is deactivated and you can register again with the correct proof. We don't issue cash refunds for approved payments because the course content is delivered immediately — but if you have a genuine issue, message us on WhatsApp and we'll work it out.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        Is my data safe?
+        <i class='bx bx-chevron-down chev' aria-hidden="true"></i>
+      </button>
+      <div class="faq-a">
+        Yes. We use HTTPS everywhere, password hashing (bcrypt), CSRF protection on every form, and we never sell your data. Payment screenshots are stored on encrypted cloud storage (Cloudinary) and your password is never stored in plain text.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        How do I contact support?
+        <i class='bx bx-chevron-down chev' aria-hidden="true"></i>
+      </button>
+      <div class="faq-a">
+        <strong>WhatsApp:</strong> +977-9808467028 (fastest, usually replies within a few hours). For account-specific issues, make sure to message from the phone number on your account so we can verify it's really you.
       </div>
     </div>
   </section>
@@ -344,11 +429,67 @@
 </div>
 
 <script>
-  // Auto-open FAQ item if URL has #faq-X (optional)
-  if (window.location.hash) {
-    var el = document.querySelector(window.location.hash);
-    if (el && el.classList.contains('faq-item')) el.classList.add('open');
+  // FAQ accordion — event delegation, keyboard accessible, single-open by default
+  (function() {
+    var list = document.querySelector('.how-section .faq-item').parentElement;
+    if (!list) return;
+
+    list.addEventListener('click', function(e) {
+      var btn = e.target.closest('.faq-q');
+      if (!btn) return;
+      var item = btn.parentElement;
+      var wasOpen = item.classList.contains('open');
+
+      // Close all others in this list
+      list.querySelectorAll('.faq-item.open').forEach(function(openItem) {
+        if (openItem !== item) {
+          openItem.classList.remove('open');
+          var b = openItem.querySelector('.faq-q');
+          if (b) b.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      // Toggle this one
+      item.classList.toggle('open', !wasOpen);
+      btn.setAttribute('aria-expanded', String(!wasOpen));
+    });
+
+    // Keyboard: Enter / Space already handled by <button>, but ensure focus ring
+  })();
+
+  // Auto-open FAQ item if URL has #faq-N (e.g. /how-it-works#faq-3)
+  if (window.location.hash && /^#faq-\d+$/.test(window.location.hash)) {
+    var items = document.querySelectorAll('.faq-item');
+    var idx = parseInt(window.location.hash.replace('#faq-', ''), 10) - 1;
+    if (items[idx]) {
+      items[idx].classList.add('open');
+      var b = items[idx].querySelector('.faq-q');
+      if (b) b.setAttribute('aria-expanded', 'true');
+      items[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }
+</script>
+
+<%# FAQPage structured data for Google rich results %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Do I need to pay to join Growing Up?", "acceptedAnswer": { "@type": "Answer", "text": "You can register for free, but to access any course and start earning through referrals, you need to buy at least one course. The cheapest is Starter at ₹499." } },
+    { "@type": "Question", "name": "When do I get paid for a referral?", "acceptedAnswer": { "@type": "Answer", "text": "Your 65% commission is added to your wallet balance as soon as the admin approves the referred user's payment — usually within 24 hours." } },
+    { "@type": "Question", "name": "Is there a limit on how much I can earn?", "acceptedAnswer": { "@type": "Answer", "text": "No cap. The more people you refer, the more you earn. Our top earners make ₹50,000+ per month." } },
+    { "@type": "Question", "name": "Can I buy more than one course?", "acceptedAnswer": { "@type": "Answer", "text": "The Everything Bundle (₹1,999) includes everything from Starter, Prime, and Master — that's our recommended option if you want full access." } },
+    { "@type": "Question", "name": "How long does it take to get my withdrawal?", "acceptedAnswer": { "@type": "Answer", "text": "Admin reviews and processes withdrawal requests within 24 hours. The money arrives in your eSewa/Khalti wallet almost immediately after approval." } },
+    { "@type": "Question", "name": "What payment methods do you accept?", "acceptedAnswer": { "@type": "Answer", "text": "eSewa and Khalti for both buying courses and receiving withdrawals." } },
+    { "@type": "Question", "name": "Is this a pyramid scheme or MLM?", "acceptedAnswer": { "@type": "Answer", "text": "No. This is a single-level referral program — you earn 65% of the course price for every direct sale. There are no multi-level payouts, no monthly fees, and no product purchases required to stay active." } },
+    { "@type": "Question", "name": "Do the courses come with a certificate?", "acceptedAnswer": { "@type": "Answer", "text": "No. Our courses are knowledge and skill-building programs. The real value is what you learn and apply, not a piece of paper." } },
+    { "@type": "Question", "name": "What if I forget my password?", "acceptedAnswer": { "@type": "Answer", "text": "Go to the login page, click Forgot password and we'll send a reset link to your registered email." } },
+    { "@type": "Question", "name": "Can I get a refund?", "acceptedAnswer": { "@type": "Answer", "text": "If your payment was rejected by admin, your account is deactivated and you can register again with the correct proof. Cash refunds for approved payments are not standard but genuine issues are handled case-by-case on WhatsApp." } },
+    { "@type": "Question", "name": "Is my data safe?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. We use HTTPS everywhere, password hashing (bcrypt), CSRF protection, and we never sell your data. Payment screenshots are stored on encrypted cloud storage (Cloudinary)." } },
+    { "@type": "Question", "name": "How do I contact support?", "acceptedAnswer": { "@type": "Answer", "text": "WhatsApp +977-9808467028 (fastest, usually replies within a few hours)." } }
+  ]
+}
 </script>
 
 <%- include('partials/footer') %>
