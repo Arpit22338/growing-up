@@ -89,6 +89,18 @@ const adminLimiter = rateLimit({
 });
 app.use('/admin', adminLimiter);
 
+// Withdrawal endpoint: tighter per-IP limit on top of the global one.
+// The model-level "max 3 per day" rule still applies in the handler.
+const withdrawLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many withdrawal attempts. Please try again in an hour.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use('/api/withdraw', withdrawLimiter);
+app.use('/api/withdrawals', withdrawLimiter);
+
 // View engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -164,6 +176,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/', require('./routes/main'));
 app.use('/', require('./routes/admin'));
+app.use('/api/cron', require('./routes/cron'));
 
 // 404
 app.use((req, res) => {
@@ -183,37 +196,10 @@ app.use((err, req, res, next) => {
 // Export for Vercel serverless
 module.exports = app;
 
-// ── Auto-delete approved/rejected payments after 3 days ──
-setInterval(async () => {
-  try {
-    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
-    const result = await Payment.deleteMany({
-      status: { $in: ['approved', 'rejected'] },
-      updatedAt: { $lt: threeDaysAgo }
-    });
-    if (result.deletedCount > 0) {
-      console.log(`Old payment records cleaned up: ${result.deletedCount} deleted`);
-    }
-  } catch (err) {
-    console.error('Payment cleanup error:', err.message);
-  }
-}, 24 * 60 * 60 * 1000); // runs every 24 hours
-
-// ── Reset daily withdrawal counts (check every hour) ──
-setInterval(async () => {
-  try {
-    const today = new Date().toDateString();
-    const result = await User.updateMany(
-      { lastWithdrawalDate: { $ne: today }, dailyWithdrawCount: { $gt: 0 } },
-      { $set: { dailyWithdrawCount: 0 } }
-    );
-    if (result.modifiedCount > 0) {
-      console.log(`Daily withdrawal counts reset for ${result.modifiedCount} users`);
-    }
-  } catch (err) {
-    console.error('Daily withdrawal reset error:', err.message);
-  }
-}, 60 * 60 * 1000); // runs every hour
+// Background cleanup jobs (old payment records + daily withdrawal count reset)
+// are now triggered by Vercel Cron hitting /api/cron/cleanup hourly (see vercel.json).
+// The previous setInterval() approach was broken on Vercel because serverless
+// functions do not have a persistent process — intervals never run there.
 
 // Only listen when running locally (not on Vercel)
 if (!process.env.VERCEL) {

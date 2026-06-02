@@ -641,6 +641,91 @@ router.get('/dashboard/profile', (req, res) => {
   res.redirect('/profile');
 });
 
+// GET - Account settings (edit WhatsApp, middle name; change password)
+router.get('/settings', async (req, res) => {
+  if (!req.session || !req.session.userId) return res.redirect('/login');
+  try {
+    const user = await User.findById(req.session.userId)
+      .select('firstName middleName lastName email whatsapp createdAt role');
+    if (!user) return res.redirect('/logout');
+    res.render('settings', { user });
+  } catch (err) {
+    console.error('Settings error:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+// POST - Update profile fields (WhatsApp, middle name)
+router.post('/api/profile/update', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, error: 'Please login first' });
+  }
+  try {
+    const { whatsapp, middleName } = req.body;
+    const update = {};
+
+    // WhatsApp: optional in payload, but if present must be 10 digits
+    if (typeof whatsapp !== 'undefined') {
+      const clean = String(whatsapp).trim();
+      if (!/^\d{10}$/.test(clean)) {
+        return res.status(400).json({ success: false, error: 'WhatsApp number must be exactly 10 digits.' });
+      }
+      update.whatsapp = clean;
+    }
+
+    // Middle name: optional, max 50 chars
+    if (typeof middleName !== 'undefined') {
+      const clean = String(middleName).trim().substring(0, 50);
+      update.middleName = clean;
+    }
+
+    if (Object.keys(update).length === 0) {
+      return res.status(400).json({ success: false, error: 'No changes to save.' });
+    }
+
+    await User.findByIdAndUpdate(req.session.userId, update);
+    return res.json({ success: true, message: 'Profile updated' });
+  } catch (err) {
+    console.error('Profile update error:', err);
+    return res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// POST - Change password (requires current password)
+router.post('/api/profile/change-password', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, error: 'Please login first' });
+  }
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || typeof currentPassword !== 'string') {
+      return res.status(400).json({ success: false, error: 'Current password is required.' });
+    }
+    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+      return res.status(400).json({ success: false, error: 'New password must be at least 6 characters.' });
+    }
+    if (newPassword === currentPassword) {
+      return res.status(400).json({ success: false, error: 'New password must be different from your current one.' });
+    }
+
+    const user = await User.findById(req.session.userId).select('+password');
+    if (!user) return res.status(404).json({ success: false, error: 'Account not found.' });
+
+    const ok = await bcrypt.compare(currentPassword, user.password);
+    if (!ok) {
+      return res.status(401).json({ success: false, error: 'Current password is incorrect.' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 12);
+    await user.save();
+
+    return res.json({ success: true, message: 'Password updated' });
+  } catch (err) {
+    console.error('Change password error:', err);
+    return res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 // GET - User withdrawals history (JSON)
 router.get('/api/my-withdrawals', async (req, res) => {
   if (!req.session || !req.session.userId) {
@@ -680,9 +765,7 @@ router.get('/course/:key/read', async (req, res) => {
       if (!owned) return res.status(403).render('404', { message: 'You do not have access to this course.' });
     }
 
-    // Map courseKey to partial path
-    const contentPartial = `partials/course-contents/${courseKey}`;
-    res.render('course-read', { course, contentPartial, loggedInUser: user });
+    res.render('course-read', { course, loggedInUser: user });
   } catch (err) {
     return res.status(500).render('404', { message: 'Server error.' });
   }
