@@ -1068,69 +1068,6 @@ const courseModules = {
   ],
   everything: [
     {
-      title: 'Module 1: All-in-One Success Blueprint',
-      content: `
-<b>Comprehensive Learning Journey</b><br>
-This module combines the best lessons from Starter, Prime, and Master. You’ll learn how to build your brand, grow your network, lead teams, and manage your finances.<br><br>
-<b>Action Plan:</b> Create a personal roadmap—list your goals for each area (branding, referrals, leadership, finance).`
-    },
-    {
-      title: 'Module 2: Bonus: Digital Productivity',
-      content: `
-<b>Mastering Productivity</b><br>
-Use time management tools (Google Calendar, Todoist), set daily routines, and avoid distractions (turn off notifications during work blocks).<br><br>
-<b>Real Life Tip:</b> Set a timer for 25 minutes (Pomodoro Technique), work on one task, then take a 5-minute break. Repeat!`
-    },
-    {
-      title: 'Module 3: Bonus: Financial Literacy',
-      content: `
-<b>Money Matters</b><br>
-Learn to budget, save, and invest your online earnings. Open a digital wallet (eSewa, Khalti), track your expenses, and set savings goals.<br><br>
-<b>Case Study:</b> Anil saved 20% of his online income for 6 months and used it to start a small business.`
-    },
-    {
-      title: 'Module 4: Bonus: Community Leadership',
-      content: `
-<b>Leading with Impact</b><br>
-Organize online events, support new members, and create a positive, inclusive community. Share your knowledge and encourage others to do the same.<br><br>
-<b>Action:</b> Host a monthly Q&A session for your network and invite guest speakers.`
-    }
-  ]
-};
-
-// Get current course key from server variable
-const courseKey = '<%= course.key %>';
-const modules = courseModules[courseKey] || [];
-
-const moduleList = document.getElementById('moduleList');
-const moduleContent = document.getElementById('moduleContent');
-
-function renderModuleList() {
-  moduleList.innerHTML = '';
-  modules.forEach((mod, idx) => {
-    const li = document.createElement('li');
-    li.textContent = mod.title;
-    li.onclick = () => selectModule(idx);
-    if (idx === 0) li.classList.add('active');
-    moduleList.appendChild(li);
-  });
-}
-
-function selectModule(idx) {
-  Array.from(moduleList.children).forEach((li, i) => {
-    li.classList.toggle('active', i === idx);
-  });
-  moduleContent.innerHTML = `<h3 style='color:#3730a3;font-weight:600;margin-bottom:10px;'>${modules[idx].title}</h3><div style='font-size:1.08rem;color:#334155;'>${modules[idx].content}</div>`;
-}
-
-if (modules.length) {
-  renderModuleList();
-  selectModule(0);
-} else {
-  moduleContent.innerHTML = '<div class="alert alert-danger">Course content not found.</div>';
-}
-  everything: [
-    {
       title: 'Module 1: The Digital Mindset',
       content: `<h2>Module 1: The Digital Mindset</h2>
 <h3>🎯 Learning Objectives</h3>
@@ -1395,3 +1332,39 @@ if (modules.length) {
 <p>What’s your biggest digital goal for the next year, and what’s your first step to achieve it?</p>`
     }
   ]
+};
+
+// Get current course key from server variable
+const courseKey = '<%= course.key %>';
+const modules = courseModules[courseKey] || [];
+
+const moduleList = document.getElementById('moduleList');
+const moduleContent = document.getElementById('moduleContent');
+
+function renderModuleList() {
+  moduleList.innerHTML = '';
+  modules.forEach((mod, idx) => {
+    const li = document.createElement('li');
+    li.textContent = mod.title;
+    li.onclick = () => selectModule(idx);
+    if (idx === 0) li.classList.add('active');
+    moduleList.appendChild(li);
+  });
+}
+
+function selectModule(idx) {
+  Array.from(moduleList.children).forEach((li, i) => {
+    li.classList.toggle('active', i === idx);
+  });
+  moduleContent.innerHTML = `<h3 style='color:#3730a3;font-weight:600;margin-bottom:10px;'>${modules[idx].title}</h3><div style='font-size:1.08rem;color:#334155;'>${modules[idx].content}</div>`;
+}
+
+if (modules.length) {
+  renderModuleList();
+  selectModule(0);
+} else {
+  moduleContent.innerHTML = '<div class="alert alert-danger">Course content not found.</div>';
+}
+</script>
+
+<%- include('partials/footer') %>
