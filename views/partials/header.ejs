@@ -89,13 +89,14 @@
         <% if (session.role === 'superadmin' || session.role === 'financial_secretary') { %>
           <a href="/admin" style="color:#D4A017;text-decoration:none;font-size:14px;font-weight:600;"><i class='bx bx-shield'></i> Admin</a>
         <% } %>
+        <a href="/" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;">Home</a>
+        <a href="/how-it-works" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;">How It Works</a>
         <div style="position:relative;" id="navMoreWrap">
           <button type="button" id="navMoreBtn" style="background:none;border:none;color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;padding:6px 8px;border-radius:6px;">
             More <i class='bx bx-chevron-down'></i>
           </button>
           <div id="navMoreMenu" style="display:none;position:absolute;right:0;top:100%;margin-top:6px;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:180px;z-index:9999;padding:6px 0;">
             <a href="/#courses" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">Courses</a>
-            <a href="/how-it-works" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">How It Works</a>
             <a href="/certificates" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">Certificates</a>
             <a href="/settings" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">Settings</a>
             <a href="/verify" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">Verify Certificate</a>
