@@ -84,13 +84,13 @@
     </a>
     <div id="navLinksDesktop" style="display:flex;align-items:center;gap:16px;">
       <% if (typeof session !== 'undefined' && session.userId) { %>
-        <a href="/profile" style="color:#fff;text-decoration:none;font-size:14px;font-weight:600;display:flex;align-items:center;gap:5px;"><i class='bx bx-user'></i> Profile</a>
+        <a href="/" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;">Home</a>
         <a href="/dashboard" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;"><i class='bx bx-grid-alt'></i> Dashboard</a>
+        <a href="/how-it-works" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;">How It Works</a>
         <% if (session.role === 'superadmin' || session.role === 'financial_secretary') { %>
           <a href="/admin" style="color:#D4A017;text-decoration:none;font-size:14px;font-weight:600;"><i class='bx bx-shield'></i> Admin</a>
         <% } %>
-        <a href="/" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;">Home</a>
-        <a href="/how-it-works" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;">How It Works</a>
+        <a href="/profile" style="color:#fff;text-decoration:none;font-size:14px;font-weight:600;display:flex;align-items:center;gap:5px;"><i class='bx bx-user'></i> Profile</a>
         <div style="position:relative;" id="navMoreWrap">
           <button type="button" id="navMoreBtn" style="background:none;border:none;color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;padding:6px 8px;border-radius:6px;">
             More <i class='bx bx-chevron-down'></i>
@@ -100,9 +100,10 @@
             <a href="/certificates" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">Certificates</a>
             <a href="/settings" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">Settings</a>
             <a href="/verify" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">Verify Certificate</a>
+            <div style="border-top:1px solid #E2E8F0;margin:4px 0;"></div>
+            <a href="/logout" style="display:block;padding:10px 16px;color:#DC2626;text-decoration:none;font-size:14px;font-weight:600;">Logout</a>
           </div>
         </div>
-        <a href="/logout" style="color:#0A1F44;background:#D4A017;padding:8px 18px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">Logout</a>
       <% } else { %>
         <a href="/" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;">Home</a>
         <a href="/#courses" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;">Courses</a>
@@ -126,13 +127,14 @@
     </div>
     <div style="padding:16px 0;">
       <% if (typeof session !== 'undefined' && session.userId) { %>
-        <a href="/profile" onclick="if(_drawerOpen){history.back();}" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:600;"><i class='bx bx-user'></i> Profile</a>
+        <a href="/" onclick="if(_drawerOpen){history.back();}" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;"><i class='bx bx-home'></i> Home</a>
         <a href="/dashboard" onclick="if(_drawerOpen){history.back();}" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;"><i class='bx bx-grid-alt'></i> Dashboard</a>
+        <a href="/how-it-works" onclick="if(_drawerOpen){history.back();}" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;"><i class='bx bx-info-circle'></i> How It Works</a>
         <% if (session.role === 'superadmin' || session.role === 'financial_secretary') { %>
           <a href="/admin" onclick="if(_drawerOpen){history.back();}" style="display:block;padding:12px 24px;color:#D4A017;text-decoration:none;font-size:15px;font-weight:600;"><i class='bx bx-shield'></i> Admin</a>
         <% } %>
+        <a href="/profile" onclick="if(_drawerOpen){history.back();}" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:600;"><i class='bx bx-user'></i> Profile</a>
         <a href="/#courses" onclick="if(_drawerOpen){history.back();}" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;"><i class='bx bx-book'></i> Courses</a>
-        <a href="/how-it-works" onclick="if(_drawerOpen){history.back();}" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;"><i class='bx bx-info-circle'></i> How It Works</a>
         <a href="/certificates" onclick="if(_drawerOpen){history.back();}" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;"><i class='bx bx-certification'></i> Certificates</a>
         <a href="/settings" onclick="if(_drawerOpen){history.back();}" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;"><i class='bx bx-cog'></i> Settings</a>
         <a href="/verify" onclick="if(_drawerOpen){history.back();}" style="display:block;padding:12px 24px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;"><i class='bx bx-shield-check'></i> Verify Certificate</a>
@@ -148,7 +150,6 @@
     </div>
   </div>
   <style>
-    .nav-dropdown a:hover { background: #F1F5F9; }
     @media(max-width:768px){
       #navLinksDesktop{display:none!important;}
       #navMoreWrap{display:none!important;}

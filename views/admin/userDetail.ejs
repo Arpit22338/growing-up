@@ -217,7 +217,7 @@
               <input type="text" id="grantReason" class="form-control" placeholder="e.g. Promo, beta tester, support escalation..." maxlength="200">
             </div>
             <div>
-              <button type="button" class="btn btn-primary" id="grantCourseBtn" disabled onclick="grantCourse()" style="background: #CBD5E1; color: #64748B; border: none; padding: 10px 18px; cursor: not-allowed; font-weight: 700; transition: background 0.2s, color 0.2s;">
+              <button type="button" class="btn btn-primary" id="grantCourseBtn" disabled style="background: #CBD5E1; color: #64748B; border: none; padding: 10px 18px; cursor: not-allowed; font-weight: 700; transition: background 0.2s, color 0.2s;">
                 <i class='bx bx-gift'></i> Grant Course
               </button>
             </div>
@@ -354,8 +354,14 @@
       document.getElementById('grantConfirmModal').style.display = 'flex';
     }
 
-    // Wire up the modal buttons (only if the grant form is on the page).
+    // Wire up the modal buttons AND the grant course button.
     (function(){
+      var grantBtn = document.getElementById('grantCourseBtn');
+      if (grantBtn) {
+        grantBtn.addEventListener('click', function() {
+          grantCourse();
+        });
+      }
       var modal = document.getElementById('grantConfirmModal');
       if (!modal) return;
       document.getElementById('grantConfirmCancel').addEventListener('click', function() {
