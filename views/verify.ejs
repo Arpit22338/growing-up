@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Certificate — Growing Up</title>
+  <meta name="description" content="Verify a Growing Up Certificate of Completion by ID. Free, public, no login required.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body { font-family: 'Poppins', sans-serif; background: #F1F5F9; min-height: 100vh; margin: 0; }
+    .nav-back {
+      background: #0A1F44; color: #fff; padding: 14px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-back a { color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 15px; }
+    .nav-back .logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; }
+    .nav-back .logo img { width: 36px; height: 36px; border-radius: 50%; }
+    .nav-back .logo span { color: #D4A017; }
+
+    .verify-wrap { max-width: 640px; margin: 0 auto; padding: 40px 16px; }
+
+    .verify-hero {
+      background: linear-gradient(135deg, #0A1F44, #1E3A8A);
+      color: #fff; border-radius: 16px; padding: 32px 24px;
+      text-align: center; box-shadow: 0 4px 18px rgba(10,31,68,0.18);
+      margin-bottom: 24px;
+    }
+    .verify-hero h1 { margin: 0 0 8px; font-size: 1.6rem; font-weight: 700; }
+    .verify-hero p { margin: 0; color: rgba(255,255,255,0.85); font-size: 0.95rem; line-height: 1.5; }
+
+    .verify-form {
+      background: #fff; border-radius: 14px; padding: 24px;
+      box-shadow: 0 2px 12px rgba(10,31,68,0.06);
+      margin-bottom: 20px;
+    }
+    .verify-form label { display: block; font-weight: 600; color: #0A1F44; margin-bottom: 8px; font-size: 14px; }
+    .verify-form .input-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .verify-form input {
+      flex: 1; min-width: 180px; padding: 12px 14px;
+      border: 1.5px solid #CBD5E1; border-radius: 8px;
+      font-family: 'Poppins', sans-serif; font-size: 15px;
+      font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .verify-form input:focus { outline: none; border-color: #0A1F44; }
+    .verify-form button {
+      background: #D4A017; color: #0A1F44; border: none; padding: 12px 22px;
+      border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;
+      font-family: 'Poppins', sans-serif; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .verify-form button:hover { background: #E5B22A; }
+    .verify-form .help { color: #64748B; font-size: 13px; margin-top: 8px; line-height: 1.5; }
+    .verify-form code { background: #F1F5F9; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+
+    .verify-result {
+      background: #fff; border-radius: 14px; padding: 0;
+      box-shadow: 0 2px 12px rgba(10,31,68,0.06);
+      overflow: hidden;
+    }
+    .verify-result.valid { border-top: 6px solid #10B981; }
+    .verify-result.invalid { border-top: 6px solid #DC2626; }
+    .verify-result .head { padding: 24px 24px 16px; text-align: center; }
+    .verify-result.valid .head i { font-size: 56px; color: #10B981; }
+    .verify-result.invalid .head i { font-size: 56px; color: #DC2626; }
+    .verify-result .head h2 { margin: 8px 0 4px; color: #0A1F44; font-size: 1.3rem; }
+    .verify-result.valid .head h2 { color: #065F46; }
+    .verify-result.invalid .head h2 { color: #991B1B; }
+    .verify-result .head p { margin: 0; color: #64748B; font-size: 14px; }
+    .verify-result .body { padding: 0 24px 24px; }
+    .verify-result .row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 12px 0; border-top: 1px solid #EEF2F7; gap: 12px;
+    }
+    .verify-result .row .k { color: #64748B; font-size: 13px; font-weight: 600; flex-shrink: 0; min-width: 130px; }
+    .verify-result .row .v { color: #0A1F44; font-size: 14px; font-weight: 600; text-align: right; word-break: break-word; }
+    .verify-result .row .v.mono { font-family: monospace; font-size: 13px; }
+
+    .verify-result .footer {
+      background: #F8FAFC; padding: 14px 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 10px; border-top: 1px solid #EEF2F7;
+    }
+    .verify-result .footer .issuer { display: inline-flex; align-items: center; gap: 8px; color: #64748B; font-size: 12px; }
+    .verify-result .footer .issuer img { width: 24px; height: 24px; border-radius: 50%; }
+    .verify-result .footer a { color: #0A1F44; text-decoration: none; font-weight: 600; font-size: 13px; }
+
+    .info {
+      background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 10px;
+      padding: 14px 16px; color: #3730A3; font-size: 13px; line-height: 1.5;
+      margin-top: 20px;
+    }
+    .info b { color: #1E1B4B; }
+    @media (max-width: 600px) {
+      .verify-hero h1 { font-size: 1.3rem; }
+      .verify-result .row { flex-direction: column; gap: 4px; }
+      .verify-result .row .k { min-width: 0; }
+      .verify-result .row .v { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <div class="nav-back">
+    <a href="/" class="logo">
+      <img src="/images/logo-web.png" alt="Growing Up">
+      Growing <span>Up</span>
+    </a>
+    <a href="/"><i class='bx bx-arrow-back'></i> Back to site</a>
+  </div>
+
+  <div class="verify-wrap">
+    <div class="verify-hero">
+      <h1><i class='bx bx-shield-check'></i> Verify a Certificate</h1>
+      <p>Enter a Growing Up Certificate ID to confirm it's real. Free, public, no login required.</p>
+    </div>
+
+    <form class="verify-form" method="get" action="/verify" autocomplete="off">
+      <label for="certId">Certificate ID</label>
+      <div class="input-row">
+        <input type="text" id="certId" name="certId" value="<%= certId || '' %>" placeholder="GU-STA-AB12CD" maxlength="32" required>
+        <button type="submit"><i class='bx bx-search'></i> Verify</button>
+      </div>
+      <p class="help">The ID is on the certificate, formatted like <code>GU-STA-AB12CD</code>. You can paste the full ID with or without the <code>GU-</code> prefix.</p>
+    </form>
+
+    <% if (result) { %>
+      <div class="verify-result <%= result.valid ? 'valid' : 'invalid' %>">
+        <div class="head">
+          <% if (result.valid) { %>
+            <i class='bx bx-check-circle'></i>
+            <h2>Valid Certificate</h2>
+            <p>This certificate was issued by Growing Up.</p>
+          <% } else { %>
+            <i class='bx bx-x-circle'></i>
+            <h2>Not Found</h2>
+            <p>No certificate matches this ID. Double-check the ID or contact the holder.</p>
+          <% } %>
+        </div>
+
+        <% if (result.valid) { %>
+          <div class="body">
+            <div class="row">
+              <div class="k">Holder</div>
+              <div class="v"><%= result.holderName %></div>
+            </div>
+            <div class="row">
+              <div class="k">Course</div>
+              <div class="v"><%= result.courseName %></div>
+            </div>
+            <div class="row">
+              <div class="k">Issued on</div>
+              <div class="v"><%= new Date(result.issuedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></div>
+            </div>
+            <div class="row">
+              <div class="k">Certificate ID</div>
+              <div class="v mono">GU-<%= result.certId %></div>
+            </div>
+            <% if (result.granted) { %>
+              <div class="row">
+                <div class="k">Type</div>
+                <div class="v">Granted (no payment record)</div>
+              </div>
+            <% } %>
+          </div>
+        <% } else if (certId) { %>
+          <div class="body">
+            <div class="row">
+              <div class="k">You searched for</div>
+              <div class="v mono">GU-<%= certId %></div>
+            </div>
+          </div>
+        <% } %>
+
+        <div class="footer">
+          <span class="issuer">
+            <img src="/images/logo-web.png" alt="Growing Up">
+            Issued by Growing Up
+          </span>
+          <a href="/how-it-works"><i class='bx bx-info-circle'></i> About our certificates</a>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="info">
+      <b>What does this verify?</b> The ID confirms the holder completed every module in the course on the date shown, and the certificate was issued by Growing Up. It does <b>not</b> accredit the holder for jobs, schools, or government bodies — see the certificate's honest text on the <a href="/how-it-works" style="color:#3730A3;">How It Works</a> page.
+    </div>
+  </div>
+</body>
+</html>

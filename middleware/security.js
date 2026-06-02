@@ -16,7 +16,12 @@
 //    identity MUST come from `req.session.userId`.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const META_KEYS = ['userid', 'role', '_id', 'isadmin', 'isactive', 'csrfsecret'];
+// Stripped from body/query to prevent identity-spoofing. The session is
+// the only source of truth for userId and isActive. We DO NOT strip
+// `role` here because legitimate admin actions (e.g. POST
+// /admin/users/:id/role) need to send a target role in the body — the
+// route handler validates it against an explicit allow-list.
+const META_KEYS = ['userid', '_id', 'isadmin', 'isactive', 'csrfsecret'];
 
 // Headers that should never be trusted for auth (we keep CSRF + Authorization
 // for the cron secret).

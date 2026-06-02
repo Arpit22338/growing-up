@@ -217,7 +217,7 @@
               <input type="text" id="grantReason" class="form-control" placeholder="e.g. Promo, beta tester, support escalation..." maxlength="200">
             </div>
             <div>
-              <button type="button" class="btn btn-primary" id="grantCourseBtn" disabled style="background: #CBD5E1; color: #64748B; border: none; padding: 10px 18px; cursor: not-allowed; font-weight: 700; transition: background 0.2s, color 0.2s;">
+              <button type="button" class="btn btn-primary" id="grantCourseBtn" disabled onclick="grantCourse()" style="background: #CBD5E1; color: #64748B; border: none; padding: 10px 18px; cursor: not-allowed; font-weight: 700; transition: background 0.2s, color 0.2s;">
                 <i class='bx bx-gift'></i> Grant Course
               </button>
             </div>
@@ -294,21 +294,36 @@
     // Enable/disable the Grant Course button based on the select.
     // Disabled = gray + cursor not-allowed. Enabled = gold (#D4A017).
     function updateGrantBtn() {
-      var keyEl = document.getElementById('grantCourseKey');
-      var btn = document.getElementById('grantCourseBtn');
-      if (!keyEl || !btn) return;
-      if (keyEl.value) {
-        btn.disabled = false;
-        btn.style.background = '#D4A017';
-        btn.style.color = '#0A1F44';
-        btn.style.cursor = 'pointer';
-      } else {
-        btn.disabled = true;
-        btn.style.background = '#CBD5E1';
-        btn.style.color = '#64748B';
-        btn.style.cursor = 'not-allowed';
+      try {
+        var keyEl = document.getElementById('grantCourseKey');
+        var btn = document.getElementById('grantCourseBtn');
+        if (!keyEl || !btn) return;
+        if (keyEl.value) {
+          btn.disabled = false;
+          btn.style.background = '#D4A017';
+          btn.style.color = '#0A1F44';
+          btn.style.cursor = 'pointer';
+        } else {
+          btn.disabled = true;
+          btn.style.background = '#CBD5E1';
+          btn.style.color = '#64748B';
+          btn.style.cursor = 'not-allowed';
+        }
+      } catch (e) {
+        console.error('updateGrantBtn error:', e);
       }
     }
+
+    // Belt-and-suspenders: also wire the change event programmatically
+    // so the button toggles even if the inline onchange attribute is
+    // stripped by an extension / CSP / browser quirk.
+    (function(){
+      var keyEl = document.getElementById('grantCourseKey');
+      if (keyEl) {
+        keyEl.addEventListener('change', updateGrantBtn);
+        keyEl.addEventListener('input', updateGrantBtn);
+      }
+    })();
 
     // Show the confirmation modal before actually submitting the grant.
     function grantCourse() {

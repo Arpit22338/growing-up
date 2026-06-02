@@ -45,8 +45,10 @@ router.get('/sitemap.xml', (req, res) => {
   const courseKeys = Object.keys(courses);
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
   xml += `  <url><loc>${baseUrl}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>\n`;
+  xml += `  <url><loc>${baseUrl}/how-it-works</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>\n`;
   xml += `  <url><loc>${baseUrl}/register</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>\n`;
   xml += `  <url><loc>${baseUrl}/login</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>\n`;
+  xml += `  <url><loc>${baseUrl}/verify</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>\n`;
   courseKeys.forEach(key => {
     xml += `  <url><loc>${baseUrl}/course/${key}</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>\n`;
   });
@@ -141,10 +143,14 @@ router.post('/api/register/step1', async (req, res) => {
       return res.status(400).json({ error: 'Please select your gender.' });
     }
 
-    // Referral code: 6-10 uppercase alphanumerics
-    const cleanRef = String(referralCode || '').trim().toUpperCase();
-    if (!/^[A-Z0-9]{6,10}$/.test(cleanRef)) {
-      return res.status(400).json({ error: 'Invalid referral code format.' });
+    // Referral code: no strict regex — we just check whether the
+    // code exists in the DB. The DB lookup (with case-insensitive
+    // match) is the only real validation. This is friendlier to
+    // users with codes of unusual length (e.g. superadmin "ADMIN"
+    // is 5 chars; auto-generated codes can be 7-12).
+    const cleanRef = String(referralCode || '').trim();
+    if (!cleanRef) {
+      return res.status(400).json({ error: 'Referral code is required.' });
     }
 
     // PFP: only accept a Cloudinary URL
@@ -158,10 +164,13 @@ router.post('/api/register/step1', async (req, res) => {
       return res.status(400).json({ error: 'Email already registered' });
     }
 
-    // Validate referral code
-    const referrer = await User.findOne({ referralCode: cleanRef, isActive: true });
+    // Validate referral code (case-insensitive lookup)
+    const referrer = await User.findOne({
+      referralCode: { $regex: '^' + cleanRef.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', $options: 'i' },
+      isActive: true
+    });
     if (!referrer) {
-      return res.status(400).json({ error: 'Invalid referral code' });
+      return res.status(400).json({ error: 'Referral code not found. Please check the code and try again.' });
     }
 
     // Store step 1 data in session
@@ -934,6 +943,131 @@ router.get('/logout', (req, res) => {
     res.clearCookie('gu_sid', { path: '/' });
     res.redirect('/');
   });
+});
+
+
+// GET - My Certificates (lists every course the user has completed,
+// with view + download links). Public-facing link in the nav.
+router.get('/certificates', async (req, res) => {
+  if (!req.session || !req.session.userId) return res.redirect('/login');
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user) return res.redirect('/logout');
+
+    // Build a list of completed courses with the cert id used for share/verify.
+    const short = String(user._id).slice(-6).toUpperCase();
+    const completed = (user.purchasedCourses || [])
+      .filter(c => c.status === 'approved' && c.completedAt)
+      .map(c => {
+        const ck = (c.courseKey || '').toUpperCase().slice(0, 3);
+        return {
+          courseKey: c.courseKey,
+          courseName: c.courseName,
+          completedAt: c.completedAt,
+          certId: `${ck}-${short}`,
+          granted: !!c.grantedBy
+        };
+      });
+
+    res.render('certificates', { user, completed, baseUrl: process.env.BASE_URL });
+  } catch (err) {
+    console.error('Certificates list error:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+
+// GET - Public certificate verification (no login required).
+// Two routes:
+//   GET /verify              → landing page with an input form
+//   GET /verify/:certId      → show the verified cert, or "not found"
+//
+// The cert id format is `{courseKey3}-{userIdLast6}` (uppercase),
+// e.g. STA-AB12CD for a starter-course completion. We don't index
+// on it; we look up by trailing _id match (O(N) but N is small and
+// we rate-limit this endpoint). To avoid leaking partial info, we
+// always render the same "not found" page on any failure.
+const verifyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20, // 20 attempts per 15 min per IP — generous for hand-typed IDs
+  message: { error: 'Too many verification attempts. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+router.get('/verify', (req, res) => {
+  res.render('verify', { result: null, certId: '' });
+});
+
+router.get('/verify/:certId', verifyLimiter, async (req, res) => {
+  // Normalize: trim, strip non-alnum/dash, uppercase
+  const raw = String(req.params.certId || '').trim();
+  const certId = raw.toUpperCase().replace(/[^A-Z0-9-]/g, '').substring(0, 32);
+  if (!certId) {
+    return res.render('verify', { result: null, certId: '' });
+  }
+
+  try {
+    // Parse "{COURSE3}-{USER6}" — reject if shape is wrong (defense + UX)
+    const m = certId.match(/^([A-Z]{2,4})-([A-Z0-9]{4,8})$/);
+    if (!m) {
+      return res.render('verify', { result: { valid: false }, certId });
+    }
+    const coursePrefix = m[1];
+    const userTail = m[2];
+
+    // Find the course whose 3-char prefix matches
+    const courseEntry = Object.entries(courses).find(([k]) =>
+      k.toUpperCase().slice(0, 3) === coursePrefix
+    );
+    if (!courseEntry) {
+      return res.render('verify', { result: { valid: false }, certId });
+    }
+    const [courseKey, course] = courseEntry;
+
+    // Find the user whose _id ends with the user tail (case-insensitive
+    // since ObjectId hex is uppercase by default, but we normalize)
+    const tailLower = userTail.toLowerCase();
+    // We can't use $regex on a 4-byte BSON string with $endsWith directly,
+    // so we pull a small candidate set and filter in JS. For larger
+    // deployments, add a derived `certTail` field to the User model.
+    const candidates = await User.find({
+      role: { $in: ['user', 'financial_secretary'] },
+      'purchasedCourses': {
+        $elemMatch: { courseKey, status: 'approved', completedAt: { $ne: null } }
+      }
+    })
+      .select('firstName middleName lastName purchasedCourses referralCode')
+      .limit(500);
+
+    const match = candidates.find(u => String(u._id).slice(-6).toUpperCase() === userTail);
+    if (!match) {
+      return res.render('verify', { result: { valid: false }, certId });
+    }
+    const entry = match.purchasedCourses.find(c =>
+      c.courseKey === courseKey && c.status === 'approved' && c.completedAt
+    );
+    if (!entry) {
+      return res.render('verify', { result: { valid: false }, certId });
+    }
+
+    return res.render('verify', {
+      result: {
+        valid: true,
+        certId,
+        courseKey,
+        courseName: course.name,
+        courseTitle: course.title,
+        holderName: match.fullName,
+        issuedAt: entry.completedAt,
+        granted: !!entry.grantedBy
+      },
+      certId
+    });
+  } catch (err) {
+    console.error('Verify cert error:', err);
+    return res.render('verify', { result: { valid: false }, certId });
+  }
 });
 
 

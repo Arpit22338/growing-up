@@ -33,8 +33,15 @@
 
       <!-- Search -->
       <div class="card" style="margin-bottom: 24px; padding: 16px;">
-        <input type="text" class="form-control" id="userSearch" placeholder="Search by name or email..."
-          oninput="filterUsers(this.value)">
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <input type="text" class="form-control" id="userSearch" placeholder="Search by name, email, referral code, or phone..."
+            oninput="filterUsers(this.value)" style="flex:1; min-width:200px;">
+          <button type="button" class="btn btn-sm" onclick="document.getElementById('userSearch').value=''; filterUsers('');"
+            style="background:#fff; border:1.5px solid #CBD5E1; color:#0A1F44; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px;">
+            <i class='bx bx-x'></i> Clear
+          </button>
+          <span id="userSearchCount" style="color: var(--gray-500); font-size: 13px; font-weight: 600;"></span>
+        </div>
       </div>
 
       <div class="card">
@@ -56,7 +63,7 @@
               </thead>
               <tbody>
                 <% users.forEach(u => { %>
-                  <tr class="user-row" data-search="<%= u.firstName.toLowerCase() %> <%= u.lastName.toLowerCase() %> <%= u.email %>">
+                  <tr class="user-row" data-search="<%= (u.firstName + ' ' + u.lastName + ' ' + u.email + ' ' + (u.referralCode || '') + ' ' + (u.whatsapp || '')).toLowerCase() %>">
                     <td>
                       <a href="/admin/users/<%= u._id %>" style="color: var(--navy); font-weight: 600;">
                         <%= u.firstName %> <%= u.lastName %>
@@ -105,11 +112,44 @@
     }
 
     function filterUsers(q) {
-      q = q.toLowerCase();
-      document.querySelectorAll('.user-row').forEach(function(row) {
-        row.style.display = row.dataset.search.includes(q) ? '' : 'none';
+      var query = String(q || '').toLowerCase().trim();
+      var rows = document.querySelectorAll('.user-row');
+      var visible = 0;
+      rows.forEach(function(row) {
+        var hay = row.dataset.search || '';
+        // For empty query, show all. Otherwise require the query to
+        // appear as a contiguous substring (case-insensitive).
+        var match = !query || hay.indexOf(query) !== -1;
+        row.style.display = match ? '' : 'none';
+        if (match) visible++;
       });
+      var counter = document.getElementById('userSearchCount');
+      if (counter) {
+        counter.textContent = query ? (visible + ' of ' + rows.length) : (rows.length + ' total');
+      }
+      // Show "no results" message if every row is hidden
+      var tableContainer = document.querySelector('.table-container');
+      var noRes = document.getElementById('noResultsMsg');
+      if (tableContainer) {
+        if (query && visible === 0) {
+          if (!noRes) {
+            noRes = document.createElement('p');
+            noRes.id = 'noResultsMsg';
+            noRes.style.cssText = 'text-align:center; color: var(--gray-500); padding: 30px; font-size: 14px;';
+            noRes.innerHTML = '<i class="bx bx-search-alt-2" style="font-size:32px;display:block;margin-bottom:8px;color:#CBD5E1;"></i>No users match &ldquo;' + query.replace(/[<>&"']/g, function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c];}) + '&rdquo;';
+            tableContainer.parentNode.insertBefore(noRes, tableContainer.nextSibling);
+          }
+        } else if (noRes) {
+          noRes.remove();
+        }
+      }
     }
+    // Init: show initial count
+    (function(){
+      var rows = document.querySelectorAll('.user-row');
+      var counter = document.getElementById('userSearchCount');
+      if (counter) counter.textContent = rows.length + ' total';
+    })();
 
     var csrfMeta = document.querySelector('meta[name="csrf-token"]');
     var CSRF = csrfMeta ? csrfMeta.content : '';

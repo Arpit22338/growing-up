@@ -20,15 +20,19 @@
     .no-print {
       width: 100%; max-width: 1000px;
       display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 14px;
+      flex-wrap: wrap;
     }
-    .no-print button {
+    .no-print button, .no-print a {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 10px 18px; border: none; border-radius: 8px;
       font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600;
-      cursor: pointer;
+      cursor: pointer; text-decoration: none;
+      transition: transform 0.1s, box-shadow 0.15s, background 0.15s;
     }
+    .no-print button:hover, .no-print a:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .no-print .print-btn { background: #0A1F44; color: #D4A017; }
-    .no-print .print-btn:hover { background: #1A3360; }
+    .no-print .download-btn { background: #10B981; color: #fff; }
+    .no-print .verify-btn { background: #fff; color: #10B981; border: 1.5px solid #10B981; }
     .no-print .back-btn { background: #fff; color: #0A1F44; border: 1.5px solid #0A1F44; }
 
     .certificate {
@@ -65,10 +69,7 @@
     .corner.bl { bottom: 24px; left: 24px; border-right: 0; border-top: 0; }
     .corner.br { bottom: 24px; right: 24px; border-left: 0; border-top: 0; }
 
-    .cert-header {
-      text-align: center;
-      margin-top: 8px;
-    }
+    .cert-header { text-align: center; margin-top: 8px; }
     .cert-logo {
       display: inline-flex; align-items: center; gap: 10px;
       font-weight: 700; font-size: 18px; color: #0A1F44;
@@ -79,27 +80,15 @@
     .cert-body { text-align: center; margin-top: 30px; }
     .cert-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 56px;
-      font-weight: 700;
-      color: #0A1F44;
-      letter-spacing: 2px;
+      font-size: 56px; font-weight: 700;
+      color: #0A1F44; letter-spacing: 2px;
       margin: 0 0 8px;
     }
-    .cert-subtitle {
-      font-size: 18px;
-      color: #475569;
-      margin: 0 0 20px;
-    }
-    .cert-presented {
-      font-size: 16px;
-      color: #64748B;
-      margin: 0 0 6px;
-      font-style: italic;
-    }
+    .cert-subtitle { font-size: 18px; color: #475569; margin: 0 0 20px; }
+    .cert-presented { font-size: 16px; color: #64748B; margin: 0 0 6px; font-style: italic; }
     .cert-name {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 46px;
-      font-weight: 600;
+      font-size: 46px; font-weight: 600;
       color: #0A1F44;
       margin: 6px 0 14px;
       border-bottom: 2px solid #D4A017;
@@ -107,16 +96,14 @@
       padding: 0 30px 8px;
     }
     .cert-completion {
-      font-size: 16px;
-      color: #475569;
+      font-size: 16px; color: #475569;
       max-width: 700px;
       margin: 0 auto 14px;
       line-height: 1.5;
     }
     .cert-course {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 32px;
-      font-weight: 600;
+      font-size: 32px; font-weight: 600;
       color: #D4A017;
       margin: 4px 0 30px;
     }
@@ -125,24 +112,36 @@
       display: flex; justify-content: space-between; align-items: flex-end;
       margin-top: 40px;
       padding: 0 20px;
+      gap: 20px;
     }
     .cert-sig { text-align: center; flex: 1; max-width: 220px; }
     .cert-sig .line {
       border-top: 2px solid #0A1F44;
       padding-top: 8px;
-      font-weight: 700;
-      color: #0A1F44;
-      font-size: 14px;
+      font-weight: 700; color: #0A1F44; font-size: 14px;
     }
-    .cert-sig .role {
-      font-size: 12px; color: #64748B; margin-top: 2px;
-    }
+    .cert-sig .role { font-size: 12px; color: #64748B; margin-top: 2px; }
+
     .cert-id {
       text-align: center; flex: 1;
       font-size: 11px; color: #94A3B8;
       font-family: monospace;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
     }
-    .cert-id strong { color: #475569; display: block; font-size: 12px; }
+    .cert-id strong { color: #475569; display: block; font-size: 12px; font-weight: 700; }
+    .cert-id-row { display: inline-flex; align-items: center; gap: 6px; }
+    .cert-id-copy {
+      background: #F1F5F9; border: 1px solid #CBD5E1;
+      color: #0A1F44;
+      padding: 4px 10px; border-radius: 6px;
+      font-size: 13px; font-weight: 700;
+      cursor: pointer; font-family: monospace;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: background 0.15s;
+    }
+    .cert-id-copy:hover { background: #E2E8F0; }
+    .cert-id-copy i { color: #0A1F44; }
+    .cert-id-hint { font-size: 10px; color: #94A3B8; }
 
     .cert-seal {
       width: 90px; height: 90px;
@@ -157,11 +156,14 @@
 
     @media (max-width: 760px) {
       body { padding: 8px; }
+      .no-print { justify-content: center; }
+      .no-print button, .no-print a { padding: 8px 12px; font-size: 13px; }
       .certificate { padding: 24px 20px; }
       .cert-title { font-size: 36px; }
       .cert-name { font-size: 28px; padding: 0 12px 6px; }
       .cert-course { font-size: 22px; }
       .cert-footer { flex-direction: column; gap: 18px; align-items: center; }
+      .cert-sig { max-width: 100%; }
       .corner { width: 36px; height: 36px; }
       .corner.tl, .corner.tr { top: 14px; }
       .corner.bl, .corner.br { bottom: 14px; }
@@ -185,9 +187,11 @@
 <body>
 
   <div class="no-print">
-    <a href="/profile" class="back-btn" style="text-decoration:none;"><i class='bx bx-arrow-back'></i> Back to Profile</a>
+    <a href="/profile" class="back-btn"><i class='bx bx-arrow-back'></i> Back to Profile</a>
+    <a href="/certificates" class="back-btn" style="background:#0A1F44;color:#D4A017;border-color:#0A1F44;"><i class='bx bx-collection'></i> All Certificates</a>
+    <a href="/verify/GU-<%= certId %>" class="verify-btn" target="_blank" rel="noopener"><i class='bx bx-shield-check'></i> Verify</a>
+    <button type="button" class="download-btn" data-action="download"><i class='bx bx-download'></i> Download</button>
     <button type="button" class="print-btn" data-action="print"><i class='bx bx-printer'></i> Print / Save as PDF</button>
-    <button type="button" class="print-btn" data-action="download" style="background:#10B981;color:#fff;"><i class='bx bx-download'></i> Download</button>
   </div>
 
   <div class="certificate">
@@ -200,11 +204,114 @@
       <div class="cert-logo">
         <img src="/images/logo-web.png" alt="Growing Up">
         Growing <span>Up</span>
+      </div>
+    </div>
+
+    <div class="cert-body">
+      <h1 class="cert-title">Certificate of Completion</h1>
+      <p class="cert-subtitle">Knowledge-Building Program</p>
+      <p class="cert-presented">This certificate is proudly presented to</p>
+      <div class="cert-name">
+        <%= user.firstName %><% if (user.middleName) { %> <%= user.middleName %><% } %> <%= user.lastName %>
+      </div>
+      <p class="cert-completion">
+        for successfully completing every module of
+      </p>
+      <div class="cert-course"><%= course.name %></div>
+
+      <div class="cert-seal"><i class='bx bxs-medal'></i></div>
+    </div>
+
+    <div class="cert-footer">
+      <div class="cert-sig">
+        <div class="line">Arpit &amp; Team</div>
+        <div class="role">Founder, Growing Up</div>
+      </div>
+      <div class="cert-id">
+        <strong>Certificate ID</strong>
+        <div class="cert-id-row">
+          <button type="button" class="cert-id-copy" data-copy-text="GU-<%= certId %>" aria-label="Copy certificate ID">
+            <span>GU-<%= certId %></span>
+            <i class='bx bx-copy'></i>
+          </button>
+        </div>
+        <div class="cert-id-hint">Issued <%= issuedAt %></div>
+        <div class="cert-id-hint">Verify at growingup.tech/verify/GU-<%= certId %></div>
+      </div>
+      <div class="cert-sig">
+        <div class="line">Growing Up</div>
+        <div class="role">Knowledge-Building Program</div>
+      </div>
+    </div>
   </div>
+
+  <div class="toast-container" id="toastContainer" style="position:fixed;top:80px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;"></div>
+
+  <script>
+    // Standalone page: footer partial is NOT included, so we re-define the
+    // global copy helper + [data-copy-text] auto-wire right here.
+    function copyToClipboard(text, onSuccess, onError) {
+      function done() { if (onSuccess) onSuccess(); }
+      function fail() { if (onError) onError(); }
+      function fallback(t) {
+        var ta = document.createElement('textarea');
+        ta.value = t; ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed'; ta.style.top = '0'; ta.style.left = '0';
+        ta.style.width = '1px'; ta.style.height = '1px'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        var ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+        document.body.removeChild(ta);
+        if (ok && onSuccess) onSuccess(); else if (!ok && onError) onError();
+      }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done, function() { fallback(text); });
+      } else {
+        fallback(text);
+      }
+    }
+    function showToast(message, type) {
+      type = type || 'success';
+      var c = document.getElementById('toastContainer');
+      if (!c) return;
+      var t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.style.cssText = 'background:#fff;color:#0A1F44;padding:12px 20px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15);font-family:Poppins,sans-serif;font-size:14px;font-weight:600;border-left:4px solid #10B981;';
+      t.innerHTML = '<i class="bx ' + (type === 'success' ? 'bx-check-circle' : 'bx-error-circle') + '"></i> ' + message;
+      c.appendChild(t);
+      setTimeout(function() { t.remove(); }, 2500);
+    }
+    // Auto-wire [data-copy-text] and the action buttons
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-copy-text]');
+      if (btn) {
+        e.preventDefault();
+        var text = btn.getAttribute('data-copy-text') || '';
+        if (!text) return;
+        copyToClipboard(text,
+          function() {
+            showToast('Certificate ID copied!', 'success');
+            var orig = btn.getAttribute('data-copy-orig') || btn.innerHTML;
+            btn.setAttribute('data-copy-orig', orig);
+            btn.innerHTML = "<i class='bx bx-check'></i> Copied";
+            setTimeout(function() { btn.innerHTML = orig; }, 1500);
+          },
+          function() { showToast('Copy failed — long-press to copy manually', 'error'); }
+        );
+        return;
+      }
+      var act = e.target.closest('[data-action]');
+      if (act) {
+        var action = act.getAttribute('data-action');
+        if (action === 'print' || action === 'download') {
+          window.print();
+        }
+      }
+    });
+  </script>
 
   <% if (typeof downloadMode !== 'undefined' && downloadMode) { %>
   <script>
-    // Download mode: auto-open print dialog so user can save as PDF
     setTimeout(function() { window.print(); }, 600);
   </script>
   <% } %>
