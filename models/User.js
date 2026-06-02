@@ -20,7 +20,9 @@ const userSchema = new mongoose.Schema({
     transactionId: String,
     completedModules: { type: [Number], default: [] },
     completedAt: { type: Date, default: null },
-    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
+    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+    grantedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    grantReason: { type: String, default: '' }
   }],
   profilePicture: { type: String, default: '' },
   totalEarnings: { type: Number, default: 0 },

@@ -113,6 +113,44 @@
         </div>
       </div>
 
+      <!-- Courses (incl. admin-granted) -->
+      <% if (user.purchasedCourses && user.purchasedCourses.length > 0) { %>
+        <div class="card" style="margin-bottom: 24px;">
+          <h3 style="margin-bottom: 16px;"><i class='bx bx-book-open' style="color: var(--gold);"></i> Courses (<%= user.purchasedCourses.length %>)</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr><th>Course</th><th>Price</th><th>Status</th><th>Progress</th><th>Source</th><th>Date</th></tr>
+              </thead>
+              <tbody>
+                <% user.purchasedCourses.forEach(function(c) {
+                  const done = (c.completedModules && c.completedModules.length) || 0;
+                %>
+                  <tr>
+                    <td><%= c.courseName || c.courseKey %></td>
+                    <td>₹<%= c.price || 0 %></td>
+                    <td><span class="badge badge-<%= c.status %>"><%= c.status %></span></td>
+                    <td style="font-size:12px;color:#64748B;">
+                      <% if (c.status === 'approved') { %><%= done %> module<%= done === 1 ? '' : 's' %><% } else { %>—<% } %>
+                    </td>
+                    <td>
+                      <% if (c.grantedBy) { %>
+                        <span style="display:inline-flex;align-items:center;gap:4px;background:#D4A017;color:#0A1F44;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">
+                          <i class='bx bx-gift'></i> Granted
+                        </span>
+                      <% } else { %>
+                        <span style="color:#64748B;font-size:12px;">Self-purchased</span>
+                      <% } %>
+                    </td>
+                    <td><%= new Date(c.purchasedAt).toLocaleDateString() %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% } %>
+
       <!-- Payment History -->
       <div class="card">
         <h3 style="margin-bottom: 16px;"><i class='bx bx-receipt' style="color: var(--gold);"></i> Payment History</h3>
@@ -139,6 +177,191 @@
           <p style="color: var(--gray-500); text-align: center; padding: 20px;">No payment records.</p>
         <% } %>
       </div>
+
+      <!-- Grant Course (Super Admin only) -->
+      <% if (role === 'superadmin' && user.role === 'user') { %>
+        <div class="card" style="margin-top: 24px; border: 2px dashed #D4A017;">
+          <h3 style="margin-bottom: 6px;"><i class='bx bx-gift' style="color: var(--gold);"></i> Grant Course to User</h3>
+          <p style="color: var(--gray-500); font-size: 13px; margin-bottom: 16px;">
+            Give <strong><%= user.firstName %></strong> a course for free. No payment record is created. The user gets full access immediately.
+          </p>
+          <div style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px;">
+              <label style="font-size: 12px; color: var(--gray-500); display: block; margin-bottom: 4px; font-weight: 600;">Select Course</label>
+              <select id="grantCourseKey" class="form-control">
+                <option value="">— Choose a course —</option>
+                <% Object.keys({
+                  starter: 'Starter Package',
+                  prime: 'Prime Package',
+                  master: 'Master Package',
+                  everything: 'Everything Bundle'
+                }).forEach(function(k) { %>
+                  <option value="<%= k %>"><%= {
+                    starter: 'Starter Package',
+                    prime: 'Prime Package',
+                    master: 'Master Package',
+                    everything: 'Everything Bundle'
+                  }[k] %></option>
+                <% }); %>
+              </select>
+            </div>
+            <div style="flex: 2; min-width: 240px;">
+              <label style="font-size: 12px; color: var(--gray-500); display: block; margin-bottom: 4px; font-weight: 600;">Reason (optional, internal note)</label>
+              <input type="text" id="grantReason" class="form-control" placeholder="e.g. Promo, beta tester, support escalation..." maxlength="200">
+            </div>
+            <div>
+              <button class="btn btn-primary" id="grantCourseBtn" onclick="grantCourse()" style="background: #D4A017; color: #0A1F44; border: none; padding: 10px 18px;">
+                <i class='bx bx-gift'></i> Grant Course
+              </button>
+            </div>
+          </div>
+          <div id="grantCourseMsg" style="margin-top: 12px; font-size: 13px;"></div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script>
+    function showToast(msg, type='success') {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.innerHTML = '<i class="bx ' + (type === 'success' ? 'bx-check-circle' : 'bx-error-circle') + '"></i> ' + msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
+    }
+
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var CSRF = csrfMeta ? csrfMeta.content : '';
+
+    async function changeRole() {
+      const role = document.getElementById('roleSelect').value;
+      try {
+        const res = await fetch('/admin/users/<%= user._id %>/role', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF },
+          credentials: 'same-origin',
+          body: JSON.stringify({ role })
+        });
+        if (res.redirected || res.status === 401) {
+          showToast('Session expired. Please login again.', 'error');
+          setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
+          return;
+        }
+        const data = await res.json();
+        if (data.success) {
+          showToast('Role updated!');
+        } else {
+          showToast(data.error || 'Failed', 'error');
+        }
+      } catch (err) {
+        showToast('Error: ' + (err.message || 'Connection failed'), 'error');
+      }
+    }
+
+    async function grantCourse() {
+      var keyEl = document.getElementById('grantCourseKey');
+      var reasonEl = document.getElementById('grantReason');
+      var btn = document.getElementById('grantCourseBtn');
+      var msg = document.getElementById('grantCourseMsg');
+      var key = keyEl.value;
+      if (!key) {
+        msg.innerHTML = "<span style='color:#991B1B;'>Please choose a course.</span>";
+        return;
+      }
+      btn.disabled = true;
+      btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Granting...';
+      msg.innerHTML = '';
+      try {
+        var res = await fetch('/admin/users/<%= user._id %>/grant-course', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ courseKey: key, reason: reasonEl.value })
+        });
+        if (res.redirected || res.status === 401) {
+          showToast('Session expired. Please login again.', 'error');
+          setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-gift"></i> Grant Course';
+          return;
+        }
+        var data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'Course granted!');
+          msg.innerHTML = "<span style='color:#065F46;'>Course granted. Reloading...</span>";
+          setTimeout(function(){ window.location.reload(); }, 900);
+        } else {
+          msg.innerHTML = "<span style='color:#991B1B;'>" + (data.error || 'Failed') + "</span>";
+          showToast(data.error || 'Failed', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-gift"></i> Grant Course';
+        }
+      } catch (err) {
+        msg.innerHTML = "<span style='color:#991B1B;'>Connection failed</span>";
+        showToast('Connection failed', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bx bx-gift"></i> Grant Course';
+      }
+    }
+
+    async function loadFullTree() {
+      var btn = document.getElementById('treeBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Loading...';
+      try {
+        var res = await fetch('/admin/users/<%= user._id %>/tree');
+        if (res.status === 401) {
+          showToast('Session expired. Please login again.', 'error');
+          setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
+          return;
+        }
+        var data = await res.json();
+        if (data.tree) {
+          var container = document.getElementById('fullTreeContainer');
+          var content = document.getElementById('treeContent');
+          content.innerHTML = renderTree(data.tree, 0);
+          container.style.display = 'block';
+          btn.innerHTML = '<i class="bx bx-collapse"></i> Tree Loaded';
+        }
+      } catch (err) {
+        showToast('Failed to load tree', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bx bx-expand"></i> View Full Downline';
+      }
+    }
+
+    function renderTree(nodes, depth) {
+      if (!nodes || nodes.length === 0) return '';
+      var html = '<ul style="list-style:none;padding-left:' + (depth > 0 ? '24' : '0') + 'px;margin:0;">';
+      nodes.forEach(function(node) {
+        var statusBadge = node.isActive ? '<span class="badge badge-active" style="font-size:11px;">Active</span>' : '<span class="badge badge-inactive" style="font-size:11px;">Pending</span>';
+        html += '<li style="padding:6px 0;border-left:' + (depth > 0 ? '2px solid var(--gray-200)' : 'none') + ';padding-left:' + (depth > 0 ? '12' : '0') + 'px;margin-left:' + (depth > 0 ? '8' : '0') + 'px;">';
+        html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">';
+        html += '<i class="bx bx-user" style="color:var(--gold);"></i>';
+        html += '<a href="/admin/users/' + node._id + '" style="color:var(--navy);font-weight:600;">' + node.name + '</a>';
+        html += '<span style="color:var(--gray-500);font-size:12px;">' + node.email + '</span>';
+        html += statusBadge;
+        if (node.children && node.children.length > 0) {
+          html += '<span style="font-size:11px;color:var(--info);font-weight:600;">(' + node.children.length + ' referrals)</span>';
+        }
+        html += '</div>';
+        if (node.children && node.children.length > 0) {
+          html += renderTree(node.children, depth + 1);
+        }
+        html += '</li>';
+      });
+      html += '</ul>';
+      return html;
+    }
+
+    document.getElementById('hamBtn').addEventListener('click', function() {
+      document.getElementById('adminSidebar').classList.toggle('open');
+    });
+  </script>
+</body>
+</html>
     </div>
   </div>
 

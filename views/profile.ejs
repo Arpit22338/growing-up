@@ -168,7 +168,12 @@
   }
   .course-row .body { flex: 1; min-width: 160px; }
   .course-row .name { font-weight: 700; color: #0A1F44; font-size: 15px; }
-  .course-row .meta { color: #64748B; font-size: 13px; margin-top: 2px; }
+  .course-row .meta { color: #64748B; font-size: 13px; margin-top: 4px; }
+  .course-row .progress { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .course-row .progress-bar { flex: 1; min-width: 80px; height: 6px; background: #E2E8F0; border-radius: 999px; overflow: hidden; }
+  .course-row .progress-fill { height: 100%; background: linear-gradient(90deg, #D4A017, #10B981); border-radius: 999px; transition: width 0.4s ease; }
+  .course-row .progress-label { font-size: 11px; color: #64748B; font-weight: 600; min-width: 56px; text-align: right; }
+  .course-row .progress-label.complete { color: #065F46; }
   .course-row .actions { display: flex; gap: 8px; flex-wrap: wrap; }
   .row-btn {
     padding: 8px 14px; border-radius: 8px;
@@ -335,7 +340,10 @@
   <div class="card">
     <h2 class="card-title"><i class='bx bx-book-open'></i> My Courses &amp; Certificates</h2>
     <% if (user.purchasedCourses && user.purchasedCourses.length > 0) { %>
-      <% user.purchasedCourses.forEach(function(course) { %>
+      <% user.purchasedCourses.forEach(function(course) {
+           const progress = (typeof courseProgress !== 'undefined' && courseProgress[course.courseKey]) || { moduleCount: 0, completedCount: 0, allComplete: false };
+           const pct = progress.moduleCount > 0 ? (progress.completedCount / progress.moduleCount * 100) : 0;
+      %>
         <div class="course-row">
           <div class="ico"><i class='bx bx-book'></i></div>
           <div class="body">
@@ -345,14 +353,31 @@
               <%= new Date(course.purchasedAt).toLocaleDateString() %>
               &middot;
               <span class="badge badge-<%= course.status %>"><%= course.status %></span>
+              <% if (course.status === 'approved' && progress.moduleCount > 0) { %>
+                &middot; <%= progress.completedCount %> / <%= progress.moduleCount %> modules
+              <% } %>
             </div>
+            <% if (course.status === 'approved' && progress.moduleCount > 0) { %>
+              <div class="progress">
+                <div class="progress-bar"><div class="progress-fill" style="width: <%= pct %>%"></div></div>
+                <div class="progress-label <%= progress.allComplete ? 'complete' : '' %>">
+                  <% if (progress.allComplete) { %><i class='bx bx-check-circle'></i> Complete<% } else { %><%= Math.round(pct) %>%<% } %>
+                </div>
+              </div>
+            <% } %>
           </div>
           <div class="actions">
             <% if (course.status === 'approved') { %>
-              <a href="/course/<%= course.courseKey %>/read" class="row-btn primary"><i class='bx bx-book-open'></i> Open</a>
-              <a href="/certificate/<%= course.courseKey %>" class="row-btn gold" target="_blank"><i class='bx bx-certification'></i> Certificate</a>
+              <a href="/course/<%= course.courseKey %>/read" class="row-btn primary"><i class='bx bx-book-open'></i> <%= progress.allComplete ? 'Review' : (progress.completedCount > 0 ? 'Continue' : 'Open') %></a>
+              <% if (progress.allComplete) { %>
+                <a href="/certificate/<%= course.courseKey %>" class="row-btn gold" target="_blank"><i class='bx bx-certification'></i> Certificate</a>
+              <% } else { %>
+                <span class="row-btn outline" style="opacity:0.55;cursor:not-allowed;" title="Finish all <%= progress.moduleCount %> modules to unlock"><i class='bx bx-lock-alt'></i> Certificate</span>
+              <% } %>
             <% } else if (course.status === 'pending') { %>
               <span class="row-btn outline" style="opacity:0.6;cursor:default;">Awaiting Approval</span>
+            <% } else if (course.status === 'rejected') { %>
+              <span class="row-btn outline" style="opacity:0.6;cursor:default;color:#991B1B;">Rejected</span>
             <% } %>
           </div>
         </div>

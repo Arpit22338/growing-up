@@ -6,6 +6,7 @@ const Payment = require('../models/Payment');
 const Settings = require('../models/Settings');
 const Withdrawal = require('../models/Withdrawal');
 const courses = require('../config/courses');
+const { getModules, getModuleCount } = require('../config/course-content');
 const multer = require('multer');
 const { uploadPfp, uploadPaymentProof, tempId } = require('../config/cloudinary');
 const { isAuthenticated, isActiveUser } = require('../middleware/auth');
@@ -686,8 +687,23 @@ router.get('/profile', async (req, res) => {
       .populate('purchasedCourses')
       .select('+totalEarnings +walletBalance +withdrawnAmount +rejectionReason');
     if (!user) return res.redirect('/logout');
+
+    // Per-course completion progress: { [courseKey]: { moduleCount, completedCount, allComplete } }
+    const courseProgress = {};
+    if (user.purchasedCourses && user.purchasedCourses.length > 0) {
+      user.purchasedCourses.forEach(function(c) {
+        const total = getModuleCount(c.courseKey);
+        const done = (c.completedModules && c.completedModules.length) || 0;
+        courseProgress[c.courseKey] = {
+          moduleCount: total,
+          completedCount: done,
+          allComplete: total > 0 && done >= total
+        };
+      });
+    }
+
     const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
-    res.render('profile', { user, baseUrl });
+    res.render('profile', { user, baseUrl, courseProgress });
   } catch (err) {
     console.error('Profile error:', err);
     res.status(500).send('Server error');
@@ -695,6 +711,7 @@ router.get('/profile', async (req, res) => {
 });
 
 // GET - Certificate of completion (per course)
+// Gated on completing all modules in the course. Admin/FinSec bypass.
 router.get('/certificate/:courseKey', async (req, res) => {
   if (!req.session || !req.session.userId) return res.redirect('/login');
   const courseKey = req.params.courseKey;
@@ -708,7 +725,18 @@ router.get('/certificate/:courseKey', async (req, res) => {
     if (!owned && !isAdmin) {
       return res.status(403).send('You need to own this course to get a certificate.');
     }
-    // Stable, deterministic cert id: GU-{userId last 6}{courseKey 2}
+
+    // Completion gate: must have completed all modules (admins bypass).
+    if (!isAdmin) {
+      const moduleCount = getModuleCount(courseKey);
+      const entry = user.purchasedCourses.find(c => c.courseKey === courseKey);
+      const completed = (entry && entry.completedModules) || [];
+      if (moduleCount > 0 && completed.length < moduleCount) {
+        return res.redirect('/course/' + courseKey + '/read?cert=locked');
+      }
+    }
+
+    // Stable, deterministic cert id: GU-{courseKey 3}-{userId last 6}
     const short = String(user._id).slice(-6).toUpperCase();
     const ck = courseKey.toUpperCase().slice(0, 3);
     const certId = `${ck}-${short}`;
@@ -850,9 +878,118 @@ router.get('/course/:key/read', async (req, res) => {
       if (!owned) return res.status(403).render('404', { message: 'You do not have access to this course.' });
     }
 
-    res.render('course-read', { course, loggedInUser: user });
+    const modules = getModules(courseKey);
+    const entry = user.purchasedCourses.find(c => c.courseKey === courseKey);
+    const completedModules = (entry && entry.completedModules) || [];
+    const moduleCount = modules.length;
+    const completedCount = completedModules.length;
+    const allComplete = moduleCount > 0 && completedCount >= moduleCount;
+
+    res.render('course-read', {
+      course,
+      loggedInUser: user,
+      courseKey,
+      modules,
+      completedModules,
+      moduleCount,
+      completedCount,
+      allComplete,
+      certLocked: req.query.cert === 'locked'
+    });
   } catch (err) {
+    console.error('course-read error:', err);
     return res.status(500).render('404', { message: 'Server error.' });
+  }
+});
+
+// POST - Toggle a module's completion for a course the user owns.
+// Body: { moduleId: <int> }
+// Response: { success, completedModules, completedCount, moduleCount, allComplete }
+router.post('/api/course/:key/module/toggle', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, error: 'Please login first' });
+  }
+  const courseKey = req.params.key;
+  if (!courses[courseKey]) {
+    return res.status(404).json({ success: false, error: 'Course not found' });
+  }
+
+  const moduleId = parseInt(req.body.moduleId, 10);
+  const moduleCount = getModuleCount(courseKey);
+  if (!moduleId || moduleId < 1 || moduleId > moduleCount) {
+    return res.status(400).json({ success: false, error: 'Invalid module id' });
+  }
+
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user) return res.status(404).json({ success: false, error: 'Account not found' });
+
+    const isAdminRole = user.role === 'superadmin' || user.role === 'financial_secretary';
+    const owned = user.purchasedCourses.some(c => c.courseKey === courseKey && c.status === 'approved');
+    if (!owned && !isAdminRole) {
+      return res.status(403).json({ success: false, error: 'You do not own this course' });
+    }
+
+    // Find the matching course entry (admin role with no entry = use a temp in-memory model)
+    let entry = user.purchasedCourses.find(c => c.courseKey === courseKey);
+    let needsSave = false;
+
+    if (!entry && isAdminRole) {
+      // Admin previewing: don't persist
+      const fakeCompleted = [moduleId];
+      return res.json({
+        success: true,
+        completedModules: fakeCompleted,
+        completedCount: 1,
+        moduleCount,
+        allComplete: moduleCount === 1,
+        preview: true
+      });
+    }
+
+    if (!entry) {
+      return res.status(403).json({ success: false, error: 'You do not own this course' });
+    }
+
+    // Initialize completedModules if missing (defensive — schema has default [])
+    if (!Array.isArray(entry.completedModules)) entry.completedModules = [];
+
+    const idx = entry.completedModules.indexOf(moduleId);
+    if (idx === -1) {
+      entry.completedModules.push(moduleId);
+      entry.completedModules.sort((a, b) => a - b);
+    } else {
+      entry.completedModules.splice(idx, 1);
+    }
+
+    const completedCount = entry.completedModules.length;
+    const allComplete = moduleCount > 0 && completedCount >= moduleCount;
+
+    // Set or clear completedAt based on full-course completion
+    if (allComplete && !entry.completedAt) {
+      entry.completedAt = new Date();
+      needsSave = true;
+    } else if (!allComplete && entry.completedAt) {
+      entry.completedAt = null;
+      needsSave = true;
+    } else if (allComplete) {
+      needsSave = true;
+    } else {
+      needsSave = true;
+    }
+
+    if (needsSave) await user.save();
+
+    return res.json({
+      success: true,
+      completedModules: entry.completedModules,
+      completedCount,
+      moduleCount,
+      allComplete
+    });
+  } catch (err) {
+    console.error('Module toggle error:', err);
+    return res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 

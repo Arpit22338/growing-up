@@ -272,6 +272,47 @@ router.post('/admin/users/:id/role', isSuperAdmin, async (req, res) => {
   }
 });
 
+// POST - Grant a course to a user for free (Super Admin only).
+// Pushes an approved purchasedCourses entry with no payment fields.
+// No Payment record is created since no money changed hands.
+router.post('/admin/users/:id/grant-course', isSuperAdmin, async (req, res) => {
+  try {
+    const { courseKey, reason } = req.body;
+    if (!courseKey || !courses[courseKey]) {
+      return res.status(400).json({ success: false, error: 'Invalid course' });
+    }
+
+    const target = await User.findById(req.params.id);
+    if (!target) return res.status(404).json({ success: false, error: 'User not found' });
+    if (target.role === 'superadmin') {
+      return res.status(403).json({ success: false, error: 'Cannot grant to Super Admin' });
+    }
+
+    // Block duplicate — user already has this course approved or pending
+    const existing = (target.purchasedCourses || []).find(c => c.courseKey === courseKey && (c.status === 'approved' || c.status === 'pending'));
+    if (existing) {
+      return res.status(400).json({ success: false, error: 'User already has this course (' + existing.status + ')' });
+    }
+
+    target.purchasedCourses.push({
+      courseKey: courseKey,
+      courseName: courses[courseKey].name,
+      price: 0,
+      purchasedAt: new Date(),
+      status: 'approved',
+      grantedBy: req.session.userId,
+      grantReason: (typeof reason === 'string') ? reason.trim().substring(0, 200) : ''
+    });
+    await target.save();
+
+    console.log('GRANT: ' + req.session.userId + ' granted ' + courseKey + ' to ' + target._id);
+    return res.json({ success: true, message: 'Course granted to ' + target.firstName });
+  } catch (err) {
+    console.error('Grant course error:', err);
+    return res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 // GET - QR settings page
 router.get('/admin/settings', isSuperAdmin, async (req, res) => {
   try {
