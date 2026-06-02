@@ -7,3 +7,6 @@ uploads/screenshots/*
 .DS_Store
 .vercel
 .env*.local
+backups/
+*.log
+npm-debug.log*

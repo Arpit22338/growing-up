@@ -1,0 +1,320 @@
+<%- include('partials/header') %>
+
+<style>
+  .profile-wrap { max-width: 800px; margin: 0 auto; padding: 24px 16px 48px; }
+  .profile-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(10,31,68,0.08);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .profile-cover {
+    height: 120px;
+    background: linear-gradient(135deg, #0A1F44 0%, #3B82F6 100%);
+    position: relative;
+  }
+  .profile-avatar-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    padding: 0 24px;
+    margin-top: -50px;
+    flex-wrap: wrap;
+  }
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #D4A017, #B8860B);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    font-weight: 700;
+    border: 4px solid #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .profile-id { padding-bottom: 16px; flex: 1; min-width: 200px; }
+  .profile-id h1 { margin: 0; font-size: 24px; color: #0A1F44; font-weight: 700; }
+  .profile-id .role-badge {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .role-badge.superadmin { background: #0A1F44; color: #D4A017; }
+  .role-badge.financial_secretary { background: #0E7C66; color: #fff; }
+  .role-badge.user { background: #E0E7FF; color: #3730A3; }
+  .profile-id .status {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .status.active { background: #D4EDDA; color: #155724; }
+  .status.inactive { background: #FFF3CD; color: #856404; }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: #f0f0f0;
+    border-top: 1px solid #f0f0f0;
+  }
+  @media (max-width: 600px) { .info-grid { grid-template-columns: 1fr; } }
+  .info-cell {
+    background: #fff;
+    padding: 16px 24px;
+  }
+  .info-cell .label {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .info-cell .value {
+    font-size: 15px;
+    color: #0A1F44;
+    font-weight: 500;
+    word-break: break-word;
+  }
+  .info-cell .value.muted { color: #888; font-style: italic; }
+  .profile-section-title {
+    color: #0A1F44;
+    margin: 24px 0 12px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .profile-section-title i { color: #D4A017; }
+  .course-row {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .course-row .name { font-weight: 700; color: #0A1F44; }
+  .course-row .meta { color: #888; font-size: 13px; margin-top: 2px; }
+  .course-row .price { font-weight: 700; color: #D4A017; }
+  .badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .badge-pending { background: #FFF3CD; color: #856404; }
+  .badge-approved { background: #D4EDDA; color: #155724; }
+  .badge-rejected { background: #F8D7DA; color: #721C24; }
+  .ref-link {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: #F8FAFC;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-top: 8px;
+    font-family: 'Poppins', monospace;
+    font-size: 13px;
+    word-break: break-all;
+  }
+  .ref-link code { color: #0A1F44; font-weight: 600; flex: 1; }
+  .empty {
+    text-align: center;
+    color: #aaa;
+    padding: 24px;
+    font-size: 14px;
+  }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+  .btn-row {
+    flex: 1;
+    min-width: 180px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-primary { background: #0A1F44; color: #fff; }
+  .btn-outline { background: #fff; color: #0A1F44; border: 2px solid #0A1F44; }
+  .btn-gold { background: #D4A017; color: #0A1F44; }
+</style>
+
+<div class="profile-wrap">
+  <a href="/dashboard" style="display:inline-flex;align-items:center;gap:6px;color:#888;font-size:14px;text-decoration:none;margin-bottom:16px;">
+    <i class='bx bx-arrow-back'></i> Back to Dashboard
+  </a>
+
+  <!-- Profile Card -->
+  <div class="profile-card">
+    <div class="profile-cover"></div>
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar">
+        <% if (user.profilePicture) { %>
+          <img src="<%= user.profilePicture %>" alt="<%= user.firstName %>">
+        <% } else { %>
+          <%= user.firstName.charAt(0).toUpperCase() %>
+        <% } %>
+      </div>
+      <div class="profile-id">
+        <h1><%= user.fullName %></h1>
+        <div style="margin-top:6px;">
+          <% if (user.role === 'superadmin') { %>
+            <span class="role-badge superadmin">Super Admin</span>
+          <% } else if (user.role === 'financial_secretary') { %>
+            <span class="role-badge financial_secretary">Financial Secretary</span>
+          <% } else { %>
+            <span class="role-badge user">User</span>
+          <% } %>
+          <% if (user.role === 'user') { %>
+            <span class="status <%= user.isActive ? 'active' : 'inactive' %>">
+              <%= user.isActive ? '✓ Active' : '⏳ Pending Approval' %>
+            </span>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-cell">
+        <div class="label">Email</div>
+        <div class="value"><%= user.email %></div>
+      </div>
+      <div class="info-cell">
+        <div class="label">WhatsApp Number</div>
+        <div class="value">+977 <%= user.whatsapp %></div>
+      </div>
+      <div class="info-cell">
+        <div class="label">Gender</div>
+        <div class="value"><%= user.gender === 'M' ? 'Male' : user.gender === 'F' ? 'Female' : 'Not specified' %></div>
+      </div>
+      <div class="info-cell">
+        <div class="label">Member Since</div>
+        <div class="value"><%= new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></div>
+      </div>
+      <% if (user.middleName) { %>
+      <div class="info-cell">
+        <div class="label">Middle Name</div>
+        <div class="value"><%= user.middleName %></div>
+      </div>
+      <% } %>
+      <div class="info-cell">
+        <div class="label">Account ID</div>
+        <div class="value muted" style="font-family:monospace;font-size:12px;"><%= user._id %></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Referral Section -->
+  <h2 class="profile-section-title"><i class='bx bx-link'></i> Your Referral</h2>
+  <div class="profile-card" style="padding:20px 24px;">
+    <div style="font-size:13px;color:#888;margin-bottom:6px;">Your Referral Code</div>
+    <div style="font-size:22px;font-weight:700;color:#0A1F44;letter-spacing:1px;"><%= user.referralCode %></div>
+    <div class="ref-link">
+      <code><%= baseUrl %>/register?ref=<%= user.referralCode %></code>
+      <button type="button" onclick="copyText('<%= baseUrl %>/register?ref=<%= user.referralCode %>')" style="background:#0A1F44;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;">
+        <i class='bx bx-copy'></i> Copy
+      </button>
+    </div>
+    <% if (user.referredBy) { %>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0;">
+        <div style="font-size:13px;color:#888;margin-bottom:4px;">Referred By</div>
+        <div style="font-weight:600;color:#0A1F44;">
+          <%= user.referredBy.firstName %> <%= user.referredBy.lastName %>
+          <span style="color:#888;font-weight:400;font-size:13px;">(<%= user.referredBy.referralCode %>)</span>
+        </div>
+      </div>
+    <% } %>
+    <div style="margin-top:16px;display:flex;gap:24px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:24px;font-weight:700;color:#0A1F44;"><%= user.referredUsers ? user.referredUsers.length : 0 %></div>
+        <div style="font-size:12px;color:#888;">People Referred</div>
+      </div>
+      <div>
+        <div style="font-size:24px;font-weight:700;color:#10B981;">₹<%= user.totalEarnings %></div>
+        <div style="font-size:12px;color:#888;">Total Earnings</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Courses Section -->
+  <h2 class="profile-section-title"><i class='bx bx-book-open'></i> My Courses</h2>
+  <% if (user.purchasedCourses && user.purchasedCourses.length > 0) { %>
+    <% user.purchasedCourses.forEach(function(course) { %>
+      <div class="course-row">
+        <div>
+          <div class="name"><%= course.courseName || course.courseKey %></div>
+          <div class="meta">
+            ₹<%= course.price %> &bull; Purchased on <%= new Date(course.purchasedAt).toLocaleDateString() %>
+            <% if (course.transactionId) { %> &bull; TX: <%= course.transactionId %><% } %>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="badge badge-<%= course.status %>"><%= course.status %></span>
+          <% if (course.status === 'approved') { %>
+            <a href="/course/<%= course.courseKey %>/read" class="btn-row btn-gold" style="padding:8px 14px;font-size:12px;min-width:auto;">Open</a>
+          <% } %>
+        </div>
+      </div>
+    <% }); %>
+  <% } else { %>
+    <div class="course-row">
+      <div class="empty" style="width:100%;">No courses purchased yet. <a href="/#courses" style="color:#D4A017;font-weight:600;">Browse courses →</a></div>
+    </div>
+  <% } %>
+
+  <!-- Actions -->
+  <div class="actions">
+    <a href="/dashboard" class="btn-row btn-outline"><i class='bx bx-home'></i> Dashboard</a>
+    <% if (user.role === 'user') { %>
+      <a href="/dashboard/wallet" class="btn-row btn-primary"><i class='bx bx-wallet'></i> Wallet</a>
+    <% } else { %>
+      <a href="/admin" class="btn-row btn-primary"><i class='bx bx-shield'></i> Admin Panel</a>
+    <% } %>
+  </div>
+</div>
+
+<script>
+function copyText(t) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(t).then(function() {
+      showToast('Link copied to clipboard!', 'success');
+    }, function() { fallbackCopy(t); });
+  } else { fallbackCopy(t); }
+}
+function fallbackCopy(t) {
+  var ta = document.createElement('textarea');
+  ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); showToast('Link copied!', 'success'); }
+  catch(e) { showToast('Copy failed', 'error'); }
+  document.body.removeChild(ta);
+}
+</script>
+
+<%- include('partials/footer') %>

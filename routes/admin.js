@@ -469,9 +469,9 @@ router.get('/admin/dashboard-data', isAdmin, async (req, res) => {
   }
 });
 
-// Admin profile - redirects to dashboard (no separate profile page for admins)
+// Admin profile - same /profile view, just guarded by isAdmin
 router.get('/admin/profile', isAdmin, (req, res) => {
-  res.redirect('/admin');
+  res.redirect('/profile');
 });
 
 module.exports = router;

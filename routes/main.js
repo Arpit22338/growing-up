@@ -37,6 +37,11 @@ router.get('/', async (req, res) => {
   res.render('index', { courses, loggedInUser });
 });
 
+// GET - How It Works (public explainer page)
+router.get('/how-it-works', (req, res) => {
+  res.render('how-it-works');
+});
+
 // GET - Sitemap.xml (PSEO)
 router.get('/sitemap.xml', (req, res) => {
   const baseUrl = process.env.BASE_URL || 'https://growingup.vercel.app';
@@ -613,10 +618,27 @@ router.post('/api/withdrawals', async (req, res) => {
   }
 });
 
-// GET - User profile (redirects to dashboard for now)
+// GET - User profile (renders profile view with full account details)
+router.get('/profile', async (req, res) => {
+  if (!req.session || !req.session.userId) return res.redirect('/login');
+  try {
+    const user = await User.findById(req.session.userId)
+      .populate('referredBy', 'firstName lastName referralCode')
+      .populate('purchasedCourses')
+      .select('+totalEarnings +walletBalance +withdrawnAmount +rejectionReason');
+    if (!user) return res.redirect('/logout');
+    const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+    res.render('profile', { user, baseUrl });
+  } catch (err) {
+    console.error('Profile error:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+// Alias — keep old /dashboard/profile URL working
 router.get('/dashboard/profile', (req, res) => {
   if (!req.session || !req.session.userId) return res.redirect('/login');
-  res.redirect('/dashboard');
+  res.redirect('/profile');
 });
 
 // GET - User withdrawals history (JSON)
