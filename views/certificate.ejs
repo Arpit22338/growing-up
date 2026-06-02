@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate of Completion — Growing Up</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    @page { size: A4 landscape; margin: 0; }
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body {
+      margin: 0;
+      background: #F1F5F9;
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .no-print {
+      width: 100%; max-width: 1000px;
+      display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 14px;
+    }
+    .no-print button {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 18px; border: none; border-radius: 8px;
+      font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer;
+    }
+    .no-print .print-btn { background: #0A1F44; color: #D4A017; }
+    .no-print .print-btn:hover { background: #1A3360; }
+    .no-print .back-btn { background: #fff; color: #0A1F44; border: 1.5px solid #0A1F44; }
+
+    .certificate {
+      width: 1000px; max-width: 100%;
+      aspect-ratio: 1.414 / 1;
+      background: #FFFEF7;
+      position: relative;
+      padding: 40px 60px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      border: 14px solid transparent;
+      background-clip: padding-box;
+      color: #0A1F44;
+    }
+    .certificate::before {
+      content: '';
+      position: absolute; inset: 0;
+      border: 2px solid #D4A017;
+      pointer-events: none;
+      margin: 8px;
+    }
+    .certificate::after {
+      content: '';
+      position: absolute; inset: 0;
+      border: 1px solid #D4A017;
+      pointer-events: none;
+      margin: 16px;
+    }
+    .corner {
+      position: absolute; width: 60px; height: 60px;
+      border: 3px solid #D4A017;
+    }
+    .corner.tl { top: 24px; left: 24px; border-right: 0; border-bottom: 0; }
+    .corner.tr { top: 24px; right: 24px; border-left: 0; border-bottom: 0; }
+    .corner.bl { bottom: 24px; left: 24px; border-right: 0; border-top: 0; }
+    .corner.br { bottom: 24px; right: 24px; border-left: 0; border-top: 0; }
+
+    .cert-header {
+      text-align: center;
+      margin-top: 8px;
+    }
+    .cert-logo {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-weight: 700; font-size: 18px; color: #0A1F44;
+    }
+    .cert-logo img { width: 38px; height: 38px; border-radius: 50%; }
+    .cert-logo span { color: #D4A017; }
+
+    .cert-body { text-align: center; margin-top: 30px; }
+    .cert-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 56px;
+      font-weight: 700;
+      color: #0A1F44;
+      letter-spacing: 2px;
+      margin: 0 0 8px;
+    }
+    .cert-subtitle {
+      font-size: 18px;
+      color: #475569;
+      margin: 0 0 20px;
+    }
+    .cert-presented {
+      font-size: 16px;
+      color: #64748B;
+      margin: 0 0 6px;
+      font-style: italic;
+    }
+    .cert-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 46px;
+      font-weight: 600;
+      color: #0A1F44;
+      margin: 6px 0 14px;
+      border-bottom: 2px solid #D4A017;
+      display: inline-block;
+      padding: 0 30px 8px;
+    }
+    .cert-completion {
+      font-size: 16px;
+      color: #475569;
+      max-width: 700px;
+      margin: 0 auto 14px;
+      line-height: 1.5;
+    }
+    .cert-course {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 600;
+      color: #D4A017;
+      margin: 4px 0 30px;
+    }
+
+    .cert-footer {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-top: 40px;
+      padding: 0 20px;
+    }
+    .cert-sig { text-align: center; flex: 1; max-width: 220px; }
+    .cert-sig .line {
+      border-top: 2px solid #0A1F44;
+      padding-top: 8px;
+      font-weight: 700;
+      color: #0A1F44;
+      font-size: 14px;
+    }
+    .cert-sig .role {
+      font-size: 12px; color: #64748B; margin-top: 2px;
+    }
+    .cert-id {
+      text-align: center; flex: 1;
+      font-size: 11px; color: #94A3B8;
+      font-family: monospace;
+    }
+    .cert-id strong { color: #475569; display: block; font-size: 12px; }
+
+    .cert-seal {
+      width: 90px; height: 90px;
+      background: linear-gradient(135deg, #D4A017, #B8860B);
+      color: #0A1F44;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      box-shadow: 0 4px 12px rgba(212,168,67,0.4);
+      margin: 0 auto 10px;
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 8px; }
+      .certificate { padding: 24px 20px; }
+      .cert-title { font-size: 36px; }
+      .cert-name { font-size: 28px; padding: 0 12px 6px; }
+      .cert-course { font-size: 22px; }
+      .cert-footer { flex-direction: column; gap: 18px; align-items: center; }
+      .corner { width: 36px; height: 36px; }
+      .corner.tl, .corner.tr { top: 14px; }
+      .corner.bl, .corner.br { bottom: 14px; }
+      .corner.tl, .corner.bl { left: 14px; }
+      .corner.tr, .corner.br { right: 14px; }
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .no-print { display: none !important; }
+      .certificate {
+        box-shadow: none;
+        width: 100%;
+        height: 100vh;
+        max-width: none;
+        aspect-ratio: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="no-print">
+    <a href="/profile" class="back-btn" style="text-decoration:none;"><i class='bx bx-arrow-back'></i> Back</a>
+    <button type="button" class="print-btn" onclick="window.print()"><i class='bx bx-printer'></i> Print / Save as PDF</button>
+  </div>
+
+  <div class="certificate">
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <div class="cert-header">
+      <div class="cert-logo">
+        <img src="/images/logo-web.png" alt="Growing Up">
+        Growing <span>Up</span>
+      </div>
+    </div>
+
+    <div class="cert-body">
+      <h1 class="cert-title">Certificate of Completion</h1>
+      <p class="cert-subtitle">— Awarded by Growing Up —</p>
+
+      <p class="cert-presented">This certificate is proudly presented to</p>
+      <div class="cert-name"><%= user.fullName %></div>
+
+      <p class="cert-completion">
+        for successfully completing the
+      </p>
+      <div class="cert-course"><%= course.title %></div>
+
+      <div class="cert-seal"><i class='bx bx-medal'></i></div>
+    </div>
+
+    <div class="cert-footer">
+      <div class="cert-sig">
+        <div class="line">Arpit Kafle</div>
+        <div class="role">Founder, Growing Up</div>
+      </div>
+      <div class="cert-id">
+        <strong>Certificate ID</strong>
+        GU-<%= certId %>
+        <br>
+        Issued <%= issuedAt %>
+      </div>
+      <div class="cert-sig">
+        <div class="line"><%= new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></div>
+        <div class="role">Date of Issue</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

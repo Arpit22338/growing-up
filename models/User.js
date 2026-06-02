@@ -18,6 +18,8 @@ const userSchema = new mongoose.Schema({
     purchasedAt: { type: Date, default: Date.now },
     paymentScreenshot: String,
     transactionId: String,
+    completedModules: { type: [Number], default: [] },
+    completedAt: { type: Date, default: null },
     status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
   }],
   profilePicture: { type: String, default: '' },

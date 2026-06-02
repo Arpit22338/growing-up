@@ -13,11 +13,12 @@
       </div>
       <div style="flex:1;">
         <h1>Welcome back, <%= user.firstName %> <i class='bx bx-hand' style="color: var(--gold);"></i></h1>
-        <p style="opacity: 0.9; margin: 6px 0 10px;">
+        <p style="opacity: 0.9; margin: 6px 0 10px; display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
           <span style="font-size:13px;opacity:0.85;">Your referral code:</span>
-          <strong id="dashRefCode" style="color: var(--gold); background: rgba(212,168,67,0.15); padding: 4px 12px; border-radius: 20px; font-size: 15px; letter-spacing: 0.5px; margin-left: 4px;"><%= user.referralCode %></strong>
-          <button type="button" onclick="copyDashRefCode()" title="Copy referral code" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:30px;height:30px;border-radius:6px;cursor:pointer;margin-left:6px;font-size:14px;vertical-align:middle;">
-            <i class='bx bx-copy'></i>
+          <strong id="dashRefCode" style="color: var(--gold); background: rgba(212,168,67,0.15); padding: 4px 12px; border-radius: 20px; font-size: 15px; letter-spacing: 0.5px;"><%= user.referralCode %></strong>
+          <button type="button" id="dashCopyRefBtn" title="Copy referral link" aria-label="Copy referral link"
+            style="background: var(--gold); border:none; color: #0A1F44; padding: 6px 14px; border-radius: 20px; cursor:pointer; font-size: 13px; font-weight: 700; display:inline-flex; align-items:center; gap:4px; transition: transform 0.1s;">
+            <i class='bx bx-copy'></i><span>Copy</span>
           </button>
         </p>
         <a href="/profile" style="display:inline-block;color:#D4A017;text-decoration:none;font-size:13px;font-weight:600;">View full profile <i class='bx bx-right-arrow-alt'></i></a>
@@ -235,21 +236,47 @@
 </div>
 
 <script>
-function copyDashRefCode() {
-  var code = document.getElementById('dashRefCode').textContent.trim();
-  var link = '<%= baseUrl %>/register?ref=' + code;
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(link).then(function() { showToast('Referral link copied!', 'success'); }, function() { fallbackCopy(link); });
-  } else { fallbackCopy(link); }
-}
-function fallbackCopy(t) {
+// Robust copy helper — tries modern API, falls back to execCommand,
+// always reports success/failure to the user.
+window.copyToClipboard = function(text, onSuccess, onError) {
+  function done() { if (onSuccess) onSuccess(); }
+  function fail() { if (onError) onError(); }
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, function() { fallbackCopy(text, done, fail); });
+  } else {
+    fallbackCopy(text, done, fail);
+  }
+};
+function fallbackCopy(t, onSuccess, onError) {
   var ta = document.createElement('textarea');
   ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
   document.body.appendChild(ta); ta.select();
-  try { document.execCommand('copy'); showToast('Referral link copied!', 'success'); }
-  catch(e) { showToast('Copy failed', 'error'); }
+  try { document.execCommand('copy'); if (onSuccess) onSuccess(); }
+  catch(e) { if (onError) onError(); }
   document.body.removeChild(ta);
 }
+
+// Wire up the copy button on load (avoids inline onclick + timing issues)
+(function(){
+  var btn = document.getElementById('dashCopyRefBtn');
+  if (!btn) return;
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    var code = document.getElementById('dashRefCode').textContent.trim();
+    var link = '<%= baseUrl %>/register?ref=' + code;
+    var orig = btn.innerHTML;
+    copyToClipboard(link,
+      function() {
+        showToast('Referral link copied!', 'success');
+        btn.innerHTML = "<i class='bx bx-check'></i><span>Copied</span>";
+        setTimeout(function(){ btn.innerHTML = orig; }, 1800);
+      },
+      function() {
+        showToast('Copy failed — long-press the code to copy', 'error');
+      }
+    );
+  });
+})();
 function showToast(msg, type) {
   var t = document.getElementById('dashToast');
   if (!t) {

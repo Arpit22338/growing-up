@@ -682,6 +682,7 @@ router.get('/profile', async (req, res) => {
   try {
     const user = await User.findById(req.session.userId)
       .populate('referredBy', 'firstName lastName referralCode')
+      .populate('referredUsers', 'firstName lastName email isActive')
       .populate('purchasedCourses')
       .select('+totalEarnings +walletBalance +withdrawnAmount +rejectionReason');
     if (!user) return res.redirect('/logout');
@@ -689,6 +690,32 @@ router.get('/profile', async (req, res) => {
     res.render('profile', { user, baseUrl });
   } catch (err) {
     console.error('Profile error:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+// GET - Certificate of completion (per course)
+router.get('/certificate/:courseKey', async (req, res) => {
+  if (!req.session || !req.session.userId) return res.redirect('/login');
+  const courseKey = req.params.courseKey;
+  const course = courses[courseKey];
+  if (!course) return res.status(404).send('Course not found');
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user) return res.redirect('/logout');
+    const owned = user.purchasedCourses && user.purchasedCourses.some(c => c.courseKey === courseKey && c.status === 'approved');
+    const isAdmin = user.role === 'superadmin' || user.role === 'financial_secretary';
+    if (!owned && !isAdmin) {
+      return res.status(403).send('You need to own this course to get a certificate.');
+    }
+    // Stable, deterministic cert id: GU-{userId last 6}{courseKey 2}
+    const short = String(user._id).slice(-6).toUpperCase();
+    const ck = courseKey.toUpperCase().slice(0, 3);
+    const certId = `${ck}-${short}`;
+    const issuedAt = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    res.render('certificate', { user, course, certId, issuedAt });
+  } catch (err) {
+    console.error('Certificate error:', err);
     res.status(500).send('Server error');
   }
 });

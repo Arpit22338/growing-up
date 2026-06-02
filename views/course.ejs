@@ -38,10 +38,17 @@
           <% }); %>
         </ul>
 
-        <!-- No Certification Notice -->
+        <!-- Honest Certificate Note -->
         <div class="no-cert-notice" style="margin: 24px 0;">
           <i class='bx bx-info-circle'></i>
-          <span>This course does <strong>NOT</strong> provide any certification. It is a knowledge and skill-building program only.</span>
+          <div>
+            <strong style="display:block;margin-bottom:4px;color:#0A1F44;">About certification — being honest with you</strong>
+            <span>Our courses are knowledge and skill-building programs. The real value is what you learn and apply, not a piece of paper. If you need a certificate for a job or school, this isn't the right product for that.</span>
+            <br>
+            <span style="display:block;margin-top:8px;">
+              <strong style="color:#0A1F44;">Good news:</strong> if you <em>do</em> complete the full course, we <strong>do</strong> offer a free printable <em>Certificate of Completion</em> — just to mark the milestone. It's printable A4 landscape with your name, course, and a unique ID. See the FAQ for details.
+            </span>
+          </div>
         </div>
 
         <!-- Buttons -->
@@ -73,6 +80,19 @@
             <a href="/register?course=<%= course.key %><%= ref ? '&ref=' + ref : '' %>" class="btn btn-gold btn-lg" style="width: 100%;">
               <i class='bx bx-rocket'></i> Get Started
             </a>
+            <% if (course.key === 'everything') { %>
+              <p style="font-size:12px;color:var(--gray-500);margin-top:10px;text-align:center;line-height:1.5;">
+                Everything Bundle (₹<%= course.price %>) includes everything from Starter, Prime, and Master — our recommended option if you want full access.
+              </p>
+            <% } else { %>
+              <p style="font-size:12px;color:var(--gray-500);margin-top:10px;text-align:center;line-height:1.5;">
+                Want full access to all 3 tiers? See the
+                <a href="/course/bundle" style="color:var(--gold);font-weight:700;text-decoration:underline;">Everything Bundle (₹1,999)</a>
+                — or
+                <a href="https://wa.me/9779808467028?text=Hi%2C%20I%20want%20to%20switch%20tiers%20on%20Growing%20Up" target="_blank" rel="noopener noreferrer" style="color:#10B981;font-weight:700;text-decoration:none;">contact admin on WhatsApp</a>
+                to switch tiers.
+              </p>
+            <% } %>
           <% } %>
 
           <% if (typeof loggedInUser !== 'undefined' && loggedInUser && loggedInUser.isActive) { %>
