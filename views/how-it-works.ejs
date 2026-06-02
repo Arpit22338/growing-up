@@ -1,0 +1,354 @@
+<%- include('partials/header') %>
+
+<style>
+  .how-hero {
+    background: linear-gradient(135deg, #0A1F44 0%, #1E3A8A 100%);
+    color: #fff;
+    padding: 64px 24px;
+    text-align: center;
+  }
+  .how-hero h1 { font-size: 2.4rem; font-weight: 800; margin: 0 0 12px; }
+  .how-hero p { font-size: 1.1rem; opacity: 0.9; max-width: 640px; margin: 0 auto; }
+  .how-container { max-width: 960px; margin: 0 auto; padding: 48px 24px; }
+  .how-section { margin-bottom: 48px; }
+  .how-section h2 {
+    color: #0A1F44;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .how-section h2 i { color: #D4A017; }
+  .how-section .lede { color: #475569; font-size: 1.05rem; margin: 0 0 24px; }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+  }
+  .step {
+    background: #fff;
+    border-radius: 14px;
+    padding: 24px 20px;
+    box-shadow: 0 2px 10px rgba(10,31,68,0.06);
+    border-top: 4px solid #D4A017;
+    position: relative;
+  }
+  .step .num {
+    position: absolute;
+    top: -16px;
+    left: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #D4A017;
+    color: #0A1F44;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .step h3 { color: #0A1F44; margin: 8px 0 8px; font-size: 1.05rem; }
+  .step p { color: #64748B; font-size: 14px; margin: 0; line-height: 1.5; }
+  .earn-card {
+    background: linear-gradient(135deg, #fff7e6, #fff);
+    border: 2px solid #D4A017;
+    border-radius: 14px;
+    padding: 28px 24px;
+    margin-bottom: 24px;
+  }
+  .earn-card h3 { color: #0A1F44; margin: 0 0 8px; font-size: 1.3rem; }
+  .earn-card .big {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #D4A017;
+    margin: 4px 0 12px;
+  }
+  .earn-card .note { color: #64748B; font-size: 14px; }
+  .course-earn {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .course-earn-item {
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid #E2E8F0;
+  }
+  .course-earn-item .name { font-weight: 700; color: #0A1F44; margin-bottom: 4px; }
+  .course-earn-item .com { color: #10B981; font-weight: 700; font-size: 1.1rem; }
+  .course-earn-item .price { color: #64748B; font-size: 13px; }
+  .faq-item {
+    background: #fff;
+    border-radius: 12px;
+    padding: 0;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    border: 1px solid #E2E8F0;
+    overflow: hidden;
+  }
+  .faq-q {
+    padding: 18px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #0A1F44;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    user-select: none;
+  }
+  .faq-q:hover { background: #F8FAFC; }
+  .faq-q i { color: #D4A017; font-size: 22px; transition: transform 0.2s; }
+  .faq-a {
+    padding: 0 20px 18px;
+    color: #475569;
+    font-size: 15px;
+    line-height: 1.6;
+    display: none;
+  }
+  .faq-item.open .faq-a { display: block; }
+  .faq-item.open .faq-q i { transform: rotate(45deg); }
+  .tip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .tip {
+    background: #fff;
+    padding: 18px;
+    border-radius: 10px;
+    border-left: 4px solid #3B82F6;
+  }
+  .tip h4 { color: #0A1F44; margin: 0 0 6px; font-size: 1rem; }
+  .tip p { color: #64748B; font-size: 14px; margin: 0; }
+  .cta-box {
+    background: linear-gradient(135deg, #D4A017, #B8860B);
+    color: #0A1F44;
+    border-radius: 16px;
+    padding: 36px 28px;
+    text-align: center;
+    margin-top: 32px;
+  }
+  .cta-box h2 { margin: 0 0 8px; font-size: 1.6rem; }
+  .cta-box p { margin: 0 0 18px; opacity: 0.85; }
+  .cta-box .btn {
+    background: #0A1F44;
+    color: #D4A017;
+    padding: 14px 32px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    display: inline-block;
+  }
+  .cta-box .btn:hover { background: #051633; }
+</style>
+
+<div class="how-hero">
+  <h1>How Growing Up Works</h1>
+  <p>Learn digital skills, share your referral link, and earn 65% commission on every course sold through you. Here's everything you need to know.</p>
+</div>
+
+<div class="how-container">
+
+  <section class="how-section">
+    <h2><i class='bx bx-rocket'></i> Getting Started in 4 Steps</h2>
+    <p class="lede">From signing up to your first earning — here's the simple path.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <h3>Register Free</h3>
+        <p>Create your account in under 2 minutes. You need a referral code from an existing member to join.</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h3>Buy a Course</h3>
+        <p>Pick Starter (₹499), Prime (₹699), Master (₹1599), or Everything Bundle (₹1999). Pay via eSewa or Khalti.</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h3>Get Approved</h3>
+        <p>Admin verifies your payment screenshot (usually within 24 hours) and unlocks your course + referral link.</p>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <h3>Share & Earn</h3>
+        <p>Share your unique referral link. When someone buys a course through you, you earn 65% of the price — instantly added to your wallet.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-section">
+    <h2><i class='bx bx-money'></i> How You Earn 65%</h2>
+    <p class="lede">Every time someone uses your referral link to buy a course, the price is split: <strong>65% goes to you</strong>, 35% covers platform and payment costs.</p>
+    <div class="earn-card">
+      <h3>Earnings Per Course</h3>
+      <div class="big">₹324 → ₹1,299 commission</div>
+      <p class="note">Your share for each course sold through your referral link:</p>
+      <div class="course-earn">
+        <div class="course-earn-item">
+          <div class="name">Starter</div>
+          <div class="com">₹324</div>
+          <div class="price">Course price ₹499</div>
+        </div>
+        <div class="course-earn-item">
+          <div class="name">Prime</div>
+          <div class="com">₹454</div>
+          <div class="price">Course price ₹699</div>
+        </div>
+        <div class="course-earn-item">
+          <div class="name">Master</div>
+          <div class="com">₹1,039</div>
+          <div class="price">Course price ₹1,599</div>
+        </div>
+        <div class="course-earn-item">
+          <div class="name">Everything Bundle</div>
+          <div class="com">₹1,299</div>
+          <div class="price">Course price ₹1,999</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-section">
+    <h2><i class='bx bx-wallet'></i> Withdrawals</h2>
+    <p class="lede">Withdraw your earnings anytime to eSewa or Khalti — no minimum threshold, no fees.</p>
+    <div class="tip-grid">
+      <div class="tip">
+        <h4>💸 No Minimum</h4>
+        <p>Withdraw any amount from ₹1 onwards. No forced thresholds, no waiting period.</p>
+      </div>
+      <div class="tip">
+        <h4>⚡ Daily Limit</h4>
+        <p>You can submit up to 3 withdrawal requests per day. Each one is processed within 24 hours.</p>
+      </div>
+      <div class="tip">
+        <h4>📱 eSewa &amp; Khalti</h4>
+        <p>Direct transfers to your eSewa or Khalti wallet. Just provide your phone number and account name.</p>
+      </div>
+      <div class="tip">
+        <h4>🚫 No Pending Block</h4>
+        <p>Wait for your current withdrawal to be processed before submitting a new one.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-section">
+    <h2><i class='bx bx-bulb'></i> Tips to Earn More</h2>
+    <p class="lede">Proven strategies from our top earners across Nepal.</p>
+    <div class="tip-grid">
+      <div class="tip">
+        <h4>Share Your Story</h4>
+        <p>Tell people what you're learning and how the course is helping you. Real stories convert 10× better than generic posts.</p>
+      </div>
+      <div class="tip">
+        <h4>Use WhatsApp</h4>
+        <p>Share your link in WhatsApp status, groups, and DMs. Our built-in WhatsApp share button makes it one-tap.</p>
+      </div>
+      <div class="tip">
+        <h4>Build a Network</h4>
+        <p>Help your referrals succeed. A strong network = steady recurring earnings, not just one-time sales.</p>
+      </div>
+      <div class="tip">
+        <h4>Pick the Right Course</h4>
+        <p>Match the course to your audience. Students love Starter, freelancers love Prime, business owners love Master.</p>
+      </div>
+      <div class="tip">
+        <h4>Be Patient</h4>
+        <p>Most top earners took 2–4 weeks to see their first big payout. Stay consistent and keep sharing.</p>
+      </div>
+      <div class="tip">
+        <h4>Track Everything</h4>
+        <p>Use a simple spreadsheet: who you contacted, when, and their response. Follow up = more sales.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-section">
+    <h2><i class='bx bx-help-circle'></i> Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Do I need to pay to join Growing Up?
+        <i class='bx bx-plus'></i>
+      </div>
+      <div class="faq-a">
+        You can register for free, but to access any course and start earning through referrals, you need to buy at least one course. The cheapest is Starter at ₹499.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        When do I get paid for a referral?
+        <i class='bx bx-plus'></i>
+      </div>
+      <div class="faq-a">
+        Your 65% commission is added to your wallet balance as soon as the admin approves the referred user's payment — usually within 24 hours.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Is there a limit on how much I can earn?
+        <i class='bx bx-plus'></i>
+      </div>
+      <div class="faq-a">
+        No cap. The more people you refer, the more you earn. Our top earners make ₹50,000+ per month.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Can I buy more than one course?
+        <i class='bx bx-plus'></i>
+      </div>
+      <div class="faq-a">
+        The Everything Bundle (₹1,999) includes everything from Starter, Prime, and Master — that's our recommended option if you want full access. To switch tiers, contact admin.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        How long does it take to get my withdrawal?
+        <i class='bx bx-plus'></i>
+      </div>
+      <div class="faq-a">
+        Admin reviews and processes withdrawal requests within 24 hours. The money arrives in your eSewa/Khalti wallet almost immediately after approval.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        What if my referral doesn't pay me?
+        <i class='bx bx-plus'></i>
+      </div>
+      <div class="faq-a">
+        You don't pay them — we pay you. Once their payment is verified, your 65% is automatically added to your wallet. No chasing anyone.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Is this a pyramid scheme or MLM?
+        <i class='bx bx-plus'></i>
+      </div>
+      <div class="faq-a">
+        No. This is a single-level referral program — you earn 65% of the course price for every direct sale. There are no multi-level payouts, no monthly fees, and no product purchases required to "stay active." It's a fair commission for sharing a real product.
+      </div>
+    </div>
+  </section>
+
+  <div class="cta-box">
+    <h2>Ready to Start Earning?</h2>
+    <p>Pick a course, complete your registration, and start sharing your link today.</p>
+    <a href="/#courses" class="btn">View Courses <i class='bx bx-right-arrow-alt'></i></a>
+  </div>
+</div>
+
+<script>
+  // Auto-open FAQ item if URL has #faq-X (optional)
+  if (window.location.hash) {
+    var el = document.querySelector(window.location.hash);
+    if (el && el.classList.contains('faq-item')) el.classList.add('open');
+  }
+</script>
+
+<%- include('partials/footer') %>

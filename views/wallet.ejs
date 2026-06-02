@@ -66,7 +66,7 @@
   </div>
 
   <!-- Withdraw Button -->
-  <% if (availableBalance >= 400) { %>
+  <% if (availableBalance > 0) { %>
     <button type="button"
       id="openWBtn"
       style="width:100%;padding:16px;
@@ -86,7 +86,7 @@
     </script>
   <% } else { %>
     <button disabled style="width:100%;padding:16px;background:#ccc;color:#888;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:not-allowed;margin:16px 0;">
-      Minimum ₹400 required to withdraw
+      No withdrawable balance yet
     </button>
   <% } %>
 
@@ -198,7 +198,8 @@
       margin-bottom:10px;
       box-sizing:border-box;"/>
     <input type="number" id="wa"
-      placeholder="Amount (min ₹400)"
+      placeholder="Amount"
+      min="1"
       style="width:100%;padding:12px;
       border:1.5px solid #ddd;
       border-radius:8px;font-size:15px;
@@ -260,7 +261,7 @@ document.getElementById('submitW')
     if(!p){alert('Select eSewa or Khalti');return;}
     if(!n){alert('Enter account name');return;}
     if(!ph){alert('Enter phone number');return;}
-    if(!a||a<400){alert('Minimum ₹400');return;}
+    if(!a||a<1){alert('Enter a valid amount');return;}
     try{
       var r=await fetch('/api/withdrawals',{
         method:'POST',

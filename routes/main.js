@@ -7,6 +7,7 @@ const Settings = require('../models/Settings');
 const Withdrawal = require('../models/Withdrawal');
 const courses = require('../config/courses');
 const multer = require('multer');
+const { uploadPfp, uploadPaymentProof, tempId } = require('../config/cloudinary');
 const { isAuthenticated, isActiveUser } = require('../middleware/auth');
 
 // Multer config — memory storage (for Vercel/serverless compatibility)
@@ -21,11 +22,6 @@ const upload = multer({
   }
 });
 
-// Helper: convert multer file buffer to base64 data URI
-function fileToBase64(file) {
-  return `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
-}
-
 // GET - Home page
 router.get('/', async (req, res) => {
   let loggedInUser = null;
@@ -35,6 +31,11 @@ router.get('/', async (req, res) => {
     } catch (e) {}
   }
   res.render('index', { courses, loggedInUser });
+});
+
+// GET - How It Works (public explainer page)
+router.get('/how-it-works', (req, res) => {
+  res.render('how-it-works');
 });
 
 // GET - Sitemap.xml (PSEO)
@@ -58,21 +59,29 @@ router.get('/course/:key', async (req, res) => {
   const course = courses[req.params.key];
   if (!course) return res.redirect('/');
   const ref = req.query.ref || '';
-  
+
   // Check if user is logged in — pass user data for refer button
   let loggedInUser = null;
   if (req.session && req.session.userId) {
     try {
-      loggedInUser = await User.findById(req.session.userId).select('referralCode isActive firstName');
+      loggedInUser = await User.findById(req.session.userId)
+        .select('referralCode isActive firstName role purchasedCourses');
     } catch (e) {}
   }
-  
+
   const baseUrl = process.env.BASE_URL || '';
   res.render('course', { course, ref, loggedInUser, baseUrl });
 });
 
 // GET - Register page
 router.get('/register', (req, res) => {
+  // If already logged in, send them somewhere useful instead of showing the form
+  if (req.session && req.session.userId) {
+    if (req.session.role === 'superadmin' || req.session.role === 'financial_secretary') {
+      return res.redirect('/admin');
+    }
+    return res.redirect('/dashboard');
+  }
   const ref = req.query.ref || '';
   const course = req.query.course || '';
   res.render('register', { courses, ref, selectedCourse: course });
@@ -99,7 +108,7 @@ router.post('/api/validate-referral', async (req, res) => {
 // POST - Step 1: Register account info
 router.post('/api/register/step1', async (req, res) => {
   try {
-    const { firstName, middleName, lastName, whatsapp, email, gender, referralCode } = req.body;
+    const { firstName, middleName, lastName, whatsapp, email, gender, referralCode, pfpUrl } = req.body;
 
     // Check if email already exists
     const existing = await User.findOne({ email: email.toLowerCase() });
@@ -122,7 +131,8 @@ router.post('/api/register/step1', async (req, res) => {
       email: email.trim().toLowerCase(),
       gender,
       referrerId: referrer._id,
-      referralCode: referralCode.toUpperCase()
+      referralCode: referralCode.toUpperCase(),
+      pfpUrl: (typeof pfpUrl === 'string' && pfpUrl.startsWith('https://res.cloudinary.com/')) ? pfpUrl : ''
     };
 
     return res.json({ success: true });
@@ -132,7 +142,26 @@ router.post('/api/register/step1', async (req, res) => {
   }
 });
 
-// POST - Step 2: Payment screenshot upload (stored as base64 in DB)
+// POST - Temp PFP upload during signup (user doesn't exist yet).
+// Stores a Cloudinary URL in the session so step 3 can attach it to the new account.
+router.post('/api/register/upload-temp-pfp', upload.single('pfp'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, error: 'No image received.' });
+  }
+  try {
+    const id = tempId();
+    const result = await uploadPfp(req.file.buffer, 'tmp-' + id);
+    return res.json({ success: true, url: result.secure_url });
+  } catch (err) {
+    console.error('Temp PFP upload error:', err.message);
+    return res.status(500).json({ success: false, error: 'Could not upload image. Try again or skip.' });
+  }
+});
+
+// POST - Step 2: Payment screenshot upload
+// The screenshot is uploaded to Cloudinary and the secure URL is stored in the session
+// and on the Payment + User.purchasedCourses records, so admins always have a viewable
+// link — no base64 blobs in the DB.
 router.post('/api/register/step2', upload.single('screenshot'), async (req, res) => {
   try {
     if (!req.session.registration) {
@@ -157,16 +186,20 @@ router.post('/api/register/step2', upload.single('screenshot'), async (req, res)
       }
     }
 
+    // Upload proof to Cloudinary (uses a temp id; we re-key after the user is created)
+    const proofId = tempId();
+    const proof = await uploadPaymentProof(req.file.buffer, proofId);
+
     req.session.registration.courseKey = courseKey;
     req.session.registration.courseName = course.name;
     req.session.registration.price = course.price;
-    req.session.registration.screenshot = fileToBase64(req.file);
+    req.session.registration.screenshot = proof.secure_url; // Cloudinary URL
     req.session.registration.transactionId = transactionId || '';
 
     return res.json({ success: true });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Server error' });
+    console.error('Step 2 upload error:', err.message);
+    return res.status(500).json({ error: 'Could not upload payment proof. Please try again.' });
   }
 });
 
@@ -177,21 +210,19 @@ router.post('/api/register/step3', async (req, res) => {
       return res.status(400).json({ error: 'Please complete previous steps first' });
     }
 
-    const { password, profilePicture } = req.body;
+    const { password } = req.body;
     if (!password || password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    // Validate profile picture size (max ~500KB base64)
-    let validProfilePic = '';
-    if (profilePicture && typeof profilePicture === 'string' && profilePicture.startsWith('data:image/')) {
-      if (profilePicture.length <= 700000) {
-        validProfilePic = profilePicture;
-      }
-    }
-
     const reg = req.session.registration;
     const hashedPassword = await bcrypt.hash(password, 12);
+
+    // PFP: only accept https://res.cloudinary.com/... URLs (set during step 1 upload).
+    // Empty string is fine — PFP is optional.
+    const validPfp = (typeof reg.pfpUrl === 'string' && reg.pfpUrl.startsWith('https://res.cloudinary.com/'))
+      ? reg.pfpUrl
+      : '';
 
     const user = new User({
       firstName: reg.firstName,
@@ -201,7 +232,7 @@ router.post('/api/register/step3', async (req, res) => {
       whatsapp: reg.whatsapp,
       gender: reg.gender,
       password: hashedPassword,
-      profilePicture: validProfilePic,
+      profilePicture: validPfp,
       referredBy: reg.referrerId,
       isActive: false,
       purchasedCourses: [{
@@ -245,6 +276,38 @@ router.post('/api/register/step3', async (req, res) => {
       return res.status(400).json({ error: 'Email already registered' });
     }
     return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST - Change profile picture (logged-in user)
+router.post('/api/profile/upload-pfp', upload.single('pfp'), async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, error: 'Please login first' });
+  }
+  if (!req.file) {
+    return res.status(400).json({ success: false, error: 'No image received.' });
+  }
+  try {
+    const result = await uploadPfp(req.file.buffer, String(req.session.userId));
+    await User.findByIdAndUpdate(req.session.userId, { profilePicture: result.secure_url });
+    return res.json({ success: true, url: result.secure_url, message: 'Profile photo updated' });
+  } catch (err) {
+    console.error('PFP upload error:', err.message);
+    return res.status(500).json({ success: false, error: 'Could not upload image. Please try again.' });
+  }
+});
+
+// POST - Remove profile picture (revert to initials)
+router.post('/api/profile/remove-pfp', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, error: 'Please login first' });
+  }
+  try {
+    await User.findByIdAndUpdate(req.session.userId, { profilePicture: '' });
+    return res.json({ success: true, message: 'Profile photo removed' });
+  } catch (err) {
+    console.error('PFP remove error:', err.message);
+    return res.status(500).json({ success: false, error: 'Could not remove photo.' });
   }
 });
 
@@ -490,10 +553,10 @@ router.post('/api/withdraw', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid platform. Must be esewa or khalti.' });
     }
 
-    // Amount must be valid positive integer >= 400
+    // Amount must be valid positive integer >= 1
     const requestedAmount = parseInt(amount, 10);
-    if (!requestedAmount || isNaN(requestedAmount) || requestedAmount < 400) {
-      return res.status(400).json({ success: false, message: 'Minimum withdrawal is ₹400.' });
+    if (!requestedAmount || isNaN(requestedAmount) || requestedAmount < 1) {
+      return res.status(400).json({ success: false, message: 'Withdrawal amount must be at least ₹1.' });
     }
     if (requestedAmount > 100000) {
       return res.status(400).json({ success: false, message: 'Maximum withdrawal is ₹1,00,000 per request.' });
@@ -578,7 +641,7 @@ router.post('/api/withdrawals', async (req, res) => {
     if (!['esewa', 'khalti'].includes(method)) return res.status(400).json({ success: false, message: 'Select eSewa or Khalti' });
 
     const amt = parseInt(req.body.amount, 10);
-    if (!amt || amt < 400) return res.status(400).json({ success: false, message: 'Minimum ₹400' });
+    if (!amt || amt < 1) return res.status(400).json({ success: false, message: 'Enter a valid amount.' });
 
     // Compute available balance the same way the frontend does
     const allWithdrawals = await Withdrawal.find({ user: user._id });
@@ -613,10 +676,112 @@ router.post('/api/withdrawals', async (req, res) => {
   }
 });
 
-// GET - User profile (redirects to dashboard for now)
+// GET - User profile (renders profile view with full account details)
+router.get('/profile', async (req, res) => {
+  if (!req.session || !req.session.userId) return res.redirect('/login');
+  try {
+    const user = await User.findById(req.session.userId)
+      .populate('referredBy', 'firstName lastName referralCode')
+      .populate('purchasedCourses')
+      .select('+totalEarnings +walletBalance +withdrawnAmount +rejectionReason');
+    if (!user) return res.redirect('/logout');
+    const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+    res.render('profile', { user, baseUrl });
+  } catch (err) {
+    console.error('Profile error:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+// Alias — keep old /dashboard/profile URL working
 router.get('/dashboard/profile', (req, res) => {
   if (!req.session || !req.session.userId) return res.redirect('/login');
-  res.redirect('/dashboard');
+  res.redirect('/profile');
+});
+
+// GET - Account settings (edit WhatsApp, middle name; change password)
+router.get('/settings', async (req, res) => {
+  if (!req.session || !req.session.userId) return res.redirect('/login');
+  try {
+    const user = await User.findById(req.session.userId)
+      .select('firstName middleName lastName email whatsapp createdAt role');
+    if (!user) return res.redirect('/logout');
+    res.render('settings', { user });
+  } catch (err) {
+    console.error('Settings error:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+// POST - Update profile fields (WhatsApp, middle name)
+router.post('/api/profile/update', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, error: 'Please login first' });
+  }
+  try {
+    const { whatsapp, middleName } = req.body;
+    const update = {};
+
+    // WhatsApp: optional in payload, but if present must be 10 digits
+    if (typeof whatsapp !== 'undefined') {
+      const clean = String(whatsapp).trim();
+      if (!/^\d{10}$/.test(clean)) {
+        return res.status(400).json({ success: false, error: 'WhatsApp number must be exactly 10 digits.' });
+      }
+      update.whatsapp = clean;
+    }
+
+    // Middle name: optional, max 50 chars
+    if (typeof middleName !== 'undefined') {
+      const clean = String(middleName).trim().substring(0, 50);
+      update.middleName = clean;
+    }
+
+    if (Object.keys(update).length === 0) {
+      return res.status(400).json({ success: false, error: 'No changes to save.' });
+    }
+
+    await User.findByIdAndUpdate(req.session.userId, update);
+    return res.json({ success: true, message: 'Profile updated' });
+  } catch (err) {
+    console.error('Profile update error:', err);
+    return res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// POST - Change password (requires current password)
+router.post('/api/profile/change-password', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, error: 'Please login first' });
+  }
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || typeof currentPassword !== 'string') {
+      return res.status(400).json({ success: false, error: 'Current password is required.' });
+    }
+    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+      return res.status(400).json({ success: false, error: 'New password must be at least 6 characters.' });
+    }
+    if (newPassword === currentPassword) {
+      return res.status(400).json({ success: false, error: 'New password must be different from your current one.' });
+    }
+
+    const user = await User.findById(req.session.userId).select('+password');
+    if (!user) return res.status(404).json({ success: false, error: 'Account not found.' });
+
+    const ok = await bcrypt.compare(currentPassword, user.password);
+    if (!ok) {
+      return res.status(401).json({ success: false, error: 'Current password is incorrect.' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 12);
+    await user.save();
+
+    return res.json({ success: true, message: 'Password updated' });
+  } catch (err) {
+    console.error('Change password error:', err);
+    return res.status(500).json({ success: false, error: 'Server error' });
+  }
 });
 
 // GET - User withdrawals history (JSON)
@@ -650,14 +815,15 @@ router.get('/course/:key/read', async (req, res) => {
 
   try {
     const user = await User.findById(req.session.userId);
-    if (!user || !user.isActive) return res.redirect('/pending');
-    // Check if user owns this course (approved only)
-    const owned = user.purchasedCourses.some(c => c.courseKey === courseKey && c.status === 'approved');
-    if (!owned) return res.status(403).render('404', { message: 'You do not have access to this course.' });
+    const isAdminRole = user && (user.role === 'superadmin' || user.role === 'financial_secretary');
+    if (!user || (!user.isActive && !isAdminRole)) return res.redirect('/pending');
+    // Check if user owns this course (approved only) unless admin
+    if (!isAdminRole) {
+      const owned = user.purchasedCourses.some(c => c.courseKey === courseKey && c.status === 'approved');
+      if (!owned) return res.status(403).render('404', { message: 'You do not have access to this course.' });
+    }
 
-    // Map courseKey to partial path
-    const contentPartial = `partials/course-contents/${courseKey}`;
-    res.render('course-read', { course, contentPartial, loggedInUser: user });
+    res.render('course-read', { course, loggedInUser: user });
   } catch (err) {
     return res.status(500).render('404', { message: 'Server error.' });
   }

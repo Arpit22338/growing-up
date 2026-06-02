@@ -1,5 +1,13 @@
 // Authentication & Role-based Access Middleware
-// All admin checks verify against DB to prevent session tampering / privilege escalation
+// SECURITY MODEL:
+//   - Identity is the server-side session (MongoStore). The session ID is in an
+//     httpOnly, sameSite=lax, secure (in prod) cookie. It is NOT a JWT in the
+//     browser, so it cannot be read or forged from client JS.
+//   - All role checks re-read the user from the DB (never trust session.role
+//     alone) so a tampered/stale session cannot escalate privileges.
+//   - User-specific routes MUST derive the actor from req.session.userId —
+//     never from req.params.id, req.body.userId, or query strings. This
+//     prevents IDOR (User A reading/modifying User B's data).
 
 const User = require('../models/User');
 

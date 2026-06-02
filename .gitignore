@@ -7,3 +7,10 @@ uploads/screenshots/*
 .DS_Store
 .vercel
 .env*.local
+backups/
+*.log
+npm-debug.log*
+
+# Internal content-generation prompts — keep these out of the public repo
+course-content-prompt.md
+*-prompt.md

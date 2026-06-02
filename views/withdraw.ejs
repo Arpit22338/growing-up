@@ -26,7 +26,7 @@
   <!-- Withdraw Form Card -->
   <div style="background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:24px;">
     <h3 style="color:#0A1F44;margin-bottom:16px;"><i class='bx bx-money-withdraw' style="color:#D4A017;"></i> Request Withdrawal</h3>
-    <p style="color:#888;font-size:13px;margin-bottom:20px;">Available: ₹<span id="bal"><%= availableBalance %></span> · Min: ₹400</p>
+    <p style="color:#888;font-size:13px;margin-bottom:20px;">Available: ₹<span id="bal"><%= availableBalance %></span></p>
 
     <!-- Step 1: Platform Selection -->
     <div style="display:flex;gap:12px;margin-bottom:20px;">
@@ -49,9 +49,9 @@
         style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:14px;box-sizing:border-box;margin-bottom:12px;font-family:'Poppins',sans-serif;">
       <input type="tel" id="phoneNumber" placeholder="eSewa/Khalti Phone Number"
         style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:14px;box-sizing:border-box;margin-bottom:12px;font-family:'Poppins',sans-serif;">
-      <input type="number" id="amount" placeholder="Amount" min="400"
+      <input type="number" id="amount" placeholder="Amount" min="1"
         style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:14px;box-sizing:border-box;font-family:'Poppins',sans-serif;">
-      <small style="color:#888;font-size:12px;margin-top:6px;display:block;">Minimum: ₹400 | Available: ₹<span><%= availableBalance %></span></small>
+      <small style="color:#888;font-size:12px;margin-top:6px;display:block;">Available: ₹<span><%= availableBalance %></span></small>
     </div>
 
     <!-- Submit -->
@@ -134,7 +134,7 @@ async function submitWithdraw() {
   var a = parseInt(document.getElementById('amount').value);
   if (!p){alert('Select eSewa or Khalti');return;}
   if (!n||!ph){alert('Fill all fields');return;}
-  if (!a||a<400){alert('Minimum ₹400');return;}
+  if (!a||a<1){alert('Enter a valid amount');return;}
   try {
     var csrfMeta = document.querySelector('meta[name="csrf-token"]');
     var hdrs = {'Content-Type':'application/json'};

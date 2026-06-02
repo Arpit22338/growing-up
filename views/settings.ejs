@@ -1,0 +1,420 @@
+<%- include('partials/header') %>
+
+<style>
+  .settings-wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
+  .settings-title { color: #0A1F44; font-size: 26px; font-weight: 700; margin: 0 0 4px; }
+  .settings-sub { color: #888; font-size: 14px; margin: 0 0 24px; }
+  .settings-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(10,31,68,0.08);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .settings-card h2 {
+    color: #0A1F44;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .settings-card h2 i { color: #D4A017; font-size: 22px; }
+  .settings-card .desc { color: #888; font-size: 13px; margin: 0 0 20px; }
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0A1F44;
+    margin-bottom: 6px;
+  }
+  .field .hint { font-size: 12px; color: #888; margin-top: 4px; }
+  .field input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: 'Poppins', sans-serif;
+    color: #0A1F44;
+    background: #F8FAFC;
+    box-sizing: border-box;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .field input:focus {
+    outline: none;
+    border-color: #0A1F44;
+    background: #fff;
+  }
+  .field input:disabled {
+    background: #F1F5F9;
+    color: #94A3B8;
+    cursor: not-allowed;
+  }
+  .field .err {
+    color: #DC2626;
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+  }
+  .field.has-error input { border-color: #DC2626; background: #FEF2F2; }
+  .field.has-error .err { display: block; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 13px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: transform 0.05s, opacity 0.15s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-primary { background: #0A1F44; color: #fff; }
+  .btn-primary:hover { background: #1A3360; }
+  .btn-gold { background: #D4A017; color: #0A1F44; }
+  .btn-gold:hover { background: #E5B22A; }
+  .locked {
+    background: #F1F5F9;
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: #64748B;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .locked i { color: #94A3B8; }
+  /* Toast */
+  #toast {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: #0A1F44;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    max-width: 90%;
+    text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.success { background: #0E7C66; }
+  #toast.error { background: #DC2626; }
+</style>
+
+<div class="settings-wrap">
+  <a href="/dashboard" style="display:inline-flex;align-items:center;gap:6px;color:#888;font-size:14px;text-decoration:none;margin-bottom:16px;">
+    <i class='bx bx-arrow-back'></i> Back to Dashboard
+  </a>
+  <h1 class="settings-title">Account Settings</h1>
+  <p class="settings-sub">Update your profile photo, contact info, and password. Email and name changes need admin approval — message us on WhatsApp for that.</p>
+
+  <!-- Profile Photo -->
+  <div class="settings-card">
+    <h2><i class='bx bx-camera'></i> Profile Photo</h2>
+    <p class="desc">Add a face so other users can recognize you.</p>
+
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+      <div id="settingsPfpWrap" style="position:relative;width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,#D4A017,#B8860B);display:flex;align-items:center;justify-content:center;color:#fff;font-size:42px;font-weight:700;border:4px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);overflow:hidden;flex-shrink:0;">
+        <% if (user.profilePicture) { %>
+          <img id="settingsPfpImg" src="<%= user.profilePicture %>" alt="" style="width:100%;height:100%;object-fit:cover;">
+        <% } else { %>
+          <span id="settingsPfpInitial"><%= user.firstName.charAt(0).toUpperCase() %></span>
+        <% } %>
+        <div id="settingsPfpSpinner" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
+          <span class="spinner" style="border-color: rgba(255,255,255,0.3); border-top-color: #fff;"></span>
+        </div>
+      </div>
+      <div style="flex:1; min-width: 200px;">
+        <input type="file" id="settingsPfpInput" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none;">
+        <button type="button" id="settingsPfpPick" class="btn btn-primary" style="margin-bottom:8px;">
+          <i class='bx bx-upload'></i> <%= user.profilePicture ? 'Change Photo' : 'Upload Photo' %>
+        </button>
+        <% if (user.profilePicture) { %>
+          <button type="button" id="settingsPfpRemove" class="btn" style="background:transparent;color:#DC2626;border:1.5px solid #DC2626;margin-bottom:8px;margin-left:8px;">
+            <i class='bx bx-trash'></i> Remove
+          </button>
+        <% } %>
+        <p style="font-size:12px;color:#888;margin:0;">JPG, PNG or WebP. Max 5MB. Square photos work best.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personal Info -->
+  <div class="settings-card">
+    <h2><i class='bx bx-user-circle'></i> Personal Info</h2>
+    <p class="desc">Your WhatsApp number is how we contact you. Keep it up to date.</p>
+
+    <form id="profileForm" autocomplete="off" novalidate>
+      <div class="field">
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" value="<%= user.firstName %>" disabled>
+      </div>
+      <div class="field">
+        <label for="middleName">Middle Name (optional)</label>
+        <input type="text" id="middleName" name="middleName" value="<%= user.middleName || '' %>" maxlength="50" placeholder="e.g. Kumar">
+      </div>
+      <div class="field">
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" value="<%= user.lastName %>" disabled>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" value="<%= user.email %>" disabled>
+        <div class="hint"><i class='bx bx-lock-alt'></i> Email cannot be changed — it's your login ID.</div>
+      </div>
+      <div class="field" id="whatsappField">
+        <label for="whatsapp">WhatsApp Number</label>
+        <input type="tel" id="whatsapp" name="whatsapp" value="<%= user.whatsapp %>" inputmode="numeric" maxlength="10" placeholder="10-digit phone number">
+        <div class="err">Please enter a valid 10-digit phone number.</div>
+        <div class="hint">10 digits, no spaces or country code (e.g. 9800000000)</div>
+      </div>
+      <button type="submit" id="saveProfileBtn" class="btn btn-primary">
+        <i class='bx bx-save'></i> Save Changes
+      </button>
+    </form>
+  </div>
+
+  <!-- Change Password -->
+  <div class="settings-card">
+    <h2><i class='bx bx-shield-quarter'></i> Change Password</h2>
+    <p class="desc">Use a strong password you don't use anywhere else.</p>
+
+    <form id="passwordForm" autocomplete="off" novalidate>
+      <div class="field" id="currentPwField">
+        <label for="currentPassword">Current Password</label>
+        <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter your current password">
+        <div class="err">Please enter your current password.</div>
+      </div>
+      <div class="field" id="newPwField">
+        <label for="newPassword">New Password</label>
+        <input type="password" id="newPassword" name="newPassword" minlength="6" placeholder="At least 6 characters">
+        <div class="err">New password must be at least 6 characters.</div>
+      </div>
+      <div class="field" id="confirmPwField">
+        <label for="confirmPassword">Confirm New Password</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" minlength="6" placeholder="Type the new password again">
+        <div class="err">Passwords don't match.</div>
+      </div>
+      <button type="submit" id="changePwBtn" class="btn btn-gold">
+        <i class='bx bx-key'></i> Update Password
+      </button>
+    </form>
+  </div>
+
+  <!-- Account Info (read-only) -->
+  <div class="settings-card">
+    <h2><i class='bx bx-info-circle'></i> Account Info</h2>
+    <p class="desc">These details are fixed for security reasons.</p>
+    <div class="locked">
+      <i class='bx bx-calendar'></i> Member since <strong style="margin-left:6px;color:#0A1F44;"><%= new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></strong>
+    </div>
+    <div class="locked" style="margin-top:10px;">
+      <i class='bx bx-id-card'></i> Account ID: <code style="margin-left:6px;color:#0A1F44;font-size:12px;"><%= user._id %></code>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<input type="hidden" id="csrfToken" value="<%= csrfToken %>">
+
+<script>
+(function() {
+  const csrf = document.getElementById('csrfToken').value;
+
+  // ── Profile photo upload ──
+  const pfpInput = document.getElementById('settingsPfpInput');
+  const pfpPick = document.getElementById('settingsPfpPick');
+  const pfpRemove = document.getElementById('settingsPfpRemove');
+  const pfpWrap = document.getElementById('settingsPfpWrap');
+  const pfpSpinner = document.getElementById('settingsPfpSpinner');
+  const pfpImg = document.getElementById('settingsPfpImg');
+  const pfpInitial = document.getElementById('settingsPfpInitial');
+
+  function setPfpBusy(busy) {
+    pfpSpinner.style.display = busy ? 'flex' : 'none';
+    pfpWrap.style.pointerEvents = busy ? 'none' : 'auto';
+  }
+  if (pfpPick) {
+    pfpPick.addEventListener('click', function() { pfpInput.click(); });
+  }
+  if (pfpInput) {
+    pfpInput.addEventListener('change', function() {
+      if (!pfpInput.files || !pfpInput.files[0]) return;
+      const file = pfpInput.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('Image is over 5MB. Please pick a smaller one.', 'error');
+        pfpInput.value = '';
+        return;
+      }
+      // Local preview
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        if (pfpImg) {
+          pfpImg.src = e.target.result;
+        } else {
+          const img = document.createElement('img');
+          img.id = 'settingsPfpImg';
+          img.src = e.target.result;
+          img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+          pfpInitial && pfpInitial.remove();
+          pfpWrap.insertBefore(img, pfpSpinner);
+        }
+      };
+      reader.readAsDataURL(file);
+
+      setPfpBusy(true);
+      const fd = new FormData();
+      fd.append('pfp', file);
+      fetch('/api/profile/upload-pfp', {
+        method: 'POST',
+        body: fd,
+        headers: { 'X-CSRF-Token': csrf },
+        credentials: 'same-origin'
+      }).then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data || !data.success) throw new Error((data && data.error) || 'Upload failed');
+          const imgEl = document.getElementById('settingsPfpImg');
+          if (imgEl) imgEl.src = data.url;
+          showToast('✓ Profile photo updated!', 'success');
+        })
+        .catch(function(err) {
+          showToast(err.message || 'Could not upload. Try again.', 'error');
+        })
+        .finally(function() {
+          setPfpBusy(false);
+          pfpInput.value = '';
+        });
+    });
+  }
+  if (pfpRemove) {
+    pfpRemove.addEventListener('click', function() {
+      if (!confirm('Remove your profile photo?')) return;
+      setPfpBusy(true);
+      fetch('/api/profile/remove-pfp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        credentials: 'same-origin'
+      }).then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data || !data.success) throw new Error((data && data.error) || 'Failed');
+          location.reload();
+        })
+        .catch(function(err) { showToast(err.message, 'error'); setPfpBusy(false); });
+    });
+  }
+
+
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + (type || '');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function() { t.className = ''; }, 3500);
+  }
+
+  function setError(fieldId, on) {
+    const el = document.getElementById(fieldId);
+    if (el) el.classList.toggle('has-error', !!on);
+  }
+
+  // ── Personal Info form ──
+  const profileForm = document.getElementById('profileForm');
+  profileForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const whatsapp = document.getElementById('whatsapp').value.trim();
+    const middleName = document.getElementById('middleName').value.trim();
+    const re = /^\d{10}$/;
+
+    let bad = false;
+    if (!re.test(whatsapp)) { setError('whatsappField', true); bad = true; }
+    else { setError('whatsappField', false); }
+    if (bad) { showToast('Please fix the highlighted fields.', 'error'); return; }
+
+    const btn = document.getElementById('saveProfileBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Saving...';
+
+    try {
+      const r = await fetch('/api/profile/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        body: JSON.stringify({ whatsapp, middleName })
+      });
+      const data = await r.json();
+      if (!r.ok || !data.success) throw new Error(data.error || 'Could not save.');
+      showToast('✓ Changes saved!', 'success');
+    } catch (err) {
+      showToast(err.message || 'Something went wrong.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bx bx-save"></i> Save Changes';
+    }
+  });
+
+  // ── Password form ──
+  const pwForm = document.getElementById('passwordForm');
+  pwForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const cur = document.getElementById('currentPassword').value;
+    const nw = document.getElementById('newPassword').value;
+    const cf = document.getElementById('confirmPassword').value;
+
+    let bad = false;
+    if (!cur) { setError('currentPwField', true); bad = true; } else { setError('currentPwField', false); }
+    if (!nw || nw.length < 6) { setError('newPwField', true); bad = true; } else { setError('newPwField', false); }
+    if (nw !== cf) { setError('confirmPwField', true); bad = true; } else { setError('confirmPwField', false); }
+    if (bad) { showToast('Please fix the highlighted fields.', 'error'); return; }
+
+    if (nw === cur) { setError('newPwField', true); showToast('New password must be different from the current one.', 'error'); return; }
+
+    const btn = document.getElementById('changePwBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Updating...';
+
+    try {
+      const r = await fetch('/api/profile/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        body: JSON.stringify({ currentPassword: cur, newPassword: nw })
+      });
+      const data = await r.json();
+      if (!r.ok || !data.success) throw new Error(data.error || 'Could not update password.');
+      pwForm.reset();
+      showToast('✓ Password updated!', 'success');
+    } catch (err) {
+      showToast(err.message || 'Something went wrong.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bx bx-key"></i> Update Password';
+    }
+  });
+
+  // Clear field error on input
+  ['whatsapp','currentPassword','newPassword','confirmPassword','middleName'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', function() {
+      const field = el.closest('.field');
+      if (field) field.classList.remove('has-error');
+    });
+  });
+})();
+</script>
+
+<%- include('partials/footer') %>

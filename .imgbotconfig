@@ -1,0 +1,14 @@
+{
+  "agreeToTerms": true,
+  "commitConvention": "ImBot",
+  "pullRequest": true,
+  "prDescription": "Optimized images with ImgBot.\nTotal savings: see PR body.\n",
+  "prTitle": "ImgBot: Optimize images",
+  "ignoredFiles": [
+    "^logo\\.png$",
+    "^esewa\\.png$",
+    "^khalti\\.png$",
+    ".*\\.gitkeep$",
+    ".*\\.svg$"
+  ]
+}

@@ -5,13 +5,15 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "cron": "node scripts/run-cron.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
     "connect-mongo": "^6.0.0",
     "dotenv": "^17.3.1",
     "ejs": "^4.0.1",
