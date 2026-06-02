@@ -129,11 +129,13 @@
       gap: 30px;
     }
     .cert-sig {
-      text-align: center; flex: 1; max-width: 240px;
+      text-align: center; flex: 1;
       display: flex; flex-direction: column; align-items: center;
     }
-    .cert-sig img.sig-img { width: 220px; height: auto; margin-bottom: 0; object-fit: contain; }
-    .cert-sig img.stamp-img { height: 170px; width: auto; margin-bottom: 0; object-fit: contain; }
+    .cert-sig.left { max-width: 300px; flex: 1.5; }
+    .cert-sig.right { max-width: 200px; flex: 1; }
+    .cert-sig img.sig-img { width: 440px; height: auto; margin-bottom: 0; object-fit: contain; }
+    .cert-sig img.stamp-img { height: 155px; width: auto; margin-bottom: -4px; object-fit: contain; }
     .cert-sig .line {
       border-top: 2px solid #0A1F44;
       padding-top: 4px;
@@ -183,8 +185,8 @@
       .cert-name { font-size: 30px; padding: 0 20px 5px; }
       .cert-course { font-size: 22px; }
       .cert-seal { width: 60px; height: 60px; font-size: 24px; }
-      .cert-sig img.sig-img { width: 170px; }
-      .cert-sig img.stamp-img { height: 130px; }
+      .cert-sig img.sig-img { width: 320px; }
+      .cert-sig img.stamp-img { height: 120px; }
       .corner { width: 40px; height: 40px; }
       .corner.tl, .corner.tr { top: 16px; }
       .corner.bl, .corner.br { bottom: 16px; }
@@ -244,7 +246,7 @@
       </div>
 
       <div class="cert-footer">
-        <div class="cert-sig">
+        <div class="cert-sig left">
           <img src="/images/signature.png" alt="Signature" class="sig-img">
           <div class="line">Arpit Kafle</div>
           <div class="role">Founder, Growing Up</div>
@@ -260,9 +262,9 @@
           <div class="cert-id-hint">Issued <%= issuedAt %></div>
           <div class="cert-id-hint">Verify at growingup.tech/verify/GU-<%= certId %></div>
         </div>
-        <div class="cert-sig">
+        <div class="cert-sig right">
           <img src="/images/stamp.png" alt="Growing Up Stamp" class="stamp-img">
-          <div class="role">Knowledge-Building Program</div>
+          <div class="role" style="margin-top:-2px;">Knowledge-Building Program</div>
         </div>
       </div>
     </div>
