@@ -122,7 +122,38 @@
     <i class='bx bx-arrow-back'></i> Back to Dashboard
   </a>
   <h1 class="settings-title">Account Settings</h1>
-  <p class="settings-sub">Update your contact info and password. Email and name changes need admin approval — message us on WhatsApp for that.</p>
+  <p class="settings-sub">Update your profile photo, contact info, and password. Email and name changes need admin approval — message us on WhatsApp for that.</p>
+
+  <!-- Profile Photo -->
+  <div class="settings-card">
+    <h2><i class='bx bx-camera'></i> Profile Photo</h2>
+    <p class="desc">Add a face so other users can recognize you.</p>
+
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+      <div id="settingsPfpWrap" style="position:relative;width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,#D4A017,#B8860B);display:flex;align-items:center;justify-content:center;color:#fff;font-size:42px;font-weight:700;border:4px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);overflow:hidden;flex-shrink:0;">
+        <% if (user.profilePicture) { %>
+          <img id="settingsPfpImg" src="<%= user.profilePicture %>" alt="" style="width:100%;height:100%;object-fit:cover;">
+        <% } else { %>
+          <span id="settingsPfpInitial"><%= user.firstName.charAt(0).toUpperCase() %></span>
+        <% } %>
+        <div id="settingsPfpSpinner" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
+          <span class="spinner" style="border-color: rgba(255,255,255,0.3); border-top-color: #fff;"></span>
+        </div>
+      </div>
+      <div style="flex:1; min-width: 200px;">
+        <input type="file" id="settingsPfpInput" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none;">
+        <button type="button" id="settingsPfpPick" class="btn btn-primary" style="margin-bottom:8px;">
+          <i class='bx bx-upload'></i> <%= user.profilePicture ? 'Change Photo' : 'Upload Photo' %>
+        </button>
+        <% if (user.profilePicture) { %>
+          <button type="button" id="settingsPfpRemove" class="btn" style="background:transparent;color:#DC2626;border:1.5px solid #DC2626;margin-bottom:8px;margin-left:8px;">
+            <i class='bx bx-trash'></i> Remove
+          </button>
+        <% } %>
+        <p style="font-size:12px;color:#888;margin:0;">JPG, PNG or WebP. Max 5MB. Square photos work best.</p>
+      </div>
+    </div>
+  </div>
 
   <!-- Personal Info -->
   <div class="settings-card">
@@ -206,6 +237,89 @@
 <script>
 (function() {
   const csrf = document.getElementById('csrfToken').value;
+
+  // ── Profile photo upload ──
+  const pfpInput = document.getElementById('settingsPfpInput');
+  const pfpPick = document.getElementById('settingsPfpPick');
+  const pfpRemove = document.getElementById('settingsPfpRemove');
+  const pfpWrap = document.getElementById('settingsPfpWrap');
+  const pfpSpinner = document.getElementById('settingsPfpSpinner');
+  const pfpImg = document.getElementById('settingsPfpImg');
+  const pfpInitial = document.getElementById('settingsPfpInitial');
+
+  function setPfpBusy(busy) {
+    pfpSpinner.style.display = busy ? 'flex' : 'none';
+    pfpWrap.style.pointerEvents = busy ? 'none' : 'auto';
+  }
+  if (pfpPick) {
+    pfpPick.addEventListener('click', function() { pfpInput.click(); });
+  }
+  if (pfpInput) {
+    pfpInput.addEventListener('change', function() {
+      if (!pfpInput.files || !pfpInput.files[0]) return;
+      const file = pfpInput.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('Image is over 5MB. Please pick a smaller one.', 'error');
+        pfpInput.value = '';
+        return;
+      }
+      // Local preview
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        if (pfpImg) {
+          pfpImg.src = e.target.result;
+        } else {
+          const img = document.createElement('img');
+          img.id = 'settingsPfpImg';
+          img.src = e.target.result;
+          img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+          pfpInitial && pfpInitial.remove();
+          pfpWrap.insertBefore(img, pfpSpinner);
+        }
+      };
+      reader.readAsDataURL(file);
+
+      setPfpBusy(true);
+      const fd = new FormData();
+      fd.append('pfp', file);
+      fetch('/api/profile/upload-pfp', {
+        method: 'POST',
+        body: fd,
+        headers: { 'X-CSRF-Token': csrf },
+        credentials: 'same-origin'
+      }).then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data || !data.success) throw new Error((data && data.error) || 'Upload failed');
+          const imgEl = document.getElementById('settingsPfpImg');
+          if (imgEl) imgEl.src = data.url;
+          showToast('✓ Profile photo updated!', 'success');
+        })
+        .catch(function(err) {
+          showToast(err.message || 'Could not upload. Try again.', 'error');
+        })
+        .finally(function() {
+          setPfpBusy(false);
+          pfpInput.value = '';
+        });
+    });
+  }
+  if (pfpRemove) {
+    pfpRemove.addEventListener('click', function() {
+      if (!confirm('Remove your profile photo?')) return;
+      setPfpBusy(true);
+      fetch('/api/profile/remove-pfp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        credentials: 'same-origin'
+      }).then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data || !data.success) throw new Error((data && data.error) || 'Failed');
+          location.reload();
+        })
+        .catch(function(err) { showToast(err.message, 'error'); setPfpBusy(false); });
+    });
+  }
+
 
   function showToast(msg, type) {
     const t = document.getElementById('toast');

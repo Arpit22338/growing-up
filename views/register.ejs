@@ -32,6 +32,27 @@
 
       <form id="step1Form">
 
+        <!-- Profile Photo (optional) -->
+        <div class="form-group" style="text-align:center; margin-bottom: 24px;">
+          <div id="profileClickArea" style="position:relative;width:110px;height:110px;margin:0 auto;cursor:pointer;border-radius:50%;background:linear-gradient(135deg,#D4A017,#B8860B);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;border:4px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);overflow:hidden;transition:transform 0.15s;">
+            <i class='bx bx-camera' id="profileIcon" style="font-size:36px;"></i>
+            <img id="profilePreview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;">
+            <div id="profileSpinner" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
+              <span class="spinner" style="border-color: rgba(255,255,255,0.3); border-top-color: #fff;"></span>
+            </div>
+          </div>
+          <input type="file" id="profileInput" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none;">
+          <input type="hidden" id="pfpUrl" name="pfpUrl" value="">
+          <div id="profileUploadArea" style="margin-top:10px;font-size:13px;color:#888;">
+            <span>Tap to add a profile photo</span>
+            <span style="color:#aaa;display:block;margin-top:2px;">(Optional — you can add it later in Settings)</span>
+          </div>
+          <button type="button" id="removePfp" style="display:none;margin-top:8px;background:none;border:none;color:#DC2626;font-size:12px;cursor:pointer;font-weight:600;">
+            <i class='bx bx-trash'></i> Remove photo
+          </button>
+        </div>
+
+
         
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">

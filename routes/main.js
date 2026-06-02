@@ -7,6 +7,7 @@ const Settings = require('../models/Settings');
 const Withdrawal = require('../models/Withdrawal');
 const courses = require('../config/courses');
 const multer = require('multer');
+const { uploadPfp, uploadPaymentProof, tempId } = require('../config/cloudinary');
 const { isAuthenticated, isActiveUser } = require('../middleware/auth');
 
 // Multer config — memory storage (for Vercel/serverless compatibility)
@@ -20,11 +21,6 @@ const upload = multer({
     cb(new Error('Only image files are allowed'));
   }
 });
-
-// Helper: convert multer file buffer to base64 data URI
-function fileToBase64(file) {
-  return `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
-}
 
 // GET - Home page
 router.get('/', async (req, res) => {
@@ -112,7 +108,7 @@ router.post('/api/validate-referral', async (req, res) => {
 // POST - Step 1: Register account info
 router.post('/api/register/step1', async (req, res) => {
   try {
-    const { firstName, middleName, lastName, whatsapp, email, gender, referralCode } = req.body;
+    const { firstName, middleName, lastName, whatsapp, email, gender, referralCode, pfpUrl } = req.body;
 
     // Check if email already exists
     const existing = await User.findOne({ email: email.toLowerCase() });
@@ -135,7 +131,8 @@ router.post('/api/register/step1', async (req, res) => {
       email: email.trim().toLowerCase(),
       gender,
       referrerId: referrer._id,
-      referralCode: referralCode.toUpperCase()
+      referralCode: referralCode.toUpperCase(),
+      pfpUrl: (typeof pfpUrl === 'string' && pfpUrl.startsWith('https://res.cloudinary.com/')) ? pfpUrl : ''
     };
 
     return res.json({ success: true });
@@ -145,7 +142,26 @@ router.post('/api/register/step1', async (req, res) => {
   }
 });
 
-// POST - Step 2: Payment screenshot upload (stored as base64 in DB)
+// POST - Temp PFP upload during signup (user doesn't exist yet).
+// Stores a Cloudinary URL in the session so step 3 can attach it to the new account.
+router.post('/api/register/upload-temp-pfp', upload.single('pfp'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, error: 'No image received.' });
+  }
+  try {
+    const id = tempId();
+    const result = await uploadPfp(req.file.buffer, 'tmp-' + id);
+    return res.json({ success: true, url: result.secure_url });
+  } catch (err) {
+    console.error('Temp PFP upload error:', err.message);
+    return res.status(500).json({ success: false, error: 'Could not upload image. Try again or skip.' });
+  }
+});
+
+// POST - Step 2: Payment screenshot upload
+// The screenshot is uploaded to Cloudinary and the secure URL is stored in the session
+// and on the Payment + User.purchasedCourses records, so admins always have a viewable
+// link — no base64 blobs in the DB.
 router.post('/api/register/step2', upload.single('screenshot'), async (req, res) => {
   try {
     if (!req.session.registration) {
@@ -170,16 +186,20 @@ router.post('/api/register/step2', upload.single('screenshot'), async (req, res)
       }
     }
 
+    // Upload proof to Cloudinary (uses a temp id; we re-key after the user is created)
+    const proofId = tempId();
+    const proof = await uploadPaymentProof(req.file.buffer, proofId);
+
     req.session.registration.courseKey = courseKey;
     req.session.registration.courseName = course.name;
     req.session.registration.price = course.price;
-    req.session.registration.screenshot = fileToBase64(req.file);
+    req.session.registration.screenshot = proof.secure_url; // Cloudinary URL
     req.session.registration.transactionId = transactionId || '';
 
     return res.json({ success: true });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Server error' });
+    console.error('Step 2 upload error:', err.message);
+    return res.status(500).json({ error: 'Could not upload payment proof. Please try again.' });
   }
 });
 
@@ -190,21 +210,19 @@ router.post('/api/register/step3', async (req, res) => {
       return res.status(400).json({ error: 'Please complete previous steps first' });
     }
 
-    const { password, profilePicture } = req.body;
+    const { password } = req.body;
     if (!password || password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    // Validate profile picture size (max ~500KB base64)
-    let validProfilePic = '';
-    if (profilePicture && typeof profilePicture === 'string' && profilePicture.startsWith('data:image/')) {
-      if (profilePicture.length <= 700000) {
-        validProfilePic = profilePicture;
-      }
-    }
-
     const reg = req.session.registration;
     const hashedPassword = await bcrypt.hash(password, 12);
+
+    // PFP: only accept https://res.cloudinary.com/... URLs (set during step 1 upload).
+    // Empty string is fine — PFP is optional.
+    const validPfp = (typeof reg.pfpUrl === 'string' && reg.pfpUrl.startsWith('https://res.cloudinary.com/'))
+      ? reg.pfpUrl
+      : '';
 
     const user = new User({
       firstName: reg.firstName,
@@ -214,7 +232,7 @@ router.post('/api/register/step3', async (req, res) => {
       whatsapp: reg.whatsapp,
       gender: reg.gender,
       password: hashedPassword,
-      profilePicture: validProfilePic,
+      profilePicture: validPfp,
       referredBy: reg.referrerId,
       isActive: false,
       purchasedCourses: [{
@@ -258,6 +276,38 @@ router.post('/api/register/step3', async (req, res) => {
       return res.status(400).json({ error: 'Email already registered' });
     }
     return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST - Change profile picture (logged-in user)
+router.post('/api/profile/upload-pfp', upload.single('pfp'), async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, error: 'Please login first' });
+  }
+  if (!req.file) {
+    return res.status(400).json({ success: false, error: 'No image received.' });
+  }
+  try {
+    const result = await uploadPfp(req.file.buffer, String(req.session.userId));
+    await User.findByIdAndUpdate(req.session.userId, { profilePicture: result.secure_url });
+    return res.json({ success: true, url: result.secure_url, message: 'Profile photo updated' });
+  } catch (err) {
+    console.error('PFP upload error:', err.message);
+    return res.status(500).json({ success: false, error: 'Could not upload image. Please try again.' });
+  }
+});
+
+// POST - Remove profile picture (revert to initials)
+router.post('/api/profile/remove-pfp', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, error: 'Please login first' });
+  }
+  try {
+    await User.findByIdAndUpdate(req.session.userId, { profilePicture: '' });
+    return res.json({ success: true, message: 'Profile photo removed' });
+  } catch (err) {
+    console.error('PFP remove error:', err.message);
+    return res.status(500).json({ success: false, error: 'Could not remove photo.' });
   }
 });
 
