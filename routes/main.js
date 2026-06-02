@@ -762,7 +762,9 @@ router.get('/profile', async (req, res) => {
 });
 
 // GET - Certificate of completion (per course)
-// Gated on completing all modules in the course. Admin/FinSec bypass.
+// Gated on course ownership only. Module completion is tracked in
+// localStorage on the client — the course-read page only shows the
+// "Get Certificate" link when all modules are marked complete locally.
 router.get('/certificate/:courseKey', async (req, res) => {
   if (!req.session || !req.session.userId) return res.redirect('/login');
   const courseKey = req.params.courseKey;
@@ -775,16 +777,6 @@ router.get('/certificate/:courseKey', async (req, res) => {
     const isAdmin = user.role === 'superadmin' || user.role === 'financial_secretary';
     if (!owned && !isAdmin) {
       return res.status(403).send('You need to own this course to get a certificate.');
-    }
-
-    // Completion gate: must have completed all modules (admins bypass).
-    if (!isAdmin) {
-      const moduleCount = getModuleCount(courseKey);
-      const entry = user.purchasedCourses.find(c => c.courseKey === courseKey);
-      const completed = (entry && entry.completedModules) || [];
-      if (moduleCount > 0 && completed.length < moduleCount) {
-        return res.redirect('/course/' + courseKey + '/read?cert=locked');
-      }
     }
 
     // Stable, deterministic cert id: GU-{courseKey 3}-{userId last 6}
@@ -814,14 +806,6 @@ router.get('/certificate/:courseKey/download', async (req, res) => {
     const isAdmin = user.role === 'superadmin' || user.role === 'financial_secretary';
     if (!owned && !isAdmin) {
       return res.status(403).send('You need to own this course to get a certificate.');
-    }
-    if (!isAdmin) {
-      const moduleCount = getModuleCount(courseKey);
-      const entry = user.purchasedCourses.find(c => c.courseKey === courseKey);
-      const completed = (entry && entry.completedModules) || [];
-      if (moduleCount > 0 && completed.length < moduleCount) {
-        return res.redirect('/course/' + courseKey + '/read?cert=locked');
-      }
     }
     const short = String(user._id).slice(-6).toUpperCase();
     const ck = courseKey.toUpperCase().slice(0, 3);

@@ -197,9 +197,23 @@
   // Server-injected data (module content is HTML from us, safe to set)
   const courseKey = '<%= courseKey %>';
   const modules = <%- JSON.stringify(modules).replace(/<\x2Fscript/gi, '<\\x2Fscript') %>;
-  let completedModules = <%- JSON.stringify(completedModules) %>;
   const moduleCount = <%= moduleCount %>;
-  const isAdminPreview = <%= loggedInUser.role === 'superadmin' || loggedInUser.role === 'financial_secretary' ? 'true' : 'false' %>;
+
+  // Completion is stored in localStorage — no server round-trip needed.
+  // Key: gu_completed_{courseKey} → JSON array of module IDs.
+  const STORAGE_KEY = 'gu_completed_' + courseKey;
+
+  function loadCompleted() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+  }
+  function saveCompleted(arr) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); } catch (e) {}
+  }
+
+  let completedModules = loadCompleted();
 
   const moduleList = document.getElementById('crSidebar');
   const moduleContent = document.getElementById('crModContent');
@@ -211,7 +225,6 @@
   const toastEl = document.getElementById('crToast');
 
   let currentIdx = 0;
-  let isSaving = false;
 
   function showToast(msg, type) {
     toastEl.textContent = msg;
@@ -275,49 +288,29 @@
   function renderModule() {
     if (!modules[currentIdx]) return;
     const mod = modules[currentIdx];
-    // mod.content is HTML, written by us in config/course-content.js. Safe to inject.
     moduleContent.innerHTML = mod.content;
     window.scrollTo({ top: moduleContent.offsetTop - 80, behavior: 'smooth' });
     renderSidebar();
     renderCompleteBtn();
   }
 
-  async function toggleComplete() {
-    if (isSaving) return;
+  // Toggle completion — localStorage only, no server call
+  function toggleComplete() {
     if (!modules[currentIdx]) return;
     const modId = modules[currentIdx].id;
-    isSaving = true;
-    completeBtn.disabled = true;
-    var _csrfMeta = document.querySelector('meta[name="csrf-token"]');
-    var _csrf = _csrfMeta ? _csrfMeta.content : '';
-    try {
-      const res = await fetch('/api/course/' + courseKey + '/module/toggle', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': _csrf },
-        credentials: 'same-origin',
-        body: JSON.stringify({ moduleId: modId })
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        showToast(data.error || 'Could not save', 'error');
-      } else {
-        if (data.preview) {
-          showToast('Admin preview — not saved to DB', 'success');
-        } else {
-          completedModules = data.completedModules;
-          showToast(isCompleted(modId) ? '✓ Module marked complete!' : 'Marked as incomplete', 'success');
-        }
-        renderSidebar();
-        renderProgress();
-        renderCertCta();
-        renderCompleteBtn();
-      }
-    } catch (err) {
-      showToast('Connection failed: ' + (err.message || ''), 'error');
-    } finally {
-      isSaving = false;
-      completeBtn.disabled = false;
+    const idx = completedModules.indexOf(modId);
+    if (idx !== -1) {
+      completedModules.splice(idx, 1);
+      showToast('Marked as incomplete', 'success');
+    } else {
+      completedModules.push(modId);
+      showToast('✓ Module marked complete!', 'success');
     }
+    saveCompleted(completedModules);
+    renderSidebar();
+    renderProgress();
+    renderCertCta();
+    renderCompleteBtn();
   }
 
   // Wire sidebar clicks
