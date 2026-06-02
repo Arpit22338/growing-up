@@ -14,14 +14,16 @@ const courses = {
       { icon: 'bx-chat', text: 'Communication Skills for Online Work' },
       { icon: 'bx-brain', text: 'Mindset & Goal Setting' },
       { icon: 'bx-wallet', text: 'Introduction to Online Earning Methods' },
-      { icon: 'bx-link', text: 'How Referral Networks Work' }
+      { icon: 'bx-link', text: 'How Referral Networks Work' },
+      { icon: 'bx-rocket', text: 'Building Your First Online Project' }
     ],
     features: [
       'Social Media Basics & Personal Branding',
       'Communication Skills for Online Work',
       'Mindset & Goal Setting',
       'Introduction to Online Earning Methods',
-      'How Referral Networks Work'
+      'How Referral Networks Work',
+      'Building Your First Online Project'
     ]
   },
   prime: {
@@ -39,14 +41,16 @@ const courses = {
       { icon: 'bx-target-lock', text: 'Target Audience & Marketing Basics' },
       { icon: 'bx-wrench', text: 'Free Tools for Digital Workers' },
       { icon: 'bx-bar-chart-alt-2', text: 'Tracking Your Growth & Earnings' },
-      { icon: 'bx-group', text: 'Building Your Team & Network' }
+      { icon: 'bx-group', text: 'Building Your Team & Network' },
+      { icon: 'bx-filter', text: 'Advanced Funnel Building & Conversions' }
     ],
     features: [
       'Advanced Referral Strategies',
       'Target Audience & Marketing Basics',
       'Free Tools for Digital Workers',
       'Tracking Your Growth & Earnings',
-      'Building Your Team & Network'
+      'Building Your Team & Network',
+      'Advanced Funnel Building & Conversions'
     ]
   },
   master: {

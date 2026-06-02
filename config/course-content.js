@@ -247,6 +247,50 @@ const courseContent = {
 <p>Referral networks are a powerful way to earn online, but success comes from trust, ethics, and support. By focusing on relationships and providing value, you can build a sustainable income stream.</p>
 <h3>❓ Reflection Question</h3>
 <p>How can you add value to your network before asking them to join or buy something?</p>`
+    },
+    {
+      id: 6,
+      title: 'Building Your First Online Project',
+      content: `<h2>Module 6: Building Your First Online Project</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Pick a simple, low-risk first project you can finish in a week.</li>
+  <li>Plan the project: goal, audience, deliverable, deadline.</li>
+  <li>Ship it publicly so you can show real work to future clients.</li>
+  <li>Use the feedback loop to improve and pick the next project.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<p>The fastest way to learn is to <b>ship something real</b>. Theory matters, but nothing beats finishing a project end-to-end. Your first project doesn't need to be perfect — it needs to be <b>done</b>.</p>
+<p><b>Picking a Starter Project</b></p>
+<ul>
+  <li>Choose something you can finish in 3–7 days.</li>
+  <li>Examples: a Facebook page with 30 days of posts, a WhatsApp broadcast list, a one-page website, a short YouTube series, a Canva carousel guide.</li>
+  <li>Pick the smallest version of a real goal — not a "someday" idea.</li>
+</ul>
+<p><b>Project Plan Template</b></p>
+<ul>
+  <li><b>Goal:</b> What does "done" look like? (e.g. "Post 10 reels in 2 weeks")</li>
+  <li><b>Audience:</b> Who is it for?</li>
+  <li><b>Tools:</b> What do you need? (Phone, Canva, Notion, etc.)</li>
+  <li><b>Deadline:</b> Pick a date and stick to it.</li>
+</ul>
+<p><b>Shipping Publicly</b> — Post your work on Facebook, Instagram, or LinkedIn. Ask for feedback. Document the process. Future clients hire people who have proof, not just ideas.</p>
+<p><b>The Feedback Loop</b> — After shipping, ask three people: "What would make this better?" Apply the best feedback to your next project. Repeat.</p>
+<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> Done is better than perfect. A finished imperfect project beats an unfinished "perfect" one every time.</div>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Set a public deadline. Tell your friends or post "I'm shipping X by Friday" — accountability turns plans into outcomes.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Bipin, a 22-year-old from Butwal, had never posted a video online. He decided to post one Canva-made short every day for 30 days. Most got 30 views. By day 25, one reel hit 12,000 views and a local café asked him to run their Instagram. The first 29 videos were "practice" — the 30th opened a door.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Pick a starter project today and write a 1-line goal.</li>
+  <li>Set a public deadline within the next 7 days.</li>
+  <li>Share the finished project on at least one social platform.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Shipping your first project is the bridge between learning and earning. Pick small, finish fast, post publicly, and use feedback to grow. The first project is practice — the tenth is profit.</p>
+<h3>❓ Reflection Question</h3>
+<p>What's one project you've been "planning" for months? What would the smallest shippable version look like?</p>`
     }
   ],
 
@@ -474,210 +518,349 @@ const courseContent = {
 <p>Building a strong team and community multiplies your results. By onboarding, supporting, and recognizing members, you create a culture of growth and success.</p>
 <h3>❓ Reflection Question</h3>
 <p>How can you make your network feel more like a supportive community?</p>`
+    },
+    {
+      id: 6,
+      title: 'Advanced Funnel Building & Conversions',
+      content: `<h2>Module 6: Advanced Funnel Building & Conversions</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Map a digital funnel from first click to paying customer.</li>
+  <li>Write landing pages and lead magnets that actually convert.</li>
+  <li>Use email + WhatsApp sequences to nurture leads.</li>
+  <li>Test, measure, and improve every step of the funnel.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<p>A <b>funnel</b> is the path a stranger walks: see your post → click → join a list → receive a message → buy. Most people skip the middle. Winners don't.</p>
+<p><b>The 4-Stage Digital Funnel</b></p>
+<ul>
+  <li><b>Awareness:</b> Reels, posts, ads — they discover you.</li>
+  <li><b>Interest:</b> Free guide, free webinar, free checklist — they raise their hand.</li>
+  <li><b>Decision:</b> WhatsApp / email follow-up with proof and answers.</li>
+  <li><b>Action:</b> Clear, single offer with one button.</li>
+</ul>
+<p><b>Lead Magnets That Work</b></p>
+<ul>
+  <li>Free PDF: "5 ways to earn your first ₹1,000 online"</li>
+  <li>Free WhatsApp group: "Daily digital tips for 7 days"</li>
+  <li>Free short video course (3 lessons)</li>
+  <li>Free audit: "I'll review your Facebook page and send 3 fixes"</li>
+</ul>
+<p><b>Follow-Up Sequences</b> — Day 0: deliver the lead magnet. Day 1: share a story. Day 3: offer a paid product. Day 7: last-call bonus. Most sales happen on message 2–4, not 1.</p>
+<p><b>Measuring the Funnel</b> — Track views → clicks → leads → sales. Find the weakest step (biggest drop) and fix that one first.</p>
+<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> A funnel is only as strong as its weakest step. If 1,000 people see your post but only 5 click, the post is the problem — not the offer.</div>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Build the simplest funnel that works first. One lead magnet + one WhatsApp list + one offer. Run it for 30 days. Optimize later.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Anish from Lalitpur was getting 200+ reactions on his Facebook posts but no sales. He added a free PDF ("3 mistakes Nepalese freelancers make") and a WhatsApp follow-up sequence. Within 3 weeks, he had 60 leads and 8 sales. Same audience — better funnel.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Map your current funnel: where do people drop off?</li>
+  <li>Create a simple lead magnet (free PDF or checklist) this week.</li>
+  <li>Set up a 4-message WhatsApp or email follow-up sequence.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Traffic without a funnel is wasted attention. By building a clear 4-stage path — awareness, interest, decision, action — and following up with a real sequence, you turn viewers into customers and customers into repeat buyers.</p>
+<h3>❓ Reflection Question</h3>
+<p>What's the single weakest step in your current funnel, and what's the one change that would most improve it?</p>`
     }
   ],
 
   master: [
     {
       id: 1,
-      title: 'Leadership in Digital Networks',
-      content: `<h2>Module 1: Leadership in Digital Networks</h2>
+      title: 'Leadership & Team Management',
+      content: `<h2>Module 1: Leadership & Team Management</h2>
 <h3>🎯 Learning Objectives</h3>
 <ul>
-  <li>Understand the difference between leading online and offline.</li>
-  <li>Learn the principles of servant leadership in digital communities.</li>
-  <li>Build credibility, authority, and mentorship structures.</li>
-  <li>Handle team conflicts and inspire consistency.</li>
+  <li>Lead distributed digital teams with clarity and empathy.</li>
+  <li>Set team goals, KPIs, and weekly rhythms that work remotely.</li>
+  <li>Recruit, onboard, and develop new team members.</li>
+  <li>Handle conflict, motivation, and performance dips.</li>
 </ul>
 <h3>📖 Core Lesson</h3>
-<p>Leadership in digital spaces is about influence, not just authority. Unlike traditional leadership, you may never meet your team in person. Your words, actions, and digital presence set the tone.</p>
-<p><b>Servant Leadership in Digital Communities</b></p>
+<p>Digital leadership is influence without a corner office. Your team sees your words, your replies, and your consistency — not your title. Lead like a coach, not a boss.</p>
+<p><b>The 4 Habits of a Digital Leader</b></p>
 <ul>
-  <li>Put your team's needs first.</li>
-  <li>Listen actively and respond to feedback.</li>
-  <li>Share credit for successes and take responsibility for failures.</li>
+  <li><b>Over-communicate:</b> Say it, then say it again. Async teams miss context.</li>
+  <li><b>Default to trust:</b> Check the result, not the hours. Micromanagement kills output.</li>
+  <li><b>Document everything:</b> If it's in your head, your team can't use it.</li>
+  <li><b>Celebrate publicly:</b> Recognise effort every week, not just wins.</li>
 </ul>
-<p><b>Building Credibility and Authority</b></p>
-<ul>
-  <li>Be consistent in your communication and actions.</li>
-  <li>Share your own learning journey and results.</li>
-  <li>Support others publicly and privately.</li>
-</ul>
-<p><b>Setting Team KPIs</b> — Define clear, measurable goals (e.g., number of referrals, engagement rate). Review progress together and celebrate wins.</p>
-<p><b>Handling Team Conflicts and Drama</b> — Address issues quickly and fairly. Listen to all sides before making decisions. Keep discussions respectful and focused on solutions.</p>
-<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> The team takes on the personality of the leader. If you want them to be honest, supportive, and consistent, you have to be that first.</div>
+<p><b>Setting Team KPIs</b> — Pick 3 numbers that matter (e.g., weekly signups, weekly active members, weekly content posts). Review them every Monday. Move the slowest number first.</p>
+<p><b>Weekly Team Rhythm</b> — Monday: 15-min standup (wins, blocks, asks). Wednesday: short skill-share. Friday: 1 shoutout + 1 lesson learned.</p>
+<p><b>Handling Conflict</b> — Address within 48 hours. Talk to each person privately first. Use facts, not feelings. Agree on a concrete next step.</p>
+<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> A team takes on the personality of its leader. If you want consistency, be consistent. If you want urgency, be urgent.</div>
 <h3>💡 PRO TIP</h3>
-<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Record short video messages for your team. Seeing your face and hearing your voice builds trust and connection.</div>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Record a 2-minute voice note every Monday with your top 3 priorities. It takes 2 minutes and saves the team an hour of guessing.</div>
 <h3>🌍 REAL LIFE STORY</h3>
-<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Rajan, a digital leader in Kathmandu, managed a team of 20 across Nepal. He held weekly Zoom calls, shared his own progress, and encouraged open discussion. When a conflict arose between two members, he listened to both sides and helped them find common ground. His team became more engaged, and their results improved.</div>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Rajan, a digital leader in Kathmandu, managed 18 team members across 6 cities. He held a 15-minute Monday call, sent a 3-line Friday recap, and tracked one number: weekly signups. Within 4 months, his team's output tripled — and they hadn't worked a single hour longer.</div>
 <h3>✅ Action Steps</h3>
 <ol>
-  <li>Schedule a weekly team call or check-in.</li>
-  <li>Share your own learning journey with your team this week.</li>
-  <li>Address any unresolved team issues within 48 hours.</li>
+  <li>Pick 3 KPIs for your team this week and write them down.</li>
+  <li>Schedule a 15-minute Monday standup.</li>
+  <li>Send a 3-line Friday recap to your team every week for a month.</li>
 </ol>
 <h3>📝 Module Summary</h3>
-<p>Digital leadership is about service, consistency, and adaptability. By putting your team first, modeling positive behavior, and addressing challenges quickly, you build a strong, motivated network.</p>
+<p>Great digital leaders don't have all the answers — they build the rhythm that finds them. Set clear KPIs, over-communicate, default to trust, and celebrate publicly. Your team will rise to whatever you consistently model.</p>
 <h3>❓ Reflection Question</h3>
-<p>How can you better serve and inspire your digital team this month?</p>`
+<p>What's one habit you can start this week that would make your team's life measurably easier?</p>`
     },
     {
       id: 2,
-      title: 'Scaling Your Earnings',
-      content: `<h2>Module 2: Scaling Your Earnings</h2>
+      title: 'Content Creation & Video Marketing',
+      content: `<h2>Module 2: Content Creation & Video Marketing</h2>
 <h3>🎯 Learning Objectives</h3>
 <ul>
-  <li>Understand the difference between linear and leveraged income.</li>
-  <li>Learn how to build systems and delegate tasks.</li>
-  <li>Master content repurposing and automation.</li>
-  <li>Explore passive income and income diversification.</li>
+  <li>Plan a 30-day content calendar that you can actually execute.</li>
+  <li>Record short-form videos with just a phone.</li>
+  <li>Edit fast in CapCut and write captions that hook viewers.</li>
+  <li>Repurpose one video into 5+ pieces of content.</li>
 </ul>
 <h3>📖 Core Lesson</h3>
-<p><b>Linear vs. Leveraged Income</b> — Linear: you earn only for the work you do. Leveraged: you earn from systems, teams, or content that works for you (e.g., team referrals, evergreen videos).</p>
-<p><b>Building Systems</b></p>
+<p>You don't need a camera, a studio, or a course to start posting. You need a phone, a 60-second script, and the discipline to post on schedule. The best camera is the one in your hand.</p>
+<p><b>The 30-Day Content Plan</b></p>
 <ul>
-  <li>Document your processes (how you onboard, follow up, train).</li>
-  <li>Use tools (Trello, Notion) to track tasks and progress.</li>
-  <li>Delegate routine tasks to team members or virtual assistants.</li>
+  <li>Week 1: 7 short videos (60 seconds each). 1 per day.</li>
+  <li>Week 2: 7 short videos. Reuse your best hook from Week 1.</li>
+  <li>Week 3: 4 long videos + 3 shorts. Try a 5-minute breakdown.</li>
+  <li>Week 4: 7 shorts, 1 long. Look at your top 3 — make more like them.</li>
 </ul>
-<p><b>Content Repurposing</b> — Turn one video into a blog post, Instagram story, and WhatsApp broadcast. Schedule content in advance using tools like Buffer or Facebook Creator Studio.</p>
-<p><b>Automating Follow-Ups</b> — Use WhatsApp broadcast lists or email sequences. Set reminders for follow-ups in Google Calendar.</p>
-<p><b>Creating Passive Income Streams</b> — Build a YouTube channel with evergreen content. Create digital products (e-books, templates). Set up affiliate links in your content.</p>
-<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> Don't trade time for money forever. The goal of scaling is to free up your hours while your income grows.</div>
+<p><b>The 3-Second Hook</b> — Every video must earn the next 3 seconds. Use: "Most people get this wrong…" / "Here's the ₹1,000 mistake I made last month…" / "If you do X, stop."</p>
+<p><b>Recording With a Phone</b></p>
+<ul>
+  <li>Film vertically, eye-level, near a window for natural light.</li>
+  <li>Use earphones with a mic — they kill background noise.</li>
+  <li>Record 3 takes, pick the most energetic one. Energy beats polish.</li>
+</ul>
+<p><b>CapCut Basics</b> — Cut every pause. Add captions (it doubles watch time). Add background music at 10% volume. Export at 1080p.</p>
+<p><b>Repurpose 1 → 5</b></p>
+<ul>
+  <li>1 long video → 3 shorts (cut the best 60s clips)</li>
+  <li>1 long video → 5 quote images (Canva)</li>
+  <li>1 long video → 1 blog post (transcribe + clean up)</li>
+</ul>
+<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> Consistency beats quality. 30 imperfect videos will teach you more than 1 perfect one you never post.</div>
 <h3>💡 PRO TIP</h3>
-<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Batch your content creation—record or write several pieces at once, then schedule them over the week.</div>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Batch-record 5 videos in one session. Same outfit, same background, different scripts. You'll save 3 hours and post all week.</div>
 <h3>🌍 REAL LIFE STORY</h3>
-<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Sujata, a digital entrepreneur in Pokhara, started by doing everything herself. She documented her processes, hired a VA for admin work, and focused on creating evergreen YouTube videos. Within six months, her income doubled, and she had more free time.</div>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Sita, a college student in Bharatpur, posted one CapCut-edited reel per day for 60 days. Her first 25 videos averaged 80 views. By day 60, one hit 90,000 views and she got two paying clients. She never spent on ads or equipment — just her phone and 30 minutes a day.</div>
 <h3>✅ Action Steps</h3>
 <ol>
-  <li>Document one process you repeat often and delegate it this week.</li>
-  <li>Repurpose one piece of content into two new formats.</li>
-  <li>Research one new passive income stream to start this month.</li>
+  <li>Write 7 video ideas today. One for each day of next week.</li>
+  <li>Record 3 of them this weekend in one batch session.</li>
+  <li>Edit and post 1 video every day for 30 days. Track views in a sheet.</li>
 </ol>
 <h3>📝 Module Summary</h3>
-<p>Scaling your earnings means building systems, delegating, and creating content that works for you. By leveraging your time and diversifying income, you build a more sustainable digital career.</p>
+<p>Content creation is a daily habit, not a creative event. Plan 30 days, batch-record with your phone, edit fast in CapCut, and repurpose everything. Consistency is the only shortcut.</p>
 <h3>❓ Reflection Question</h3>
-<p>What's one task you could automate or delegate to free up your time for higher-value work?</p>`
+<p>What's the smallest content commitment you can do every day for 30 days — and stick to?</p>`
     },
     {
       id: 3,
-      title: 'Handling Challenges & Rejections',
-      content: `<h2>Module 3: Handling Challenges & Rejections</h2>
+      title: 'Building a Personal Brand Online',
+      content: `<h2>Module 3: Building a Personal Brand Online</h2>
 <h3>🎯 Learning Objectives</h3>
 <ul>
-  <li>Understand the neuroscience of rejection and how to reframe failure.</li>
-  <li>Build emotional resilience and handle objections.</li>
-  <li>Learn to get honest feedback and deal with negativity.</li>
-  <li>Prevent burnout and bounce back from setbacks.</li>
+  <li>Define your niche, voice, and the one problem you solve.</li>
+  <li>Build a recognisable visual and verbal identity.</li>
+  <li>Use the "pillar post" system to never run out of ideas.</li>
+  <li>Turn followers into an audience (and an audience into customers).</li>
 </ul>
 <h3>📖 Core Lesson</h3>
-<p><b>The Neuroscience of Rejection</b> — Rejection activates the same brain regions as physical pain. That's why it hurts! But it's also a sign you're taking action and growing.</p>
-<p><b>Reframing Failure as Data</b> — Every "no" is feedback, not a personal attack. Ask: What can I learn? How can I improve?</p>
-<p><b>5-Stage Objection Handling Framework</b></p>
-<ol>
-  <li>Listen fully.</li>
-  <li>Empathize: "I understand how you feel."</li>
-  <li>Clarify: "Can you tell me more about your concern?"</li>
-  <li>Respond with facts or stories.</li>
-  <li>Ask for a small next step.</li>
-</ol>
-<p><b>Burnout Prevention</b> — Set boundaries: work hours, screen time. Take regular breaks and celebrate small wins.</p>
-<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> Rejection is data, not identity. The fastest growers are the ones who hear "no" the most and never stop showing up.</div>
+<p>A personal brand is a <b>promise</b>: when someone sees your name, they should know what to expect. Vague brands get scrolled past. Specific brands get followed, hired, and shared.</p>
+<p><b>The Brand Triangle</b></p>
+<ul>
+  <li><b>Niche:</b> "I help [WHO] do [WHAT] so they can [RESULT]."</li>
+  <li><b>Voice:</b> Friendly? Direct? Funny? Authoritative? Pick 1–2 and stick to them.</li>
+  <li><b>Look:</b> Same colour, same font, same photo style across all platforms.</li>
+</ul>
+<p><b>The "I Help" Sentence</b> — Fill in: "I help _____ in _____ achieve _____." Examples: "I help small business owners in Nepal get their first paying customer through Instagram." If you can't fill it in, your brand is too vague.</p>
+<p><b>3-5 Content Pillars</b> — Pick 3–5 topics you'll post about forever. Examples: "behind the scenes," "myths I used to believe," "how I did X," "tools I use," "wins from followers." Rotate them so you never run out of ideas.</p>
+<p><b>Visual Identity on a Budget</b> — Use Canva: pick 1 brand colour + 1 accent. Use the same font for headlines. Use the same photo filter (or no filter). Apply everywhere.</p>
+<p><b>Followers vs. Audience</b> — Followers = vanity. Audience = trust. An audience is a small group of people who open your posts, reply, and buy. Treat them like friends.</p>
+<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> Be specific. "I help everyone with digital marketing" is not a brand. "I help Pokhara café owners get 30+ Instagram DMs a week" is.</div>
 <h3>💡 PRO TIP</h3>
-<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Keep a "rejection journal" to track what happened, how you felt, and what you learned. Review it monthly to see your growth.</div>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Reply to every comment for the first 1,000 followers. The conversation is the brand.</div>
 <h3>🌍 REAL LIFE STORY</h3>
-<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Manish, a digital worker in Biratnagar, faced 20 rejections in his first month. He started asking for feedback, improved his pitch, and took breaks when feeling low. By month three, his acceptance rate doubled, and he felt more confident.</div>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Hari, a teacher in Birgunj, started posting "5-minute Nepali grammar tips" on TikTok. Same hook, same fonts, same background. Within 6 months, 30,000 followers. A coaching client in Dubai paid him Rs. 25,000 for a 4-week course — found him through a single video.</div>
 <h3>✅ Action Steps</h3>
 <ol>
-  <li>Write down your last rejection and what you learned from it.</li>
-  <li>Ask for feedback from someone who said no this week.</li>
-  <li>Set a daily self-care habit to build resilience.</li>
+  <li>Write your "I help" sentence in one line.</li>
+  <li>Pick 3 content pillars and 2 brand colours.</li>
+  <li>Update your profile photo, bio, and one pinned post to match.</li>
 </ol>
 <h3>📝 Module Summary</h3>
-<p>Rejection is part of the digital journey. By reframing failure, seeking feedback, and caring for yourself, you turn setbacks into stepping stones for success.</p>
+<p>A personal brand is just a clear promise repeated until people remember it. Define your niche, pick a voice and look, post on 3–5 pillars, and reply to your early audience like friends. Specificity is the entire game.</p>
 <h3>❓ Reflection Question</h3>
-<p>How can you use your next rejection as a tool for growth?</p>`
+<p>What would your "I help" sentence sound like if you had to be brutally specific?</p>`
     },
     {
       id: 4,
-      title: 'Advanced Team Management',
-      content: `<h2>Module 4: Advanced Team Management</h2>
+      title: 'WhatsApp & Social Media Funnels',
+      content: `<h2>Module 4: WhatsApp & Social Media Funnels</h2>
 <h3>🎯 Learning Objectives</h3>
 <ul>
-  <li>Learn the difference between delegation and micromanagement.</li>
-  <li>Run effective online meetings and use project management tools.</li>
-  <li>Track team performance and create SOPs.</li>
-  <li>Handle underperformers and plan for succession.</li>
+  <li>Build a WhatsApp list you actually own.</li>
+  <li>Design a 5-message funnel that converts cold leads to buyers.</li>
+  <li>Use broadcast lists, status, and groups without being spammy.</li>
+  <li>Connect WhatsApp to a paid offer and measure results.</li>
 </ul>
 <h3>📖 Core Lesson</h3>
-<p><b>Delegation vs. Micromanagement</b> — Delegation is trusting team members to complete tasks with guidance. Micromanagement controls every detail, which reduces motivation.</p>
-<p><b>Running Effective Online Meetings</b></p>
+<p>Email is dying in Nepal. WhatsApp is the inbox. If you can run a 5-message WhatsApp funnel, you can run any business. If you can't, you don't have a list — you have a hope.</p>
+<p><b>The WhatsApp Funnel Stack</b></p>
 <ul>
-  <li>Set an agenda and share it in advance.</li>
-  <li>Time-box each topic to stay on track.</li>
-  <li>Assign action items and follow up.</li>
+  <li><b>Top:</b> Facebook / Instagram / TikTok post → CTA: "Comment 'INFO' to get the guide"</li>
+  <li><b>Middle:</b> You DM them a free PDF or short video</li>
+  <li><b>Bottom:</b> A 5-message sequence that ends with one offer</li>
 </ul>
-<p><b>Using Trello or Notion for Team Project Management</b> — Create boards for each project. Assign tasks, set deadlines, and track progress. Share updates in group chats.</p>
-<p><b>Creating SOPs (Standard Operating Procedures)</b> — Document step-by-step guides for common tasks. Make SOPs accessible to all team members.</p>
-<p><b>Handling Underperformers Compassionately</b> — Check in privately to understand challenges. Offer support and resources. Set clear expectations for improvement.</p>
-<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> Don't promote someone just because they're loyal. Promote based on skill AND leadership ability.</div>
+<p><b>Building Your List (the Right Way)</b></p>
+<ul>
+  <li>Don't add strangers. Earn the opt-in.</li>
+  <li>Offer a free PDF, free mini-course, or free audit in exchange for their number.</li>
+  <li>Use WhatsApp Broadcast Lists (not Groups) for one-to-many messages — Groups are for conversation, broadcasts are for announcements.</li>
+</ul>
+<p><b>The 5-Message Nurture Sequence</b></p>
+<ol>
+  <li><b>Day 0:</b> Deliver the freebie + 1-line intro.</li>
+  <li><b>Day 1:</b> Your story — why you do what you do.</li>
+  <li><b>Day 3:</b> A specific result from a customer.</li>
+  <li><b>Day 5:</b> The offer. Clear price, clear promise, one CTA.</li>
+  <li><b>Day 7:</b> "Last call" — bonus or deadline.</li>
+</ol>
+<p><b>Status Funnel</b> — Post 3–5 WhatsApp Status updates per day: 1 personal, 1 educational, 1 customer win, 1 offer. Status shows your list you're alive without spamming them.</p>
+<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> Never send the same broadcast 2 days in a row to a cold list. You'll be muted or reported. Earn attention first, then ask for it.</div>
 <h3>💡 PRO TIP</h3>
-<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Record your screen while doing a task and share the video as an SOP for your team.</div>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Save your 5-message sequence as WhatsApp "Quick Replies" (long-press the message → "Use Quick Reply"). One tap sends the whole sequence to a new lead.</div>
 <h3>🌍 REAL LIFE STORY</h3>
-<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Sabina, a team leader in Lalitpur, struggled with team motivation. She started delegating tasks, created SOPs, and held short, focused meetings. She recognized top performers and supported those struggling. Her team became more productive and happier.</div>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Anish, a freelance designer in Lalitpur, got 200 reactions on his Facebook posts but zero paying clients. He added "Comment GUIDE" → DM PDF → 5-message WhatsApp sequence. Within 3 weeks, 60 leads, 8 sales, Rs. 32,000. Same audience, better funnel.</div>
 <h3>✅ Action Steps</h3>
 <ol>
-  <li>Delegate one task you usually do yourself this week.</li>
-  <li>Create a simple SOP (written or video) for a common process.</li>
-  <li>Recognize a team member's achievement publicly.</li>
+  <li>Write your "Comment X to get the freebie" CTA today.</li>
+  <li>Create a 1-page PDF that solves one specific problem.</li>
+  <li>Write your 5-message sequence in a Google Doc this week.</li>
 </ol>
 <h3>📝 Module Summary</h3>
-<p>Advanced team management is about trust, clear communication, and support. By delegating, documenting, and recognizing effort, you build a high-performing, motivated team.</p>
+<p>WhatsApp is your real inbox in Nepal. Build a list the right way (opt-in only), set up a 5-message sequence (freebie → story → proof → offer → last call), and use Status to stay visible. Run that loop and you have a business.</p>
 <h3>❓ Reflection Question</h3>
-<p>What's one process you can document or delegate to help your team grow?</p>`
+<p>What's the one freebie you could create in a weekend that would make strangers happily give you their WhatsApp number?</p>`
     },
     {
       id: 5,
-      title: 'Long-Term Success Strategies',
-      content: `<h2>Module 5: Long-Term Success Strategies</h2>
+      title: 'Financial Planning for Online Earners',
+      content: `<h2>Module 5: Financial Planning for Online Earners</h2>
 <h3>🎯 Learning Objectives</h3>
 <ul>
-  <li>Create a 1-year, 3-year, and 5-year digital career roadmap.</li>
-  <li>Build a personal brand that outlasts any platform.</li>
-  <li>Diversify platforms and stay updated with trends.</li>
-  <li>Mentor others and define personal success.</li>
+  <li>Separate personal, business, and tax money — even on a small income.</li>
+  <li>Build a simple monthly budget that fits irregular online income.</li>
+  <li>Save, invest, and protect your earnings as a freelancer in Nepal.</li>
+  <li>Plan for taxes, eSewa/Khalti records, and PAN registration.</li>
 </ul>
 <h3>📖 Core Lesson</h3>
-<p><b>The Digital Career Roadmap</b></p>
+<p>Earning online is exciting. Keeping the money is harder. Most freelancers in Nepal leak 20–40% of their income to avoidable mistakes: mixing personal and business money, no emergency fund, and no tax plan. Fix that, and you instantly out-earn 90% of peers.</p>
+<p><b>The 3-Bucket System</b></p>
 <ul>
-  <li><b>1-year:</b> Master your current platform, build a strong network.</li>
-  <li><b>3-year:</b> Expand to new platforms, create digital products, lead a team.</li>
-  <li><b>5-year:</b> Become a recognized expert, mentor others, diversify income streams.</li>
+  <li><b>Personal (60%):</b> Rent, food, transport, family. Move on the 1st of the month.</li>
+  <li><b>Tax & Buffer (25%):</b> Park in a separate eSewa or savings account. Don't touch.</li>
+  <li><b>Reinvest (15%):</b> Courses, tools, ads, equipment. Your future income's fuel.</li>
 </ul>
-<p><b>Building a Personal Brand That Lasts</b></p>
+<p><b>Budgeting on Irregular Income</b></p>
 <ul>
-  <li>Focus on values, not just skills.</li>
-  <li>Share your story and lessons learned.</li>
-  <li>Be consistent across platforms.</li>
+  <li>Calculate your lowest month in the last 6. That's your "floor."</li>
+  <li>Build a 3-month floor emergency fund. Don't touch it.</li>
+  <li>Live on last month's income, not this month's deposit. Always.</li>
 </ul>
-<p><b>Diversifying Platforms</b> — Don't rely on one app or method. Explore new trends (e.g., LinkedIn, YouTube, podcasts).</p>
-<p><b>Mentoring Others as a Growth Strategy</b> — Teach what you know to new team members. Share resources and support their growth.</p>
-<p><b>Defining Success Beyond Money</b> — Success is about impact, growth, and fulfillment. Set personal goals for learning, relationships, and contribution.</p>
-<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> Trends come and go. Your reputation, your network, and your values are the only things that compound over decades.</div>
+<p><b>Tracking Tools</b> — Use a Google Sheet with 3 columns: Date, Source, Amount. Total weekly. Takes 5 minutes. Do it.</p>
+<p><b>Tax Basics (Nepal)</b></p>
+<ul>
+  <li>If you earn over Rs. 5 lakh/year from freelancing, register for PAN.</li>
+  <li>Keep records of all income + business expenses. Save eSewa/Khalti statements monthly.</li>
+  <li>Consult a CA before year-end — Rs. 2,000 saved you from Rs. 50,000 in fines.</li>
+</ul>
+<p><b>Reinvestment Ideas</b> — Courses, a better laptop, a paid tool, Facebook ads, a small website. Reinvest 15% minimum.</p>
+<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> Money you don't see, you don't spend. Auto-transfer 25% to a separate account the moment you're paid.</div>
 <h3>💡 PRO TIP</h3>
-<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Block one hour a week for learning—watch a webinar, read an article, or try a new tool.</div>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Open a second eSewa account just for tax. Name it "TAX — DO NOT TOUCH." When year-end comes, you'll thank past you.</div>
 <h3>🌍 REAL LIFE STORY</h3>
-<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Amit, a digital veteran in Kathmandu, started as a freelancer, then built a team, and now mentors others. He diversified his income, stayed updated with trends, and gives back by running free digital skills workshops. His success is measured by the impact he has on others.</div>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Sujata, a content creator in Pokhara, used to spend every rupee the day it came in. She switched to the 3-bucket system, automated the 25% tax transfer, and stopped mixing business + personal money. In one year, she saved Rs. 4.5 lakh — the first time in her life she had an emergency fund.</div>
 <h3>✅ Action Steps</h3>
 <ol>
-  <li>Write your 1-year, 3-year, and 5-year digital career goals.</li>
-  <li>Subscribe to one new industry newsletter or YouTube channel this week.</li>
-  <li>Mentor a new team member or share a resource with your network.</li>
+  <li>Open a separate eSewa or bank account for tax + buffer this week.</li>
+  <li>Move your last 3 months of income through the 3-bucket split in a sheet.</li>
+  <li>Build a 3-month emergency fund goal and set a weekly auto-transfer.</li>
 </ol>
 <h3>📝 Module Summary</h3>
-<p>Long-term success in digital work comes from planning, learning, and giving back. By building your brand, diversifying, and mentoring others, you create a legacy that lasts.</p>
+<p>Online income is volatile — plan for the lowest month, not the best. Use the 3-bucket system, separate business and personal money, save 25% for tax, and reinvest 15% in your future. A CA visit once a year pays for itself 10x.</p>
 <h3>❓ Reflection Question</h3>
-<p>What does long-term success look like for you, beyond just money?</p>`
+<p>What would change in your life if 25% of every payment was invisible to you the moment it arrived?</p>`
+    },
+    {
+      id: 6,
+      title: 'Online Safety & Scam Awareness',
+      content: `<h2>Module 6: Online Safety & Scam Awareness</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>Spot the 7 most common online scams targeting Nepali freelancers.</li>
+  <li>Protect your accounts, money, and identity with basic digital hygiene.</li>
+  <li>Verify clients, platforms, and payment proofs before sending anything.</li>
+  <li>Recover fast if you've been scammed.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<p>If it sounds too good to be true, it is. Every successful Nepali freelancer has a scam story — the question isn't "will I get scammed?" it's "when, and how prepared am I?"</p>
+<p><b>The 7 Most Common Scams</b></p>
+<ul>
+  <li><b>"Send first, I'll pay later":</b> Client wants work before payment. Walk away.</li>
+  <li><b>Fake payment screenshots:</b> A "we paid" image is not a payment. Always check your eSewa/Khalti first.</li>
+  <li><b>"Pay to upgrade your account":</b> Real platforms never ask for money to release your earnings.</li>
+  <li><b>Phishing links:</b> "Your account is suspended, click here." Always go to the site directly.</li>
+  <li><b>Overpayment scams:</b> "I sent Rs. 10,000 by mistake, refund Rs. 7,000." The original payment is reversed; you lose Rs. 7,000.</li>
+  <li><b>Investment / task scams:</b> "Earn Rs. 5,000/day liking videos." It's a money-laundering trap.</li>
+  <li><b>Fake job offers:</b> "You're hired, send Rs. 2,000 for training materials." Real employers don't charge employees.</li>
+</ul>
+<p><b>Digital Hygiene Basics</b></p>
+<ul>
+  <li>Use a unique password for every site. Use a password manager (Bitwarden is free).</li>
+  <li>Turn on 2-factor authentication (2FA) for email, eSewa, Khalti, Facebook, Instagram.</li>
+  <li>Never share OTPs, even with "support agents." Real support never asks.</li>
+  <li>Verify URLs — facebook.com ≠ facebo0k-login.com.</li>
+  <li>Lock your phone with a PIN or fingerprint.</li>
+</ul>
+<p><b>Verifying Clients</b></p>
+<ul>
+  <li>Ask for a video call before any big project.</li>
+  <li>Check the client's LinkedIn and company website.</li>
+  <li>Get 30–50% advance for new clients. Full upfront for tiny jobs.</li>
+  <li>Use milestones on Upwork/Fiverr, not direct bank transfers for strangers.</li>
+</ul>
+<p><b>Verifying Payments (Nepal)</b></p>
+<ul>
+  <li>Open eSewa / Khalti / banking app. Read the actual notification. Don't trust screenshots.</li>
+  <li>Wait for the "Amount credited" SMS, not just a "request sent" or "pending" status.</li>
+  <li>For eSewa: the sender's name and amount must match.</li>
+</ul>
+<p><b>If You Get Scammed</b></p>
+<ol>
+  <li>Stop sending more money or work immediately.</li>
+  <li>Screenshot everything — chats, payment proofs, profiles.</li>
+  <li>Report to the platform and your bank/eSewa.</li>
+  <li>File a complaint at Nepal Police Cyber Bureau (cyberbureau.nepalpolice.gov.np).</li>
+  <li>Post a public warning so others don't fall for it.</li>
+</ol>
+<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> Never trust, always verify. If anyone — client, "support," "investor" — pressures you to act in 24 hours, that's a red flag, not urgency.</div>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Search "[platform name] + scam" on Facebook before joining any new earning site. Real users post warnings within weeks of a scam appearing.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Krishna, a freelance video editor in Butwal, was offered Rs. 15,000 for a simple editing job. The "client" sent a fake payment screenshot and asked Krishna to refund Rs. 8,000 as "overpayment." Krishna almost did. His friend caught the scam in time. He now waits 24 hours and verifies every payment in his eSewa app before delivering work.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Install a password manager (Bitwarden) and set unique passwords for eSewa + email.</li>
+  <li>Turn on 2FA for eSewa, Khalti, email, and Facebook today.</li>
+  <li>Save Nepal Police Cyber Bureau's number and website to your phone.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>Scams target the hopeful and the rushed. Learn the 7 common patterns, use unique passwords + 2FA, verify every payment in your real banking app, and never send work or money before verification. If you're ever pressured to act in 24 hours, walk away — that's not a deal, that's a trap.</p>
+<h3>❓ Reflection Question</h3>
+<p>What's one "too good to be true" offer you've seen recently that, after this module, you'll now walk away from?</p>`
     }
   ],
 
@@ -878,9 +1061,58 @@ const courseContent = {
   <li>Celebrate a recent milestone and share your story with others.</li>
 </ol>
 <h3>📝 Module Summary</h3>
-<p>Designing your digital future is about setting goals, tracking progress, and staying adaptable. Celebrate your journey and inspire others along the way.</p>
+<p>Designing your digital future is about goals, tracking progress, and staying adaptable. Celebrate your journey and inspire others along the way.</p>
 <h3>❓ Reflection Question</h3>
 <p>What's your biggest digital goal for the next year, and what's your first step to achieve it?</p>`
+    },
+    {
+      id: 6,
+      title: 'Bundling Your Skills for Maximum Impact',
+      content: `<h2>Module 6: Bundling Your Skills for Maximum Impact</h2>
+<h3>🎯 Learning Objectives</h3>
+<ul>
+  <li>See how Starter + Prime + Master fit together as one system.</li>
+  <li>Pick your next 90-day focus across all three courses.</li>
+  <li>Build a personal "complete path" with milestones and a finish line.</li>
+  <li>Use this bundle as a long-term reference, not a one-time read.</li>
+</ul>
+<h3>📖 Core Lesson</h3>
+<p>You bought the <b>Everything Bundle</b> for a reason — to stop bouncing between random tutorials and follow one clear path from beginner to leader. This module ties the whole system together so the next 90 days have a shape.</p>
+<p><b>How the Three Courses Connect</b></p>
+<ul>
+  <li><b>Starter (Foundations):</b> Personal brand, communication, mindset, online earning basics, your first project.</li>
+  <li><b>Prime (Growth):</b> Advanced referrals, audience targeting, free tools, tracking, community, funnels.</li>
+  <li><b>Master (Leadership):</b> Team management, content creation, brand building, WhatsApp funnels, financial planning, online safety.</li>
+</ul>
+<p><b>The 90-Day Plan</b></p>
+<ul>
+  <li><b>Days 1–30 (Starter):</b> Finish modules 1–6. Apply 1 action step per module. Ship your first small project by day 30.</li>
+  <li><b>Days 31–60 (Prime):</b> Finish modules 1–6. Build your tracking sheet, your WhatsApp list, your first funnel. Land 1 paying client or sale by day 60.</li>
+  <li><b>Days 61–90 (Master):</b> Finish modules 1–6. Set up your 3-bucket finance system, 2FA everywhere, and your first piece of long-form content. Hit Rs. 5,000 in earnings by day 90.</li>
+</ul>
+<p><b>Milestones Worth Tracking</b></p>
+<ul>
+  <li>Day 30: First public project shipped</li>
+  <li>Day 60: First paying client or sale</li>
+  <li>Day 90: Rs. 5,000 in earnings + 100-message WhatsApp list</li>
+  <li>Day 180: Rs. 25,000 in earnings + reusable 5-message funnel</li>
+</ul>
+<p><b>Use This Bundle as a Library</b> — You don't need to finish every module perfectly. Use the search bar in your head: "Where did the course talk about pricing?" → Re-read Master Module 5. Treat this as a reference, not a checklist.</p>
+<div style="border-left:4px solid #fbbf24;padding-left:12px;margin:12px 0;"><b>IMPORTANT:</b> Knowledge without action is entertainment. Pick one module per week. Apply it for 7 days. Move on. Action × time = results.</div>
+<h3>💡 PRO TIP</h3>
+<div style="border-left:4px solid #6366f1;padding-left:12px;margin:12px 0;">Set a recurring 30-minute Sunday "review + plan" — review what you applied this week, pick 3 actions for next week. Done for 12 weeks, you'll out-earn 95% of people who bought courses and did nothing.</div>
+<h3>🌍 REAL LIFE STORY</h3>
+<div style="border-left:4px solid #10b981;padding-left:12px;margin:12px 0;">Manish from Hetauda bought the Everything Bundle, picked the 90-day plan, and stuck to it. He finished Starter in 28 days, Prime in 32 days, Master in 30 days. By day 90, he had a WhatsApp list of 200, a 5-message funnel, and Rs. 7,500 in earnings. By month 6, he was earning Rs. 35,000/month from his side hustle — all from one bundle, applied.</div>
+<h3>✅ Action Steps</h3>
+<ol>
+  <li>Print or screenshot the 90-day plan above. Stick it on your wall.</li>
+  <li>Pick this week's 3 action steps (1 from each course) and write them in a Google Doc.</li>
+  <li>Block 30 minutes every Sunday for review + planning. Add to your calendar now.</li>
+</ol>
+<h3>📝 Module Summary</h3>
+<p>The Everything Bundle is a system, not a stack of PDFs. Starter gets you started. Prime gets you growing. Master gets you leading. Apply 1 action per module, follow the 90-day plan, and run a 30-minute Sunday review. Six months from now, you'll be the person others ask "how did you do it?"</p>
+<h3>❓ Reflection Question</h3>
+<p>What does your life look like 90 days from now if you actually apply one action step from every module you read?</p>`
     }
   ]
 };
