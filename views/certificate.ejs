@@ -115,6 +115,8 @@
       gap: 20px;
     }
     .cert-sig { text-align: center; flex: 1; max-width: 220px; }
+    .cert-sig img.sig { height: 60px; margin-bottom: 6px; }
+    .cert-sig img.stamp { height: 120px; margin-bottom: 6px; }
     .cert-sig .line {
       border-top: 2px solid #0A1F44;
       padding-top: 8px;
@@ -158,17 +160,34 @@
       body { padding: 8px; }
       .no-print { justify-content: center; }
       .no-print button, .no-print a { padding: 8px 12px; font-size: 13px; }
-      .certificate { padding: 24px 20px; }
-      .cert-title { font-size: 36px; }
-      .cert-name { font-size: 28px; padding: 0 12px 6px; }
-      .cert-course { font-size: 22px; }
-      .cert-footer { flex-direction: column; gap: 18px; align-items: center; }
-      .cert-sig { max-width: 100%; }
-      .corner { width: 36px; height: 36px; }
-      .corner.tl, .corner.tr { top: 14px; }
-      .corner.bl, .corner.br { bottom: 14px; }
-      .corner.tl, .corner.bl { left: 14px; }
-      .corner.tr, .corner.br { right: 14px; }
+      .certificate { padding: 20px 16px; aspect-ratio: auto; min-height: 600px; }
+      .cert-header { margin-top: 4px; }
+      .cert-logo { font-size: 14px; }
+      .cert-logo img { width: 28px; height: 28px; }
+      .cert-body { margin-top: 16px; }
+      .cert-title { font-size: 28px; letter-spacing: 1px; }
+      .cert-subtitle { font-size: 14px; margin: 0 0 12px; }
+      .cert-presented { font-size: 13px; }
+      .cert-name { font-size: 22px; padding: 0 10px 6px; margin: 4px 0 10px; }
+      .cert-completion { font-size: 13px; margin: 0 auto 10px; }
+      .cert-course { font-size: 20px; margin: 4px 0 16px; }
+      .cert-seal { width: 60px; height: 60px; font-size: 24px; margin: 0 auto 6px; }
+      .cert-footer {
+        flex-direction: column;
+        gap: 16px;
+        align-items: center;
+        margin-top: 20px;
+        padding: 0 10px;
+      }
+      .cert-sig { max-width: 100%; width: 100%; }
+      .cert-sig img.sig { height: 45px; }
+      .cert-sig img.stamp { height: 90px; }
+      .cert-id { width: 100%; }
+      .corner { width: 30px; height: 30px; }
+      .corner.tl, .corner.tr { top: 10px; }
+      .corner.bl, .corner.br { bottom: 10px; }
+      .corner.tl, .corner.bl { left: 10px; }
+      .corner.tr, .corner.br { right: 10px; }
     }
 
     @media print {
@@ -224,7 +243,7 @@
 
     <div class="cert-footer">
       <div class="cert-sig">
-        <img src="/images/signature.png" alt="Signature" style="height:40px; margin-bottom:4px;">
+        <img src="/images/signature.png" alt="Signature" class="sig">
         <div class="line">Arpit Kafle</div>
         <div class="role">Founder, Growing Up</div>
       </div>
@@ -240,7 +259,7 @@
         <div class="cert-id-hint">Verify at growingup.tech/verify/GU-<%= certId %></div>
       </div>
       <div class="cert-sig">
-        <img src="/images/stamp.png" alt="Growing Up Stamp" style="height:80px; margin-bottom:4px;">
+        <img src="/images/stamp.png" alt="Growing Up Stamp" class="stamp">
         <div class="role">Knowledge-Building Program</div>
       </div>
     </div>

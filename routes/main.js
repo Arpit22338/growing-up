@@ -939,22 +939,23 @@ router.get('/certificates', async (req, res) => {
     const user = await User.findById(req.session.userId);
     if (!user) return res.redirect('/logout');
 
-    // Build a list of completed courses with the cert id used for share/verify.
+    // Pass all approved courses to the template. Completion is now
+    // tracked in localStorage on the client — the template JS reads
+    // it and filters/shows only completed courses.
     const short = String(user._id).slice(-6).toUpperCase();
-    const completed = (user.purchasedCourses || [])
-      .filter(c => c.status === 'approved' && c.completedAt)
+    const courses = (user.purchasedCourses || [])
+      .filter(c => c.status === 'approved')
       .map(c => {
         const ck = (c.courseKey || '').toUpperCase().slice(0, 3);
         return {
           courseKey: c.courseKey,
           courseName: c.courseName,
-          completedAt: c.completedAt,
           certId: `${ck}-${short}`,
           granted: !!c.grantedBy
         };
       });
 
-    res.render('certificates', { user, completed, baseUrl: process.env.BASE_URL });
+    res.render('certificates', { user, courses, baseUrl: process.env.BASE_URL });
   } catch (err) {
     console.error('Certificates list error:', err);
     res.status(500).send('Server error');
