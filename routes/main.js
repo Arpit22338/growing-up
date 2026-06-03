@@ -1016,10 +1016,6 @@ router.get('/certificates', async (req, res) => {
     const moduleCounts = {};
     Object.keys(courses).forEach(k => { moduleCounts[k] = getModuleCount(k); });
 
-    // Debug: log what we found (remove after confirming fix)
-    console.log('[certs]', user.email, 'completed:', completed.length, 'approved:', approved.length,
-      'allCourses:', (user.purchasedCourses || []).map(c => c.courseKey + ':' + c.status + ':completedAt=' + !!c.completedAt).join(', '));
-
     res.render('certificates', {
       user, completed, approved, moduleCounts,
       baseUrl: process.env.BASE_URL || 'https://www.growingup.tech',
@@ -1258,7 +1254,6 @@ router.post('/api/course/:key/complete', async (req, res) => {
       entry.completedAt = new Date();
     }
     await user.save();
-    console.log('[sync] Saved completedAt for', user.email, courseKey, 'entry:', JSON.stringify({ status: entry.status, completedAt: entry.completedAt }));
     return res.json({ success: true, completedAt: entry.completedAt });
   } catch (err) {
     console.error('Course complete sync error:', err);
@@ -1375,70 +1370,6 @@ router.post('/api/course/:key/module/toggle', async (req, res) => {
   } catch (err) {
     console.error('Module toggle error:', err);
     return res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
-
-// POST - Admin: Reset all certificates (clear completedAt from all users).
-// This allows users to re-earn certificates by completing courses again.
-router.post('/api/admin/reset-certificates', async (req, res) => {
-  if (!req.session || !req.session.userId) {
-    return res.status(401).json({ success: false, error: 'Please login' });
-  }
-  try {
-    const user = await User.findById(req.session.userId);
-    if (!user || user.role !== 'superadmin') {
-      return res.status(403).json({ success: false, error: 'Admin only' });
-    }
-    const result = await User.updateMany(
-      {},
-      { $set: { 'purchasedCourses.$[].completedAt': null } }
-    );
-    console.log('[admin] Reset certificates for', result.modifiedCount, 'users');
-    return res.json({ success: true, modifiedUsers: result.modifiedCount });
-  } catch (err) {
-    console.error('Reset certificates error:', err);
-    return res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
-
-// DEBUG - Show user's DB state (certificates debug)
-router.get('/api/debug/certs', async (req, res) => {
-  if (!req.session || !req.session.userId) return res.json({ error: 'not logged in' });
-  try {
-    const user = await User.findById(req.session.userId);
-    if (!user) return res.json({ error: 'user not found' });
-    const courses = user.purchasedCourses.map(c => ({
-      courseKey: c.courseKey,
-      courseName: c.courseName,
-      status: c.status,
-      completedAt: c.completedAt,
-      completedModules: c.completedModules,
-      hasEntry: true
-    }));
-    return res.json({ email: user.email, role: user.role, courses, total: courses.length });
-  } catch (err) {
-    return res.json({ error: err.message });
-  }
-});
-
-// MANUAL SYNC - Force sync a specific course (for debugging)
-router.post('/api/debug/sync/:key', async (req, res) => {
-  if (!req.session || !req.session.userId) return res.status(401).json({ error: 'not logged in' });
-  try {
-    const user = await User.findById(req.session.userId);
-    if (!user) return res.status(404).json({ error: 'user not found' });
-    const courseKey = req.params.key;
-    const entry = user.purchasedCourses.find(c => c.courseKey === courseKey);
-    if (!entry) return res.status(404).json({ error: 'no entry for ' + courseKey, allKeys: user.purchasedCourses.map(c => c.courseKey) });
-    entry.completedAt = new Date();
-    entry.status = 'approved';
-    await user.save();
-    // Re-read to confirm
-    const verify = await User.findById(req.session.userId);
-    const vEntry = verify.purchasedCourses.find(c => c.courseKey === courseKey);
-    return res.json({ success: true, completedAt: vEntry.completedAt, status: vEntry.status });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
   }
 });
 

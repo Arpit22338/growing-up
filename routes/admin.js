@@ -305,7 +305,6 @@ router.post('/admin/users/:id/grant-course', isSuperAdmin, async (req, res) => {
     });
     await target.save();
 
-    console.log('GRANT: ' + req.session.userId + ' granted ' + courseKey + ' to ' + target._id);
     return res.json({ success: true, message: 'Course granted to ' + target.firstName });
   } catch (err) {
     console.error('Grant course error:', err);
@@ -394,7 +393,6 @@ router.post('/admin/reset-everything', isSuperAdmin, async (req, res) => {
       }
     );
 
-    console.log('RESET: Everything reset to zero by superadmin', req.session.userId);
     res.json({ success: true });
   } catch (err) {
     console.error('Reset error:', err);

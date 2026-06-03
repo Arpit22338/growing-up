@@ -384,8 +384,7 @@
       credentials: 'same-origin',
       body: JSON.stringify({ courseKey: courseKey })
     }).then(function(r) { return r.json(); }).then(function(d) {
-      if (d.success) console.log('Certificate synced to DB');
-    }).catch(function(e) { console.error('Cert sync failed:', e); });
+    }).catch(function(e) { });
   }
 
   // Wire sidebar clicks
