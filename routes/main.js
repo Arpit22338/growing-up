@@ -115,9 +115,9 @@ router.get('/register', (req, res) => {
     courses, ref, selectedCourse: course,
     currentPath: '/register',
     title: 'Register — Start Earning with Referrals',
-    metaDesc: 'Create your free Growing Up account. Join Nepal\'s best affiliate marketing platform. Buy a course, share your link, earn 65% commission.',
-    ogTitle: 'Register Free — Growing Up Nepal',
-    ogDesc: 'Join Growing Up Nepal — the best affiliate marketing platform. Register free, buy a course, earn 65% referral commission.'
+    metaDesc: 'Create your Growing Up account. Join Nepal\'s best affiliate marketing platform. Buy a course, share your link, earn 65% commission.',
+    ogTitle: 'Register — Growing Up Nepal',
+    ogDesc: 'Join Growing Up Nepal — the best affiliate marketing platform. Buy a course, earn 65% referral commission.'
   });
 });
 

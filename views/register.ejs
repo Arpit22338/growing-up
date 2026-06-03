@@ -259,17 +259,15 @@
 </div>
 
 <script>
-// Course card selection for step 2 — using event delegation (no inline onclick)
+// Course card selection for step 2 — using event delegation
 (function() {
   var grid = document.querySelector('.reg-course-grid');
   if (!grid) return;
+  var courseInput = document.getElementById('courseSelect');
+  var info = document.getElementById('selectedCourseInfo');
+  var text = document.getElementById('selectedCourseText');
 
-  grid.addEventListener('click', function(e) {
-    var card = e.target.closest('.reg-course-option');
-    if (!card) return;
-    e.preventDefault();
-    e.stopPropagation();
-
+  function selectCard(card) {
     var key = card.getAttribute('data-course');
     if (!key) return;
 
@@ -278,39 +276,42 @@
     // Select this one
     card.classList.add('selected');
     // Set hidden input value
-    document.getElementById('courseSelect').value = key;
+    courseInput.value = key;
 
     // Show info text
-    var info = document.getElementById('selectedCourseInfo');
-    var text = document.getElementById('selectedCourseText');
     if (info && text) {
       var titleEl = card.querySelector('.course-title') || card.querySelector('strong');
       var priceEl = card.querySelector('.course-price');
       var titleText = titleEl ? titleEl.textContent : key;
       var priceText = priceEl ? priceEl.textContent : '';
       info.style.display = 'flex';
-      text.textContent = 'You selected: ' + titleText + (priceText ? ' \u2014 ' + priceText : '');
+      text.textContent = 'You selected: ' + titleText + (priceText ? ' — ' + priceText : '');
     }
+  }
+
+  // Click handler
+  grid.addEventListener('click', function(e) {
+    var card = e.target.closest('.reg-course-option');
+    if (!card) return;
+    e.preventDefault();
+    e.stopPropagation();
+    selectCard(card);
   });
 
-  // Touch support for mobile
+  // Touch — prevent double-fire by only using touchend, blocking subsequent click
   grid.addEventListener('touchend', function(e) {
     var card = e.target.closest('.reg-course-option');
     if (!card) return;
-    // Trigger a click instead
-    card.click();
-  });
+    e.preventDefault();
+    selectCard(card);
+  }, { passive: false });
 
-  // Auto-trigger if pre-selected
+  // Auto-trigger if pre-selected via URL
   var pre = document.querySelector('.reg-course-option.selected');
-  if (pre) {
-    var info = document.getElementById('selectedCourseInfo');
-    var text = document.getElementById('selectedCourseText');
-    if (info && text) {
-      var titleEl = pre.querySelector('.course-title') || pre.querySelector('strong');
-      info.style.display = 'flex';
-      text.textContent = 'You selected: ' + (titleEl ? titleEl.textContent : '');
-    }
+  if (pre && info && text) {
+    var titleEl = pre.querySelector('.course-title') || pre.querySelector('strong');
+    info.style.display = 'flex';
+    text.textContent = 'You selected: ' + (titleEl ? titleEl.textContent : '');
   }
 })();
 </script>

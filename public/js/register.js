@@ -260,6 +260,13 @@ document.getElementById('step2Form').addEventListener('submit', async (e) => {
     return;
   }
 
+  // Show confirmation with course name and price
+  const courseNames = { starter: 'Starter (₹499)', prime: 'Prime (₹699)', master: 'Master (₹1599)', everything: 'Everything Bundle (₹1999)' };
+  const confirmMsg = 'You are registering for: ' + (courseNames[courseKey] || courseKey) + '\n\nIs this correct?';
+  if (!confirm(confirmMsg)) {
+    return;
+  }
+
   const fileInput = document.querySelector('#step2Form input[name="screenshot"]');
   if (!fileInput.files.length) {
     showToast('Payment screenshot is required', 'error');
@@ -281,6 +288,10 @@ document.getElementById('step2Form').addEventListener('submit', async (e) => {
     const result = await res.json();
 
     if (result.success) {
+      // Deselect course card after successful upload
+      document.querySelectorAll('.reg-course-option').forEach(function(c) { c.classList.remove('selected'); });
+      var info = document.getElementById('selectedCourseInfo');
+      if (info) info.style.display = 'none';
       goToStep(3);
     } else {
       showToast(result.error || 'Upload failed', 'error');
