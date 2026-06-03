@@ -96,6 +96,27 @@
   .cr-toast.success { background: #10B981; }
   .cr-toast.error { background: #DC2626; }
 
+  /* Module pills (mobile) */
+  .cr-pills { display: none; overflow-x: auto; gap: 6px; padding: 10px 0; margin-bottom: 16px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .cr-pills::-webkit-scrollbar { display: none; }
+  .cr-pills .pill { flex-shrink: 0; padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1.5px solid #E2E8F0; background: #fff; color: #64748B; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .cr-pills .pill.active { background: #EEF2FF; border-color: #6366f1; color: #4338CA; }
+  .cr-pills .pill.done { background: #ECFDF5; border-color: #10B981; color: #065F46; }
+  @media (max-width: 880px) { .cr-pills { display: flex; } }
+
+  /* Prev / Next buttons */
+  .cr-nav-btns { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #EEF2F7; }
+  .cr-nav-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 18px; border-radius: 10px;
+    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: 1.5px solid #E2E8F0; background: #fff; color: #0A1F44;
+    transition: background 0.15s, border-color 0.15s;
+    text-decoration: none;
+  }
+  .cr-nav-btn:hover { background: #F1F5F9; border-color: #6366f1; }
+  .cr-nav-btn:disabled, .cr-nav-btn.disabled { opacity: 0.4; pointer-events: none; }
+
   /* Responsive */
   @media (max-width: 880px) {
     .cr-modnav { position: static; max-height: none; }
@@ -155,6 +176,13 @@
 
     <!-- Main -->
     <main class="cr-main">
+      <!-- Module pills (mobile) -->
+      <div class="cr-pills" id="crPills">
+        <% modules.forEach(function(mod, idx) { %>
+          <span class="pill <%= idx === 0 ? 'active' : '' %> <%= completedModules.indexOf(mod.id) !== -1 ? 'done' : '' %>" data-idx="<%= idx %>"><%= idx + 1 %>. <%= mod.title %></span>
+        <% }); %>
+      </div>
+
       <div class="cr-mod-content" id="crModContent">
         <!-- populated by JS -->
       </div>
@@ -164,6 +192,12 @@
         <button type="button" class="cr-complete-btn" id="crCompleteBtn" data-idx="0">
           <i class='bx bx-check-circle'></i> <span>Loading...</span>
         </button>
+      </div>
+
+      <!-- Prev / Next buttons -->
+      <div class="cr-nav-btns" id="crNavBtns">
+        <button type="button" class="cr-nav-btn disabled" id="crPrevBtn"><i class='bx bx-chevron-left'></i> Prev</button>
+        <button type="button" class="cr-nav-btn" id="crNextBtn">Next <i class='bx bx-chevron-right'></i></button>
       </div>
 
       <% if (allComplete) { %>
@@ -258,6 +292,20 @@
     progressLabel.textContent = completedCount() + ' / ' + moduleCount;
   }
 
+  function renderPills() {
+    Array.from(pillsEl.querySelectorAll('.pill')).forEach(function(el) {
+      const idx = parseInt(el.getAttribute('data-idx'), 10);
+      const id = modules[idx] ? modules[idx].id : -1;
+      el.classList.toggle('active', idx === currentIdx);
+      el.classList.toggle('done', isCompleted(id));
+    });
+  }
+
+  function renderNavBtns() {
+    prevBtn.classList.toggle('disabled', currentIdx === 0);
+    nextBtn.classList.toggle('disabled', currentIdx >= modules.length - 1);
+  }
+
   function renderCertCta() {
     if (allComplete()) {
       certCta.className = 'cr-cta';
@@ -292,6 +340,8 @@
     window.scrollTo({ top: moduleContent.offsetTop - 80, behavior: 'smooth' });
     renderSidebar();
     renderCompleteBtn();
+    renderPills();
+    renderNavBtns();
   }
 
   // Toggle completion — localStorage only, no server call for individual modules
@@ -340,6 +390,21 @@
     });
   });
 
+  // Wire pill clicks
+  var pillsEl = document.getElementById('crPills');
+  Array.from(pillsEl.querySelectorAll('.pill')).forEach(function(el) {
+    el.addEventListener('click', function() {
+      currentIdx = parseInt(this.getAttribute('data-idx'), 10);
+      renderModule();
+    });
+  });
+
+  // Prev / Next buttons
+  var prevBtn = document.getElementById('crPrevBtn');
+  var nextBtn = document.getElementById('crNextBtn');
+  prevBtn.addEventListener('click', function() { if (currentIdx > 0) { currentIdx--; renderModule(); } });
+  nextBtn.addEventListener('click', function() { if (currentIdx < modules.length - 1) { currentIdx++; renderModule(); } });
+
   completeBtn.addEventListener('click', toggleComplete);
 
   // Initial render
@@ -347,6 +412,8 @@
     renderModule();
     renderProgress();
     renderCertCta();
+    renderPills();
+    renderNavBtns();
   } else {
     moduleContent.innerHTML = '<div class="alert alert-danger">Course content not found.</div>';
   }
