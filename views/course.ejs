@@ -1,5 +1,34 @@
 <%- include('partials/header') %>
 
+<script type="application/ld+json">
+<%- JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": course.title,
+  "description": course.description,
+  "provider": {
+    "@type": "Organization",
+    "name": "Growing Up",
+    "url": "https://growingup.tech"
+  },
+  "image": course.thumbnail,
+  "offers": {
+    "@type": "Offer",
+    "price": course.price,
+    "priceCurrency": "NPR",
+    "availability": "https://schema.org/InStock",
+    "url": "https://growingup.tech/course/" + course.key
+  },
+  "educationalLevel": "Beginner",
+  "coursePrerequisites": "None — open to all",
+  "hasCourseInstance": {
+    "@type": "CourseInstance",
+    "courseMode": "online",
+    "courseWorkload": "PT6H"
+  }
+}, null, 2) %>
+</script>
+
 <section class="section" style="background: var(--white); padding-top: 40px;">
   <div class="container" style="max-width: 800px;">
     
