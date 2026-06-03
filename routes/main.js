@@ -35,10 +35,10 @@ router.get('/', async (req, res) => {
   res.render('index', {
     courses, loggedInUser,
     currentPath: '/',
-    title: '',
-    metaDesc: 'Growing Up is Nepal\'s leading referral-based course platform. Learn skills, earn 65% referral commission. Starter ₹499, Prime ₹699, Master ₹1599, Everything Bundle ₹1999.',
-    ogTitle: 'Growing Up — Learn & Earn in Nepal',
-    ogDesc: 'Join thousands of Nepali learners building skills and earning through referrals. Courses from ₹499.'
+    title: 'Best Affiliate Marketing Platform in Nepal — Growing Up',
+    metaDesc: 'Growing Up is Nepal\'s best affiliate marketing platform. Learn digital marketing, earn 65% referral commission. Starter ₹499, Prime ₹699, Master ₹1599, Everything Bundle ₹1999.',
+    ogTitle: 'Best Affiliate Marketing Platform in Nepal — Growing Up',
+    ogDesc: 'Join Nepal\'s best affiliate marketing platform. Learn skills, earn 65% referral commission. Courses from ₹499.',
   });
 });
 
@@ -61,7 +61,6 @@ router.get('/sitemap.xml', (req, res) => {
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
   xml += `  <url><loc>${baseUrl}/</loc><lastmod>${now}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>\n`;
   xml += `  <url><loc>${baseUrl}/how-it-works</loc><lastmod>${now}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>\n`;
-  xml += `  <url><loc>${baseUrl}/verify</loc><lastmod>${now}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>\n`;
   courseKeys.forEach(key => {
     xml += `  <url><loc>${baseUrl}/course/${key}</loc><lastmod>${now}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>\n`;
   });

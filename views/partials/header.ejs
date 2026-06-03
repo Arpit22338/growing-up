@@ -9,7 +9,7 @@
   <meta name="description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : 'Growing Up is Nepal\'s leading referral-based course platform. Learn skills, earn 65% referral commission. Starter ₹499, Prime ₹699, Master ₹1599, Everything Bundle ₹1999.' %>">
   <meta name="keywords" content="<%= typeof keywords !== 'undefined' ? keywords : 'Growing Up Nepal, online courses Nepal, referral earnings Nepal, skill development, eSewa Khalti courses, learn and earn Nepal, Nepali education platform, digital skills Nepal' %>">
   <meta name="author" content="Growing Up">
-  <% var _isNoIndex = (typeof currentPath !== 'undefined' && /^\/(login|register|pending|dashboard|admin)/.test(currentPath)) || (typeof noIndex !== 'undefined' && noIndex); %>
+  <% var _isNoIndex = (typeof currentPath !== 'undefined' && /^\/(login|register|pending|dashboard|admin|verify|certificate|certificates)/.test(currentPath)) || (typeof noIndex !== 'undefined' && noIndex); %>
   <meta name="robots" content="<%= _isNoIndex ? 'noindex, nofollow' : 'index, follow' %>">
   <meta name="theme-color" content="#0B1D3A">
   <% var _host = 'https://growingup.tech'; %>

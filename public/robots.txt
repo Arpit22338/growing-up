@@ -1,7 +1,12 @@
+# Robots.txt for growingup.tech
 User-agent: *
 Allow: /
-Disallow: /admin
+Disallow: /login
+Disallow: /register
 Disallow: /dashboard
-Disallow: /pending
+Disallow: /admin
+Disallow: /certificates
+Disallow: /certificate/
+Disallow: /verify
 
-Sitemap: https://growingup.vercel.app/sitemap.xml
+Sitemap: https://growingup.tech/sitemap.xml
