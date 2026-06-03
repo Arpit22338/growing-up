@@ -162,7 +162,7 @@ router.get('/admin/users/:id', isAdmin, async (req, res) => {
     if (!user) return res.status(404).send('User not found');
 
     const payments = await Payment.find({ user: user._id }).sort({ createdAt: -1 });
-    res.render('admin/userDetail', { user, payments, role: req.session.role, baseUrl: process.env.BASE_URL || 'https://growingup.tech' });
+    res.render('admin/userDetail', { user, payments, role: req.session.role, baseUrl: process.env.BASE_URL || 'https://growingup.tech', csrfToken: req.session.csrfToken || '' });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');

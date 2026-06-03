@@ -106,8 +106,8 @@
   var baseUrl = '<%= baseUrl %>';
   var completedFromServer = <%- JSON.stringify(completed) %>;
   var approvedFromServer = <%- JSON.stringify(approved) %>;
-  // courseKeys array for checking localStorage across all courses
-  var ALL_COURSE_KEYS = ['starter', 'prime', 'master', 'everything'];
+  var moduleCountsFromServer = <%- JSON.stringify(moduleCounts) %>;
+  var ALL_COURSE_KEYS = Object.keys(moduleCountsFromServer);
 
   var toastTimer = null;
   function showToast(msg, icon) {
@@ -247,12 +247,13 @@
       // Check if this course is in the approved list from server
       var approvedCourse = approvedFromServer.find(function(c) { return c.courseKey === key; });
       var completedCourse = completedFromServer.find(function(c) { return c.courseKey === key; });
+      var modCount = moduleCountsFromServer[key] || 0;
 
       // If already shown as completed from server, skip
       if (completedCourse) return;
 
       if (approvedCourse) {
-        var allDone = approvedCourse.moduleCount > 0 && stored.length >= approvedCourse.moduleCount;
+        var allDone = modCount > 0 && stored.length >= modCount;
         if (allDone) {
           // Sync to DB
           var p = fetch('/api/course/' + key + '/complete', {
@@ -272,19 +273,33 @@
           pending.push({
             courseKey: key,
             courseName: approvedCourse.courseName,
-            moduleCount: approvedCourse.moduleCount,
+            moduleCount: modCount,
             doneCount: stored.length
           });
         }
-      } else {
-        // Course not in server data — might be a course the user owns but server didn't return
-        // Show as pending with whatever info we have
-        pending.push({
-          courseKey: key,
-          courseName: key.charAt(0).toUpperCase() + key.slice(1),
-          moduleCount: '?',
-          doneCount: stored.length
-        });
+      } else if (modCount > 0) {
+        // Course not in approved list but we know its module count from config
+        var allDoneFallback = stored.length >= modCount;
+        if (allDoneFallback) {
+          var p2 = fetch('/api/course/' + key + '/complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrf() },
+            credentials: 'same-origin',
+            body: JSON.stringify({ courseKey: key })
+          }).then(function(r) { return r.json(); }).then(function(d) {
+            if (d.success) {
+              showToast(key + ' synced to server!', 'bx-check-circle');
+            }
+          }).catch(function(e) { console.error('Sync error for ' + key + ':', e); });
+          syncPromises.push(p2);
+        } else {
+          pending.push({
+            courseKey: key,
+            courseName: key.charAt(0).toUpperCase() + key.slice(1),
+            moduleCount: modCount,
+            doneCount: stored.length
+          });
+        }
       }
     });
 

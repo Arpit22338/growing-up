@@ -1011,12 +1011,17 @@ router.get('/certificates', async (req, res) => {
         moduleCount: getModuleCount(c.courseKey)
       }));
 
+    // Pass module counts for ALL courses so client can check localStorage
+    const moduleCounts = {};
+    Object.keys(courses).forEach(k => { moduleCounts[k] = getModuleCount(k); });
+
     // Debug: log what we found (remove after confirming fix)
     console.log('[certs]', user.email, 'completed:', completed.length, 'approved:', approved.length,
       'allCourses:', (user.purchasedCourses || []).map(c => c.courseKey + ':' + c.status + ':completedAt=' + !!c.completedAt).join(', '));
 
     res.render('certificates', {
-      user, completed, approved, baseUrl: process.env.BASE_URL || 'https://growingup.tech',
+      user, completed, approved, moduleCounts,
+      baseUrl: process.env.BASE_URL || 'https://growingup.tech',
       currentPath: '/certificates',
       title: 'My Certificates',
       metaDesc: 'View and download your Growing Up course completion certificates. Verify certificate authenticity with unique IDs.',
@@ -1114,7 +1119,7 @@ router.get('/verify/:certId', verifyLimiter, async (req, res) => {
     // The GU- prefix is optional; after normalization we strip it if present.
     let parseId = certId;
     if (parseId.startsWith('GU-')) parseId = parseId.substring(3);
-    const m = parseId.match(/^([A-Z]{2,4})-([A-Z0-9]{4,8})$/);
+    const m = parseId.match(/^([A-Z]{3})-([A-Z0-9]{6})$/);
     if (!m) {
       return res.render('verify', { result: { valid: false }, certId });
     }

@@ -275,25 +275,22 @@
           credentials: 'same-origin',
           body: JSON.stringify({ role })
         });
-        if (res.redirected || res.status === 401) {
+        if (res.redirected) {
           showToast('Session expired. Please login again.', 'error');
           setTimeout(function(){ window.location.href = '/admin/login'; }, 1500);
           return;
         }
         var data;
         try { data = await res.json(); } catch (e) {
-          console.error('changeRole: invalid response', e);
           showToast('Server error (status ' + res.status + ')', 'error');
           return;
         }
         if (data.success) {
           showToast('Role updated!');
         } else {
-          console.error('changeRole error:', data.error);
           showToast(data.error || 'Failed', 'error');
         }
       } catch (err) {
-        console.error('changeRole fetch error:', err);
         showToast('Error: ' + (err.message || 'Connection failed'), 'error');
       }
     }
