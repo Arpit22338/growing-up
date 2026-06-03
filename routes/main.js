@@ -835,8 +835,8 @@ router.get('/certificate/:courseKey', async (req, res) => {
 });
 
 // GET - Download certificate as PDF or PNG.
-// Renders a clean inline-styled page, auto-captures with html2canvas,
-// and auto-downloads. ?format=pdf (default) or ?format=png
+// Reads images server-side, converts to base64, embeds in template
+// so html2canvas can capture them without CORS issues.
 router.get('/certificate/:courseKey/download', async (req, res) => {
   if (!req.session || !req.session.userId) return res.redirect('/login');
   const courseKey = req.params.courseKey;
@@ -858,9 +858,28 @@ router.get('/certificate/:courseKey/download', async (req, res) => {
     const certId = `${ck}-${short}`;
     const issuedAt = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const format = req.query.format === 'png' ? 'png' : 'pdf';
+
+    // Read images and convert to base64 data URLs
+    const fs = require('fs');
+    const path = require('path');
+    function imgToDataUrl(filename) {
+      try {
+        const filePath = path.join(__dirname, '..', 'public', 'images', filename);
+        const data = fs.readFileSync(filePath);
+        const ext = path.extname(filename).toLowerCase();
+        const mime = ext === '.png' ? 'image/png' : 'image/jpeg';
+        return 'data:' + mime + ';base64,' + data.toString('base64');
+      } catch (e) {
+        return '';
+      }
+    }
+    const logoDataUrl = imgToDataUrl('logo-web.png');
+    const signatureDataUrl = imgToDataUrl('signature.png');
+    const stampDataUrl = imgToDataUrl('stamp.png');
+
     res.render('certificate-download', {
       user, course, certId, issuedAt, format,
-      baseUrl: process.env.BASE_URL || 'https://www.growingup.tech'
+      logoDataUrl, signatureDataUrl, stampDataUrl
     });
   } catch (err) {
     console.error('Certificate download error:', err);
