@@ -102,11 +102,11 @@
 
     function runCapture() {
       if (typeof html2canvas === 'undefined') {
-        msgEl.textContent = 'Error: html2canvas failed to load. Check your connection.';
+        msgEl.textContent = 'Error: html2canvas not loaded. Check connection.';
         return;
       }
       if (typeof window.jspdf === 'undefined' && format === 'pdf') {
-        msgEl.textContent = 'Error: jsPDF failed to load. Check your connection.';
+        msgEl.textContent = 'Error: jsPDF not loaded. Check connection.';
         return;
       }
       waitForFonts().then(function() { return waitForImages(); }).then(function() {
@@ -127,7 +127,7 @@
           link.download = 'GrowingUp-Certificate-<%= certId %>.png';
           link.href = canvas.toDataURL('image/png');
           link.click();
-          msgEl.textContent = 'PNG saved! Closing...';
+          msgEl.textContent = 'PNG saved!';
         } else {
           msgEl.textContent = 'Generating PDF...';
           var jsPDF = window.jspdf.jsPDF;
@@ -135,11 +135,10 @@
           var imgData = canvas.toDataURL('image/jpeg', 0.95);
           pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
           pdf.save('GrowingUp-Certificate-<%= certId %>.pdf');
-          msgEl.textContent = 'PDF downloaded! Closing...';
+          msgEl.textContent = 'PDF downloaded!';
         }
-        setTimeout(function() { window.close(); }, 1500);
       }).catch(function(err) {
-        msgEl.textContent = 'Error: ' + err.message + '. Go back and try again.';
+        msgEl.textContent = 'Error: ' + err.message;
       });
     }
 
@@ -147,11 +146,18 @@
     function checkAllLoaded() {
       scriptsLoaded++;
       if (scriptsLoaded >= 2) {
-        setTimeout(runCapture, 300);
+        setTimeout(runCapture, 500);
       }
     }
+
+    // Fallback: if scripts don't load in 8s, show error
+    setTimeout(function() {
+      if (scriptsLoaded < 2) {
+        msgEl.innerHTML = 'Scripts failed to load. <br><br><a href="javascript:location.reload()" style="color:#D4A017;">Retry</a> or <a href="/certificates" style="color:#D4A017;">Go back</a>';
+      }
+    }, 8000);
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" onload="checkAllLoaded()"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" onload="checkAllLoaded()"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" onload="checkAllLoaded()" onerror="msgEl.textContent='Failed to load html2canvas'"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" onload="checkAllLoaded()" onerror="msgEl.textContent='Failed to load jsPDF'"></script>
 </body>
 </html>
