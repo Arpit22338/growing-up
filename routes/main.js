@@ -46,7 +46,7 @@ router.get('/', async (req, res) => {
 router.get('/how-it-works', (req, res) => {
   res.render('how-it-works', {
     currentPath: '/how-it-works',
-    title: 'How It Works — Earn 65% Referral Commission',
+    title: 'How It Works',
     metaDesc: 'Learn how Growing Up works: register, buy a course, share your referral link, and earn 65% commission on every sale. Step-by-step guide with FAQ.',
     ogTitle: 'How It Works — Growing Up',
     ogDesc: 'Step-by-step guide to learning digital skills and earning 65% referral commission on Growing Up.'
