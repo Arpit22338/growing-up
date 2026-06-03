@@ -35,8 +35,8 @@
       <div class="card" style="margin-bottom: 24px; padding: 16px;">
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
           <input type="text" class="form-control" id="userSearch" placeholder="Search by name, email, referral code, or phone..."
-            oninput="filterUsers(this.value)" style="flex:1; min-width:200px;">
-          <button type="button" class="btn btn-sm" onclick="document.getElementById('userSearch').value=''; filterUsers('');"
+            style="flex:1; min-width:200px;">
+          <button type="button" class="btn btn-sm" id="clearSearchBtn"
             style="background:#fff; border:1.5px solid #CBD5E1; color:#0A1F44; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px;">
             <i class='bx bx-x'></i> Clear
           </button>
@@ -63,7 +63,7 @@
               </thead>
               <tbody>
                 <% users.forEach(u => { %>
-                  <tr class="user-row" data-search="<%= (u.firstName + ' ' + u.lastName + ' ' + u.email + ' ' + (u.referralCode || '') + ' ' + (u.whatsapp || '')).toLowerCase() %>">
+                  <tr class="user-row" data-search="<%= [u.firstName, u.middleName, u.lastName, u.email, u.referralCode, u.whatsapp].filter(Boolean).join(' ').toLowerCase() %>">
                     <td>
                       <a href="/admin/users/<%= u._id %>" style="color: var(--navy); font-weight: 600;">
                         <%= u.firstName %> <%= u.lastName %>
@@ -116,18 +116,15 @@
       var rows = document.querySelectorAll('.user-row');
       var visible = 0;
       rows.forEach(function(row) {
-        var hay = row.dataset.search || '';
-        // For empty query, show all. Otherwise require the query to
-        // appear as a contiguous substring (case-insensitive).
+        var hay = row.getAttribute('data-search') || '';
         var match = !query || hay.indexOf(query) !== -1;
         row.style.display = match ? '' : 'none';
         if (match) visible++;
       });
       var counter = document.getElementById('userSearchCount');
       if (counter) {
-        counter.textContent = query ? (visible + ' of ' + rows.length) : (rows.length + ' total');
+        counter.textContent = query ? (visible + ' of ' + rows.length) : '';
       }
-      // Show "no results" message if every row is hidden
       var tableContainer = document.querySelector('.table-container');
       var noRes = document.getElementById('noResultsMsg');
       if (tableContainer) {
@@ -136,20 +133,33 @@
             noRes = document.createElement('p');
             noRes.id = 'noResultsMsg';
             noRes.style.cssText = 'text-align:center; color: var(--gray-500); padding: 30px; font-size: 14px;';
-            noRes.innerHTML = '<i class="bx bx-search-alt-2" style="font-size:32px;display:block;margin-bottom:8px;color:#CBD5E1;"></i>No users match &ldquo;' + query.replace(/[<>&"']/g, function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c];}) + '&rdquo;';
             tableContainer.parentNode.insertBefore(noRes, tableContainer.nextSibling);
           }
+          noRes.innerHTML = '<i class="bx bx-search-alt-2" style="font-size:32px;display:block;margin-bottom:8px;color:#CBD5E1;"></i>No users match &ldquo;' + query.replace(/[<>&"']/g, function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c];}) + '&rdquo;';
         } else if (noRes) {
           noRes.remove();
         }
       }
     }
-    // Init: show initial count
-    (function(){
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var searchInput = document.getElementById('userSearch');
+      var clearBtn = document.getElementById('clearSearchBtn');
       var rows = document.querySelectorAll('.user-row');
       var counter = document.getElementById('userSearchCount');
       if (counter) counter.textContent = rows.length + ' total';
-    })();
+
+      if (searchInput) {
+        searchInput.addEventListener('input', function() { filterUsers(this.value); });
+      }
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+          searchInput.value = '';
+          filterUsers('');
+          searchInput.focus();
+        });
+      }
+    });
 
     var csrfMeta = document.querySelector('meta[name="csrf-token"]');
     var CSRF = csrfMeta ? csrfMeta.content : '';
