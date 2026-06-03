@@ -230,8 +230,9 @@
   function syncAndRender() {
     var pending = [];
     var syncPromises = [];
+    var syncAttempted = {}; // prevent re-syncing same course in one page load
 
-    // Check ALL known course keys (not just server-approved) for localStorage completions
+    // Check ALL known course keys for localStorage completions
     ALL_COURSE_KEYS.forEach(function(key) {
       var storageKey = 'gu_completed_' + key;
       var stored = [];
@@ -244,90 +245,76 @@
 
       if (stored.length === 0) return;
 
-      // Check if this course is in the approved list from server
-      var approvedCourse = approvedFromServer.find(function(c) { return c.courseKey === key; });
       var completedCourse = completedFromServer.find(function(c) { return c.courseKey === key; });
       var modCount = moduleCountsFromServer[key] || 0;
 
       // If already shown as completed from server, skip
       if (completedCourse) return;
 
-      if (approvedCourse) {
-        var allDone = modCount > 0 && stored.length >= modCount;
-        if (allDone) {
-          // Sync to DB
-          var p = fetch('/api/course/' + key + '/complete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrf() },
-            credentials: 'same-origin',
-            body: JSON.stringify({ courseKey: key })
-          }).then(function(r) { return r.json(); }).then(function(d) {
-            if (d.success) {
-              showToast(approvedCourse.courseName + ' synced to server!', 'bx-check-circle');
-            } else {
-              console.error('Sync failed for ' + key + ':', d.error);
-            }
-          }).catch(function(e) { console.error('Sync error for ' + key + ':', e); });
-          syncPromises.push(p);
-        } else {
-          pending.push({
-            courseKey: key,
-            courseName: approvedCourse.courseName,
-            moduleCount: modCount,
-            doneCount: stored.length
-          });
-        }
-      } else if (modCount > 0) {
-        // Course not in approved list but we know its module count from config
-        var allDoneFallback = stored.length >= modCount;
-        if (allDoneFallback) {
-          var p2 = fetch('/api/course/' + key + '/complete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrf() },
-            credentials: 'same-origin',
-            body: JSON.stringify({ courseKey: key })
-          }).then(function(r) { return r.json(); }).then(function(d) {
-            if (d.success) {
-              showToast(key + ' synced to server!', 'bx-check-circle');
-            }
-          }).catch(function(e) { console.error('Sync error for ' + key + ':', e); });
-          syncPromises.push(p2);
-        } else {
-          pending.push({
-            courseKey: key,
-            courseName: key.charAt(0).toUpperCase() + key.slice(1),
-            moduleCount: modCount,
-            doneCount: stored.length
-          });
-        }
+      var allDone = modCount > 0 && stored.length >= modCount;
+
+      if (allDone && !syncAttempted[key]) {
+        syncAttempted[key] = true;
+        // Sync to DB
+        var p = fetch('/api/course/' + key + '/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrf() },
+          credentials: 'same-origin',
+          body: JSON.stringify({ courseKey: key })
+        }).then(function(r) { return r.json(); }).then(function(d) {
+          if (d.success && d.completedAt) {
+            showToast('Synced! Reloading...', 'bx-check-circle');
+            return true; // success
+          } else {
+            console.error('Sync failed for ' + key + ':', d.error || d);
+            return false;
+          }
+        }).catch(function(e) { console.error('Sync error for ' + key + ':', e); return false; });
+        syncPromises.push(p);
+      } else if (!allDone) {
+        pending.push({
+          courseKey: key,
+          courseName: key.charAt(0).toUpperCase() + key.slice(1),
+          moduleCount: modCount,
+          doneCount: stored.length
+        });
       }
     });
 
-    // If we synced anything, reload after a moment to pick up server state
+    // If we synced anything, wait for results then reload only on success
     if (syncPromises.length) {
       var banner = document.getElementById('syncBanner');
       var msg = document.getElementById('syncMsg');
       banner.style.display = '';
-      msg.textContent = 'Syncing ' + syncPromises.length + ' completion(s) to the server...';
+      msg.textContent = 'Syncing completions to server...';
 
-      Promise.all(syncPromises).then(function() {
-        msg.textContent = 'Sync complete! Reloading...';
-        setTimeout(function() { location.reload(); }, 1200);
+      Promise.all(syncPromises).then(function(results) {
+        var anySuccess = results.some(function(r) { return r === true; });
+        if (anySuccess) {
+          msg.textContent = 'Synced! Reloading...';
+          setTimeout(function() { location.reload(); }, 1000);
+        } else {
+          msg.textContent = 'Sync failed. Check console for errors.';
+          banner.style.background = '#FEE2E2';
+          banner.style.borderColor = '#DC2626';
+          banner.style.color = '#991B1B';
+          // Fall through to render normally
+          renderFallback(pending);
+        }
       });
-      return; // Don't render yet — we'll reload
+      return; // Don't render yet
     }
 
-    // Render what we have from server
+    renderFallback(pending);
+  }
+
+  function renderFallback(pending) {
     if (completedFromServer.length) {
       renderCerts(completedFromServer);
     }
-
-    // Show pending courses
     if (pending.length) {
       renderPending(pending);
     }
-
-    // If nothing at all, show empty state
     if (!completedFromServer.length && !pending.length) {
       document.getElementById('emptyState').style.display = '';
     }

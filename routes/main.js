@@ -1247,13 +1247,18 @@ router.post('/api/course/:key/complete', async (req, res) => {
   try {
     const user = await User.findById(req.session.userId);
     if (!user) return res.status(404).json({ success: false, error: 'Account not found' });
-    const entry = user.purchasedCourses.find(c => c.courseKey === courseKey && c.status === 'approved');
+    const entry = user.purchasedCourses.find(c => c.courseKey === courseKey);
     if (!entry) return res.status(403).json({ success: false, error: 'Course not owned' });
+    // Auto-approve if status is still pending (course was purchased but not yet approved)
+    if (entry.status !== 'approved') {
+      entry.status = 'approved';
+    }
     if (!entry.completedAt) {
       entry.completedAt = new Date();
-      await user.save();
     }
-    return res.json({ success: true });
+    await user.save();
+    console.log('[sync] Saved completedAt for', user.email, courseKey, 'entry:', JSON.stringify({ status: entry.status, completedAt: entry.completedAt }));
+    return res.json({ success: true, completedAt: entry.completedAt });
   } catch (err) {
     console.error('Course complete sync error:', err);
     return res.status(500).json({ success: false, error: 'Server error' });
