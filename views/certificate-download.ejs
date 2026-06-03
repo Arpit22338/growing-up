@@ -76,8 +76,6 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     var certEl = document.getElementById('certificate');
     var msgEl = document.getElementById('msg');
@@ -102,38 +100,58 @@
       return Promise.all(promises);
     }
 
-    waitForFonts().then(function() { return waitForImages(); }).then(function() {
-      msgEl.textContent = 'Capturing certificate...';
-      return html2canvas(certEl, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#FFFEF7',
-        logging: false,
-        width: 1122,
-        height: 793
-      });
-    }).then(function(canvas) {
-      if (format === 'png') {
-        msgEl.textContent = 'Saving PNG...';
-        var link = document.createElement('a');
-        link.download = 'GrowingUp-Certificate-<%= certId %>.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-        msgEl.textContent = 'PNG saved! Closing...';
-      } else {
-        msgEl.textContent = 'Generating PDF...';
-        var jsPDF = window.jspdf.jsPDF;
-        var pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-        var imgData = canvas.toDataURL('image/jpeg', 0.95);
-        pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
-        pdf.save('GrowingUp-Certificate-<%= certId %>.pdf');
-        msgEl.textContent = 'PDF downloaded! Closing...';
+    function runCapture() {
+      if (typeof html2canvas === 'undefined') {
+        msgEl.textContent = 'Error: html2canvas failed to load. Check your connection.';
+        return;
       }
-      setTimeout(function() { window.close(); }, 1500);
-    }).catch(function(err) {
-      msgEl.textContent = 'Error: ' + err.message + '. Go back and try again.';
-    });
+      if (typeof window.jspdf === 'undefined' && format === 'pdf') {
+        msgEl.textContent = 'Error: jsPDF failed to load. Check your connection.';
+        return;
+      }
+      waitForFonts().then(function() { return waitForImages(); }).then(function() {
+        msgEl.textContent = 'Capturing certificate...';
+        return html2canvas(certEl, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#FFFEF7',
+          logging: false,
+          width: 1122,
+          height: 793
+        });
+      }).then(function(canvas) {
+        if (format === 'png') {
+          msgEl.textContent = 'Saving PNG...';
+          var link = document.createElement('a');
+          link.download = 'GrowingUp-Certificate-<%= certId %>.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          msgEl.textContent = 'PNG saved! Closing...';
+        } else {
+          msgEl.textContent = 'Generating PDF...';
+          var jsPDF = window.jspdf.jsPDF;
+          var pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+          var imgData = canvas.toDataURL('image/jpeg', 0.95);
+          pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
+          pdf.save('GrowingUp-Certificate-<%= certId %>.pdf');
+          msgEl.textContent = 'PDF downloaded! Closing...';
+        }
+        setTimeout(function() { window.close(); }, 1500);
+      }).catch(function(err) {
+        msgEl.textContent = 'Error: ' + err.message + '. Go back and try again.';
+      });
+    }
+
+    var scriptsLoaded = 0;
+    function checkAllLoaded() {
+      scriptsLoaded++;
+      if (scriptsLoaded >= 2) {
+        setTimeout(runCapture, 300);
+      }
+    }
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" onload="checkAllLoaded()"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" onload="checkAllLoaded()"></script>
 </body>
 </html>
