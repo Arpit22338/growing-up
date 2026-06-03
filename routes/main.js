@@ -834,9 +834,9 @@ router.get('/certificate/:courseKey', async (req, res) => {
   }
 });
 
-// GET - Download certificate as a standalone HTML file (the user can open it
-// in any browser and use "Print → Save as PDF" for a real PDF download).
-// Same auth + ownership + completion gates as the render route.
+// GET - Download certificate as PDF or PNG.
+// Renders a clean inline-styled page, auto-captures with html2canvas,
+// and auto-downloads. ?format=pdf (default) or ?format=png
 router.get('/certificate/:courseKey/download', async (req, res) => {
   if (!req.session || !req.session.userId) return res.redirect('/login');
   const courseKey = req.params.courseKey;
@@ -857,7 +857,11 @@ router.get('/certificate/:courseKey/download', async (req, res) => {
     const ck = courseKey.toUpperCase().slice(0, 3);
     const certId = `${ck}-${short}`;
     const issuedAt = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    res.render('certificate', { user, course, certId, issuedAt, downloadMode: true });
+    const format = req.query.format === 'png' ? 'png' : 'pdf';
+    res.render('certificate-download', {
+      user, course, certId, issuedAt, format,
+      baseUrl: process.env.BASE_URL || 'https://www.growingup.tech'
+    });
   } catch (err) {
     console.error('Certificate download error:', err);
     res.status(500).send('Server error');

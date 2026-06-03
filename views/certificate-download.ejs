@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download Certificate — Growing Up</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0A1F44; font-family: 'Poppins', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    #status { color: #fff; font-size: 16px; text-align: center; }
+    #status i { font-size: 32px; display: block; margin-bottom: 12px; color: #D4A017; }
+    .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.2); border-top-color: #D4A017; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="status">
+    <div class="spinner"></div>
+    <i class="bx bx-loader-alt"></i>
+    <div id="msg">Generating your certificate...</div>
+  </div>
+
+  <!-- Hidden certificate rendered with ALL inline styles (no pseudo-elements) -->
+  <div id="certWrap" style="position:absolute;left:-9999px;top:0;">
+    <div id="certificate" style="width:1122px;height:793px;background:#FFFEF7;font-family:'Poppins',sans-serif;color:#0A1F44;display:flex;flex-direction:column;padding:36px 54px;position:relative;overflow:hidden;border:12px solid #D4A017;">
+      <!-- Inner gold border -->
+      <div style="position:absolute;inset:0;border:2px solid #D4A017;pointer-events:none;margin:6px;"></div>
+      <div style="position:absolute;inset:0;border:1px solid #D4A017;pointer-events:none;margin:14px;"></div>
+
+      <!-- Corner accents -->
+      <div style="position:absolute;top:18px;left:18px;width:50px;height:50px;border:3px solid #D4A017;border-right:0;border-bottom:0;"></div>
+      <div style="position:absolute;top:18px;right:18px;width:50px;height:50px;border:3px solid #D4A017;border-left:0;border-bottom:0;"></div>
+      <div style="position:absolute;bottom:18px;left:18px;width:50px;height:50px;border:3px solid #D4A017;border-right:0;border-top:0;"></div>
+      <div style="position:absolute;bottom:18px;right:18px;width:50px;height:50px;border:3px solid #D4A017;border-left:0;border-top:0;"></div>
+
+      <!-- Header -->
+      <div style="text-align:center;margin-top:4px;">
+        <div style="display:inline-flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:#0A1F44;">
+          <img src="<%= baseUrl %>/images/logo-web.png" style="width:38px;height:38px;border-radius:50%;" crossorigin="anonymous">
+          Growing <span style="color:#D4A017;">Up</span>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div style="text-align:center;margin-top:auto;flex:1;display:flex;flex-direction:column;justify-content:center;">
+        <h1 style="font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:700;color:#0A1F44;letter-spacing:2px;margin:0 0 6px;">Certificate of Completion</h1>
+        <p style="font-size:17px;color:#475569;margin:0 0 16px;">Knowledge-Building Program</p>
+        <p style="font-size:15px;color:#64748B;margin:0 0 4px;font-style:italic;">This certificate is proudly presented to</p>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:600;color:#0A1F44;margin:4px 0 10px;border-bottom:2px solid #D4A017;display:inline-block;padding:0 30px 6px;">
+          <%= user.firstName %><% if (user.middleName) { %> <%= user.middleName %><% } %> <%= user.lastName %>
+        </div>
+        <p style="font-size:15px;color:#475569;max-width:600px;margin:0 auto 8px;line-height:1.4;">for successfully completing every module of</p>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:#D4A017;margin:0 0 6px;"><%= course.name %></div>
+        <div style="width:80px;height:80px;background:linear-gradient(135deg,#D4A017,#B8860B);color:#0A1F44;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 4px 12px rgba(212,168,67,0.4);margin:0 auto;">&#9733;</div>
+      </div>
+
+      <!-- Footer -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;padding:0 20px;gap:30px;">
+        <div style="text-align:center;flex:1.5;display:flex;flex-direction:column;align-items:center;max-width:300px;">
+          <img src="<%= baseUrl %>/images/signature.png" style="width:320px;height:auto;margin-bottom:-8px;" crossorigin="anonymous">
+          <div style="border-top:2px solid #0A1F44;padding-top:2px;font-weight:700;color:#0A1F44;font-size:14px;width:100%;">Arpit Kafle</div>
+          <div style="font-size:12px;color:#64748B;margin-top:0;">Founder, Growing Up</div>
+        </div>
+        <div style="text-align:center;flex:1;font-size:11px;color:#94A3B8;font-family:monospace;display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <strong style="color:#475569;display:block;font-size:12px;font-weight:700;">Certificate ID</strong>
+          <div style="background:#F1F5F9;border:1px solid #CBD5E1;color:#0A1F44;padding:4px 10px;border-radius:6px;font-size:13px;font-weight:700;font-family:monospace;">GU-<%= certId %></div>
+          <div style="font-size:10px;color:#94A3B8;">Issued <%= issuedAt %></div>
+          <div style="font-size:10px;color:#94A3B8;">Verify at growingup.tech/verify/GU-<%= certId %></div>
+        </div>
+        <div style="text-align:center;flex:1;max-width:200px;display:flex;flex-direction:column;align-items:center;">
+          <img src="<%= baseUrl %>/images/stamp.png" style="height:130px;width:auto;margin-bottom:-10px;" crossorigin="anonymous">
+          <div style="font-size:12px;color:#64748B;">Knowledge-Building Program</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    var certEl = document.getElementById('certificate');
+    var msgEl = document.getElementById('msg');
+    var format = '<%= typeof format !== "undefined" ? format : "pdf" %>';
+
+    function waitForFonts() {
+      return document.fonts ? document.fonts.ready : Promise.resolve();
+    }
+
+    function waitForImages() {
+      var imgs = certEl.querySelectorAll('img');
+      var promises = [];
+      for (var i = 0; i < imgs.length; i++) {
+        (function(img) {
+          if (img.complete) return;
+          promises.push(new Promise(function(resolve) {
+            img.onload = resolve;
+            img.onerror = resolve;
+          }));
+        })(imgs[i]);
+      }
+      return Promise.all(promises);
+    }
+
+    waitForFonts().then(function() { return waitForImages(); }).then(function() {
+      msgEl.textContent = 'Capturing certificate...';
+      return html2canvas(certEl, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#FFFEF7',
+        logging: false,
+        width: 1122,
+        height: 793
+      });
+    }).then(function(canvas) {
+      if (format === 'png') {
+        msgEl.textContent = 'Saving PNG...';
+        var link = document.createElement('a');
+        link.download = 'GrowingUp-Certificate-<%= certId %>.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        msgEl.textContent = 'PNG saved! Closing...';
+      } else {
+        msgEl.textContent = 'Generating PDF...';
+        var jsPDF = window.jspdf.jsPDF;
+        var pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+        var imgData = canvas.toDataURL('image/jpeg', 0.95);
+        pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
+        pdf.save('GrowingUp-Certificate-<%= certId %>.pdf');
+        msgEl.textContent = 'PDF downloaded! Closing...';
+      }
+      setTimeout(function() { window.close(); }, 1500);
+    }).catch(function(err) {
+      msgEl.textContent = 'Error: ' + err.message + '. Go back and try again.';
+    });
+  </script>
+</body>
+</html>

@@ -248,8 +248,8 @@
     <a href="/profile" class="back-btn"><i class='bx bx-arrow-back'></i> Back to Profile</a>
     <a href="/certificates" class="back-btn" style="background:#0A1F44;color:#D4A017;border-color:#0A1F44;"><i class='bx bx-collection'></i> All Certificates</a>
     <a href="/verify/GU-<%= certId %>" class="verify-btn" target="_blank" rel="noopener"><i class='bx bx-shield-check'></i> Verify</a>
-    <button type="button" class="download-btn" data-action="download"><i class='bx bx-download'></i> Download PDF</button>
-    <button type="button" class="download-btn" data-action="png" style="background:#6366F1;"><i class='bx bx-image'></i> Save as PNG</button>
+    <a href="/certificate/<%= course.key %>/download?format=pdf" class="download-btn" target="_blank"><i class='bx bx-download'></i> Download PDF</a>
+    <a href="/certificate/<%= course.key %>/download?format=png" class="download-btn" target="_blank" style="background:#6366F1;"><i class='bx bx-image'></i> Save as PNG</a>
     <button type="button" class="print-btn pc-only" data-action="print"><i class='bx bx-printer'></i> Print</button>
   </div>
 
@@ -308,8 +308,6 @@
 
   <div class="toast-container" id="toastContainer" style="position:fixed;top:80px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     function copyToClipboard(text, onSuccess, onError) {
       function done() { if (onSuccess) onSuccess(); }
@@ -341,31 +339,6 @@
       c.appendChild(t);
       setTimeout(function() { t.remove(); }, 2500);
     }
-    function captureCert(callback) {
-      var cert = document.querySelector('.certificate');
-      if (!cert) return;
-      var origTransform = cert.style.transform;
-      var origWrapperH = document.querySelector('.cert-wrapper').style.height;
-      cert.style.transform = 'none';
-      document.querySelector('.cert-wrapper').style.height = 'auto';
-      html2canvas(cert, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#FFFEF7',
-        logging: false,
-        width: cert.scrollWidth,
-        height: cert.scrollHeight
-      }).then(function(canvas) {
-        cert.style.transform = origTransform;
-        document.querySelector('.cert-wrapper').style.height = origWrapperH;
-        callback(canvas);
-      }).catch(function(err) {
-        cert.style.transform = origTransform;
-        document.querySelector('.cert-wrapper').style.height = origWrapperH;
-        showToast('Capture failed: ' + err.message, 'error');
-      });
-    }
     document.addEventListener('click', function(e) {
       var btn = e.target.closest('[data-copy-text]');
       if (btn) {
@@ -387,39 +360,6 @@
       var act = e.target.closest('[data-action]');
       if (!act) return;
       var action = act.getAttribute('data-action');
-      if (action === 'download') {
-        act.disabled = true;
-        var origHTML = act.innerHTML;
-        act.innerHTML = '<i class=\'bx bx-loader-alt bx-spin\'></i> Generating PDF...';
-        captureCert(function(canvas) {
-          var jsPDF = window.jspdf.jsPDF;
-          var pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-          var pdfW = pdf.internal.pageSize.getWidth();
-          var pdfH = pdf.internal.pageSize.getHeight();
-          var imgData = canvas.toDataURL('image/jpeg', 0.95);
-          pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
-          pdf.save('GrowingUp-Certificate-<%= certId %>.pdf');
-          act.disabled = false;
-          act.innerHTML = origHTML;
-          showToast('PDF downloaded!', 'success');
-        });
-        return;
-      }
-      if (action === 'png') {
-        act.disabled = true;
-        var origHTML2 = act.innerHTML;
-        act.innerHTML = '<i class=\'bx bx-loader-alt bx-spin\'></i> Saving PNG...';
-        captureCert(function(canvas) {
-          var link = document.createElement('a');
-          link.download = 'GrowingUp-Certificate-<%= certId %>.png';
-          link.href = canvas.toDataURL('image/png');
-          link.click();
-          act.disabled = false;
-          act.innerHTML = origHTML2;
-          showToast('PNG saved!', 'success');
-        });
-        return;
-      }
       if (action === 'print') {
         window.print();
       }
@@ -446,10 +386,5 @@
     })();
   </script>
 
-  <% if (typeof downloadMode !== 'undefined' && downloadMode) { %>
-  <script>
-    setTimeout(function() { window.print(); }, 600);
-  </script>
-  <% } %>
 </body>
 </html>
