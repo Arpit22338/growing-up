@@ -272,6 +272,7 @@
   function allComplete() { return moduleCount > 0 && completedModules.length >= moduleCount; }
 
   function renderSidebar() {
+    if (!moduleList) return;
     Array.from(moduleList.querySelectorAll('.cr-mod-item')).forEach(function(el) {
       const idx = parseInt(el.getAttribute('data-idx'), 10);
       const id = parseInt(el.getAttribute('data-id'), 10);
@@ -293,6 +294,7 @@
   }
 
   function renderPills() {
+    if (!pillsEl) return;
     Array.from(pillsEl.querySelectorAll('.pill')).forEach(function(el) {
       const idx = parseInt(el.getAttribute('data-idx'), 10);
       const id = modules[idx] ? modules[idx].id : -1;
@@ -357,10 +359,14 @@
       showToast('✓ Module marked complete!', 'success');
     }
     saveCompleted(completedModules);
-    renderSidebar();
-    renderProgress();
+
+    // Always render cert CTA — even if sidebar/pills fail
+    try { renderSidebar(); } catch(e) {}
+    try { renderProgress(); } catch(e) {}
+    try { renderPills(); } catch(e) {}
+    try { renderNavBtns(); } catch(e) {}
+    try { renderCompleteBtn(); } catch(e) {}
     renderCertCta();
-    renderCompleteBtn();
 
     // If all modules are now complete, sync certificate ownership to DB
     if (allComplete()) {
@@ -392,12 +398,14 @@
 
   // Wire pill clicks
   var pillsEl = document.getElementById('crPills');
-  Array.from(pillsEl.querySelectorAll('.pill')).forEach(function(el) {
-    el.addEventListener('click', function() {
-      currentIdx = parseInt(this.getAttribute('data-idx'), 10);
-      renderModule();
+  if (pillsEl) {
+    Array.from(pillsEl.querySelectorAll('.pill')).forEach(function(el) {
+      el.addEventListener('click', function() {
+        currentIdx = parseInt(this.getAttribute('data-idx'), 10);
+        renderModule();
+      });
     });
-  });
+  }
 
   // Prev / Next buttons
   var prevBtn = document.getElementById('crPrevBtn');
@@ -409,11 +417,11 @@
 
   // Initial render
   if (modules.length) {
-    renderModule();
-    renderProgress();
+    try { renderModule(); } catch(e) { console.error('renderModule error:', e); }
+    try { renderProgress(); } catch(e) {}
     renderCertCta();
-    renderPills();
-    renderNavBtns();
+    try { renderPills(); } catch(e) {}
+    try { renderNavBtns(); } catch(e) {}
   } else {
     moduleContent.innerHTML = '<div class="alert alert-danger">Course content not found.</div>';
   }
