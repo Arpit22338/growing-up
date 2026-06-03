@@ -204,15 +204,40 @@
     }
 
     @media print {
-      body { background: #fff; padding: 0; }
+      @page { size: A4 landscape; margin: 0; }
+      body { background: #fff; padding: 0; margin: 0; overflow: hidden; }
       .no-print { display: none !important; }
-      .cert-wrapper { width: 100%; max-width: none; }
+      .cert-wrapper { width: 297mm; max-width: none; margin: 0; padding: 0; overflow: hidden; }
       .certificate {
         box-shadow: none;
-        width: 100%;
-        height: 100vh;
+        width: 297mm;
+        height: 210mm;
         aspect-ratio: auto;
+        padding: 18mm 24mm;
+        border-width: 5mm;
+        overflow: hidden;
       }
+      .cert-title { font-size: 36pt; }
+      .cert-subtitle { font-size: 11pt; }
+      .cert-presented { font-size: 10pt; }
+      .cert-name { font-size: 28pt; padding: 0 15pt 3pt; }
+      .cert-completion { font-size: 10pt; }
+      .cert-course { font-size: 18pt; }
+      .cert-seal { width: 45pt; height: 45pt; font-size: 20pt; }
+      .cert-footer { gap: 10mm; padding: 0 5mm; }
+      .cert-sig img.sig-img { width: 180pt; height: auto; }
+      .cert-sig img.stamp-img { height: 80pt; width: auto; }
+      .cert-sig .line { font-size: 10pt; }
+      .cert-sig .role { font-size: 8pt; }
+      .cert-id { font-size: 8pt; }
+      .cert-id strong { font-size: 9pt; }
+      .cert-id-copy { font-size: 9pt; padding: 2pt 6pt; }
+      .cert-id-hint { font-size: 7pt; }
+      .corner { width: 30pt; height: 30pt; }
+      .corner.tl, .corner.tr { top: 10pt; }
+      .corner.bl, .corner.br { bottom: 10pt; }
+      .corner.tl, .corner.bl { left: 10pt; }
+      .corner.tr, .corner.br { right: 10pt; }
     }
   </style>
 </head>
