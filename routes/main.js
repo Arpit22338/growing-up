@@ -55,7 +55,7 @@ router.get('/how-it-works', (req, res) => {
 
 // GET - Sitemap.xml (PSEO)
 router.get('/sitemap.xml', (req, res) => {
-  const baseUrl = 'https://growingup.tech';
+  const baseUrl = 'https://www.growingup.tech';
   const courseKeys = Object.keys(courses);
   const now = new Date().toISOString().split('T')[0];
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
@@ -65,7 +65,9 @@ router.get('/sitemap.xml', (req, res) => {
     xml += `  <url><loc>${baseUrl}/course/${key}</loc><lastmod>${now}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>\n`;
   });
   xml += `</urlset>`;
-  res.set('Content-Type', 'application/xml');
+  res.set('Content-Type', 'application/xml; charset=utf-8');
+  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.set('X-Robots-Tag', 'index, follow');
   res.send(xml);
 });
 
@@ -573,7 +575,7 @@ router.get('/dashboard/wallet', async (req, res) => {
     const pendingTotal = withdrawals.filter(w => w.status === 'pending').reduce((s, w) => s + w.amount, 0);
     const availableBalance = user.totalEarnings - approvedTotal - pendingTotal;
 
-    const baseUrl = 'https://growingup.tech';
+  const baseUrl = 'https://www.growingup.tech';
     const code = user.referralCode;
 
     res.render('wallet', {
@@ -1020,7 +1022,7 @@ router.get('/certificates', async (req, res) => {
 
     res.render('certificates', {
       user, completed, approved, moduleCounts,
-      baseUrl: process.env.BASE_URL || 'https://growingup.tech',
+      baseUrl: process.env.BASE_URL || 'https://www.growingup.tech',
       currentPath: '/certificates',
       title: 'My Certificates',
       metaDesc: 'View and download your Growing Up course completion certificates. Verify certificate authenticity with unique IDs.',

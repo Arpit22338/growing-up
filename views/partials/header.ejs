@@ -12,7 +12,7 @@
   <% var _isNoIndex = (typeof currentPath !== 'undefined' && /^\/(login|register|pending|dashboard|admin|verify|certificate|certificates)/.test(currentPath)) || (typeof noIndex !== 'undefined' && noIndex); %>
   <meta name="robots" content="<%= _isNoIndex ? 'noindex, nofollow' : 'index, follow' %>">
   <meta name="theme-color" content="#0B1D3A">
-  <% var _host = 'https://growingup.tech'; %>
+  <% var _host = 'https://www.growingup.tech'; %>
   <% var _path = typeof currentPath !== 'undefined' ? currentPath : '/'; %>
   <% var _canonical = typeof canonicalUrl !== 'undefined' ? canonicalUrl : _host + _path; %>
   <link rel="canonical" href="<%= _canonical %>">
@@ -22,7 +22,7 @@
   <meta property="og:url" content="<%= _canonical %>">
   <meta property="og:title" content="<%= typeof ogTitle !== 'undefined' && ogTitle ? ogTitle : (typeof title !== 'undefined' && title ? title + ' — ' : '') + 'Growing Up — Learn & Earn in Nepal' %>">
   <meta property="og:description" content="<%= typeof ogDesc !== 'undefined' ? ogDesc : (typeof metaDesc !== 'undefined' ? metaDesc : 'Join thousands of Nepali learners building skills and earning through referrals. Courses from ₹499.') %>">
-  <meta property="og:image" content="<%= typeof ogImage !== 'undefined' ? ogImage : 'https://growingup.tech/images/logo-512.png' %>">
+  <meta property="og:image" content="<%= typeof ogImage !== 'undefined' ? ogImage : 'https://www.growingup.tech/images/logo-512.png' %>">
   <meta property="og:site_name" content="Growing Up">
   <meta property="og:locale" content="en_US">
 
@@ -30,7 +30,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="<%= typeof ogTitle !== 'undefined' && ogTitle ? ogTitle : (typeof title !== 'undefined' && title ? title + ' — ' : '') + 'Growing Up — Learn & Earn in Nepal' %>">
   <meta name="twitter:description" content="<%= typeof ogDesc !== 'undefined' ? ogDesc : (typeof metaDesc !== 'undefined' ? metaDesc : 'Nepal\'s leading referral-based course platform. Learn skills, earn commissions.') %>">
-  <meta name="twitter:image" content="<%= typeof ogImage !== 'undefined' ? ogImage : 'https://growingup.tech/images/logo-512.png' %>">
+  <meta name="twitter:image" content="<%= typeof ogImage !== 'undefined' ? ogImage : 'https://www.growingup.tech/images/logo-512.png' %>">
 
   <!-- Favicons (optimized sizes) -->
   <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
@@ -53,8 +53,8 @@
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
     "name": "Growing Up",
-    "url": "https://growingup.tech",
-    "logo": "https://growingup.tech/images/logo-512.png",
+    "url": "https://www.growingup.tech",
+    "logo": "https://www.growingup.tech/images/logo-512.png",
     "description": "Nepal's leading referral-based online course platform. Learn digital skills and earn through referrals.",
     "contactPoint": {
       "@type": "ContactPoint",

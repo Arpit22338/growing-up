@@ -162,7 +162,7 @@ router.get('/admin/users/:id', isAdmin, async (req, res) => {
     if (!user) return res.status(404).send('User not found');
 
     const payments = await Payment.find({ user: user._id }).sort({ createdAt: -1 });
-    res.render('admin/userDetail', { user, payments, role: req.session.role, baseUrl: process.env.BASE_URL || 'https://growingup.tech', csrfToken: req.session.csrfToken || '' });
+    res.render('admin/userDetail', { user, payments, role: req.session.role, baseUrl: process.env.BASE_URL || 'https://www.growingup.tech', csrfToken: req.session.csrfToken || '' });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
@@ -241,7 +241,7 @@ router.post('/admin/users/add', isSuperAdmin, async (req, res) => {
       });
     }
 
-    return res.json({ success: true, referralCode: user.referralCode, referralLink: (process.env.BASE_URL || 'https://growingup.tech') + '/register?ref=' + user.referralCode });
+    return res.json({ success: true, referralCode: user.referralCode, referralLink: (process.env.BASE_URL || 'https://www.growingup.tech') + '/register?ref=' + user.referralCode });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Server error' });
