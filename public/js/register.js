@@ -260,9 +260,14 @@ document.getElementById('step2Form').addEventListener('submit', async (e) => {
     return;
   }
 
-  // Show confirmation with course name and price
-  const courseNames = { starter: 'Starter (₹499)', prime: 'Prime (₹699)', master: 'Master (₹1599)', everything: 'Everything Bundle (₹1999)' };
-  const confirmMsg = 'You are registering for: ' + (courseNames[courseKey] || courseKey) + '\n\nIs this correct?';
+  // Get course name and price from the bottom bar (most reliable source)
+  var barName = document.getElementById('courseBottomName');
+  var barPrice = document.getElementById('courseBottomPrice');
+  var courseName = barName ? barName.textContent : courseKey;
+  var coursePrice = barPrice ? barPrice.textContent : '';
+
+  // Show confirmation alert
+  var confirmMsg = 'Make sure you selected this course:\n\n' + courseName + ' — ' + coursePrice + '\n\nProceed?';
   if (!confirm(confirmMsg)) {
     return;
   }
@@ -336,6 +341,9 @@ document.getElementById('step3Form').addEventListener('submit', async (e) => {
     const result = await res.json();
 
     if (result.success) {
+      // Hide course bottom bar on final step
+      var bar = document.getElementById('courseBottomBar');
+      if (bar) bar.style.display = 'none';
       goToStep(4);
     } else {
       showToast(result.error || 'Registration failed', 'error');

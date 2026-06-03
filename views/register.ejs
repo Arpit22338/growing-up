@@ -1,5 +1,10 @@
 <%- include('partials/header') %>
 
+<style>
+  .reg-container { padding-bottom: 80px; }
+  @media (max-width: 600px) { .reg-container { padding-bottom: 90px; } }
+</style>
+
 <div class="reg-container">
   <h2 style="text-align: center; color: var(--navy); margin-bottom: 8px;">Create Your Account</h2>
   <p style="text-align: center; color: var(--gray-500); margin-bottom: 32px;">Complete the steps below to join Growing Up</p>
@@ -258,6 +263,20 @@
   </div>
 </div>
 
+<!-- Sticky bottom bar showing selected course -->
+<div id="courseBottomBar" style="display:none; position:fixed; bottom:0; left:0; right:0; background:linear-gradient(135deg, #0A1F44, #1E3A8A); color:#fff; padding:12px 20px; z-index:999; box-shadow:0 -4px 20px rgba(0,0,0,0.2); font-family:'Poppins',sans-serif;">
+  <div style="max-width:600px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <i class='bx bx-check-circle' style="font-size:20px; color:#10B981;"></i>
+      <div>
+        <div style="font-size:13px; opacity:0.8;">Selected Course</div>
+        <div id="courseBottomName" style="font-size:16px; font-weight:700;"></div>
+      </div>
+    </div>
+    <div id="courseBottomPrice" style="font-size:20px; font-weight:800; color:#D4A017;"></div>
+  </div>
+</div>
+
 <script>
 // Course card selection for step 2 — using event delegation
 (function() {
@@ -278,14 +297,25 @@
     // Set hidden input value
     courseInput.value = key;
 
+    var titleEl = card.querySelector('.course-title') || card.querySelector('strong');
+    var priceEl = card.querySelector('.course-price');
+    var titleText = titleEl ? titleEl.textContent : key;
+    var priceText = priceEl ? priceEl.textContent : '';
+
     // Show info text
     if (info && text) {
-      var titleEl = card.querySelector('.course-title') || card.querySelector('strong');
-      var priceEl = card.querySelector('.course-price');
-      var titleText = titleEl ? titleEl.textContent : key;
-      var priceText = priceEl ? priceEl.textContent : '';
       info.style.display = 'flex';
       text.textContent = 'You selected: ' + titleText + (priceText ? ' — ' + priceText : '');
+    }
+
+    // Update bottom bar
+    var bar = document.getElementById('courseBottomBar');
+    var barName = document.getElementById('courseBottomName');
+    var barPrice = document.getElementById('courseBottomPrice');
+    if (bar && barName && barPrice) {
+      barName.textContent = titleText;
+      barPrice.textContent = priceText;
+      bar.style.display = 'block';
     }
   }
 
@@ -310,8 +340,20 @@
   var pre = document.querySelector('.reg-course-option.selected');
   if (pre && info && text) {
     var titleEl = pre.querySelector('.course-title') || pre.querySelector('strong');
+    var priceEl = pre.querySelector('.course-price');
+    var titleText = titleEl ? titleEl.textContent : '';
+    var priceText = priceEl ? priceEl.textContent : '';
     info.style.display = 'flex';
-    text.textContent = 'You selected: ' + (titleEl ? titleEl.textContent : '');
+    text.textContent = 'You selected: ' + titleText + (priceText ? ' — ' + priceText : '');
+    // Show bottom bar
+    var bar = document.getElementById('courseBottomBar');
+    var barName = document.getElementById('courseBottomName');
+    var barPrice = document.getElementById('courseBottomPrice');
+    if (bar && barName && barPrice) {
+      barName.textContent = titleText;
+      barPrice.textContent = priceText;
+      bar.style.display = 'block';
+    }
   }
 })();
 </script>
