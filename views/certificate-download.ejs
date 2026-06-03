@@ -81,6 +81,40 @@
     var msgEl = document.getElementById('msg');
     var format = '<%= typeof format !== "undefined" ? format : "pdf" %>';
 
+    function imgToBase64(url) {
+      return fetch(url).then(function(r) {
+        if (!r.ok) throw new Error('Failed to fetch ' + url);
+        return r.blob();
+      }).then(function(blob) {
+        return new Promise(function(resolve, reject) {
+          var reader = new FileReader();
+          reader.onloadend = function() { resolve(reader.result); };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      });
+    }
+
+    function convertImagesToBase64() {
+      var imgs = certEl.querySelectorAll('img');
+      var promises = [];
+      for (var i = 0; i < imgs.length; i++) {
+        (function(img) {
+          var src = img.getAttribute('src');
+          if (!src || src.indexOf('data:') === 0) return;
+          var fullUrl = src.indexOf('http') === 0 ? src : location.origin + src;
+          promises.push(
+            imgToBase64(fullUrl).then(function(dataUrl) {
+              img.src = dataUrl;
+            }).catch(function(e) {
+              console.warn('Image convert failed:', src, e);
+            })
+          );
+        })(imgs[i]);
+      }
+      return Promise.all(promises);
+    }
+
     function waitForFonts() {
       return document.fonts ? document.fonts.ready : Promise.resolve();
     }
@@ -90,9 +124,15 @@
       var promises = [];
       for (var i = 0; i < imgs.length; i++) {
         (function(img) {
-          if (img.complete) return;
+          if (img.complete && img.naturalWidth > 0) {
+            promises.push(img.decode ? img.decode().catch(function() {}) : Promise.resolve());
+            return;
+          }
           promises.push(new Promise(function(resolve) {
-            img.onload = resolve;
+            img.onload = function() {
+              if (img.decode) { img.decode().then(resolve).catch(resolve); }
+              else { resolve(); }
+            };
             img.onerror = resolve;
           }));
         })(imgs[i]);
@@ -109,16 +149,23 @@
         msgEl.innerHTML = 'Error: jsPDF not loaded. <a href="javascript:location.reload()" style="color:#D4A017;">Retry</a>';
         return;
       }
-      waitForFonts().then(function() { return waitForImages(); }).then(function() {
-        msgEl.textContent = 'Capturing certificate...';
+      msgEl.textContent = 'Loading images...';
+      return convertImagesToBase64();
+    }).then(function() {
+      return waitForFonts();
+    }).then(function() {
+      msgEl.textContent = 'Capturing certificate...';
+      return new Promise(function(resolve) { setTimeout(resolve, 500); });
+    }).then(function() {
         return html2canvas(certEl, {
           scale: 2,
           useCORS: true,
-          allowTaint: true,
+          allowTaint: false,
           backgroundColor: '#FFFEF7',
-          logging: false,
+          logging: true,
           width: 1122,
-          height: 793
+          height: 793,
+          imageTimeout: 15000
         });
       }).then(function(canvas) {
         if (format === 'png') {
