@@ -1367,4 +1367,27 @@ router.post('/api/course/:key/module/toggle', async (req, res) => {
   }
 });
 
+// POST - Admin: Reset all certificates (clear completedAt from all users).
+// This allows users to re-earn certificates by completing courses again.
+router.post('/api/admin/reset-certificates', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, error: 'Please login' });
+  }
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user || user.role !== 'superadmin') {
+      return res.status(403).json({ success: false, error: 'Admin only' });
+    }
+    const result = await User.updateMany(
+      {},
+      { $set: { 'purchasedCourses.$[].completedAt': null } }
+    );
+    console.log('[admin] Reset certificates for', result.modifiedCount, 'users');
+    return res.json({ success: true, modifiedUsers: result.modifiedCount });
+  } catch (err) {
+    console.error('Reset certificates error:', err);
+    return res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 module.exports = router;

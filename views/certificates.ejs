@@ -47,14 +47,20 @@
   .btn-share:hover { background: #E0F2FE; }
   .btn-copy { background: #F1F5F9; color: #475569; }
   .btn-copy:hover { background: #E2E8F0; }
+  .btn-sync { background: #FEF3C7; color: #92400E; }
+  .btn-sync:hover { background: #FDE68A; }
 
   .empty-state { text-align: center; padding: 60px 20px; }
   .empty-state i { font-size: 72px; color: #CBD5E1; }
   .empty-state h2 { color: #475569; margin: 16px 0 6px; }
   .empty-state p { color: #94A3B8; font-size: 15px; margin: 0 0 18px; }
 
-  .pending-section { margin-top: 32px; }
-  .pending-section h2 { font-size: 1.2rem; color: #92400E; margin-bottom: 12px; }
+  .sync-banner {
+    background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center;
+    gap: 10px; color: #92400E; font-size: 14px;
+  }
+  .sync-banner i { font-size: 22px; flex-shrink: 0; }
 
   .toast {
     position: fixed; bottom: 20px; right: 20px; background: #0A1F44; color: #fff;
@@ -72,11 +78,19 @@
 </div>
 
 <div class="container" style="max-width:720px; padding-bottom:40px;">
+
+  <div id="syncBanner" class="sync-banner" style="display:none;">
+    <i class='bx bx-sync'></i>
+    <span id="syncMsg">Syncing your completions to the server...</span>
+  </div>
+
   <div id="certList"></div>
-  <div id="pendingList" class="pending-section" style="display:none;">
-    <h2><i class='bx bx-loader-circle'></i> Courses Ready to Claim</h2>
+
+  <div id="pendingList" style="display:none;">
+    <h2 style="font-size:1.15rem; color:#92400E; margin:24px 0 12px;"><i class='bx bx-medal'></i> Courses Ready to Claim</h2>
     <div id="pendingCards"></div>
   </div>
+
   <div id="emptyState" class="empty-state" style="display:none;">
     <i class='bx bx-medal'></i>
     <h2>No certificates yet</h2>
@@ -92,6 +106,8 @@
   var baseUrl = '<%= baseUrl %>';
   var completedFromServer = <%- JSON.stringify(completed) %>;
   var approvedFromServer = <%- JSON.stringify(approved) %>;
+  // courseKeys array for checking localStorage across all courses
+  var ALL_COURSE_KEYS = ['starter', 'prime', 'master', 'everything'];
 
   var toastTimer = null;
   function showToast(msg, icon) {
@@ -99,13 +115,12 @@
     el.innerHTML = '<i class="bx ' + (icon || 'bx-check-circle') + '"></i> ' + msg;
     el.className = 'toast show';
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function() { el.className = 'toast'; }, 2800);
+    toastTimer = setTimeout(function() { el.className = 'toast'; }, 3000);
   }
 
   function fmtDate(d) {
     if (!d) return '';
-    var dt = new Date(d);
-    return dt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
   function copyText(text) {
@@ -116,35 +131,69 @@
     document.body.removeChild(ta);
   }
 
-  function buildCertCard(cert, idx) {
-    var card = document.createElement('div');
-    card.className = 'cert-card' + (cert.pendingSync ? ' pending-sync' : '');
-    var iconName = cert.pendingSync ? 'bx-loader-circle' : 'bx-check-circle';
-    var iconColor = cert.pendingSync ? '' : ' style="color:#10B981"';
-    var verifyUrl = baseUrl + '/verify/GU-' + encodeURIComponent(cert.certId);
-    var downloadUrl = baseUrl + '/certificate/' + encodeURIComponent(cert.courseKey) + '/download';
-    card.innerHTML =
-      '<div class="inner">' +
-        '<div class="icon-col"><i class="bx ' + iconName + '"></i></div>' +
-        '<div class="body">' +
-          '<h3>' + cert.courseName + '</h3>' +
-          '<div class="meta">' +
-            '<span><i class="bx bx-calendar"></i> ' + fmtDate(cert.completedAt) + '</span>' +
-            '<span class="cert-id">GU-' + cert.certId + '</span>' +
-            (cert.granted ? '<span><i class="bx bx-gift"></i> Granted</span>' : '') +
-          '</div>' +
-          '<div class="actions">' +
-            '<a class="btn-dl" href="' + downloadUrl + '" target="_blank"><i class="bx bx-download"></i> PDF</a>' +
-            '<a class="btn-verify" href="' + verifyUrl + '" target="_blank"><i class="bx bx-shield-check"></i> Verify</a>' +
-            '<button class="btn-copy" onclick="window._certCopy(this, \'' + cert.certId + '\')"><i class="bx bx-copy"></i> Copy ID</button>' +
-            '<button class="btn-share" onclick="window._certShare(this, \'' + cert.certId + '\', \'' + cert.courseName.replace(/'/g, "\\'") + '\')"><i class="bx bx-share-alt"></i> Share</button>' +
-            '<button class="btn-del" onclick="window._certDelete(this, \'' + cert.courseKey + '\')"><i class="bx bx-trash"></i></button>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
-    return card;
+  function getCsrf() {
+    var m = document.querySelector('meta[name="csrf-token"]');
+    return m ? m.content : '';
   }
 
+  // ---- RENDER CERTIFICATE CARDS ----
+  function renderCerts(certs) {
+    var list = document.getElementById('certList');
+    list.innerHTML = '';
+    certs.forEach(function(c) {
+      var card = document.createElement('div');
+      card.className = 'cert-card';
+      var verifyUrl = baseUrl + '/verify/GU-' + encodeURIComponent(c.certId);
+      var downloadUrl = baseUrl + '/certificate/' + encodeURIComponent(c.courseKey) + '/download';
+      card.innerHTML =
+        '<div class="inner">' +
+          '<div class="icon-col"><i class="bx bx-check-circle"></i></div>' +
+          '<div class="body">' +
+            '<h3>' + c.courseName + '</h3>' +
+            '<div class="meta">' +
+              '<span><i class="bx bx-calendar"></i> ' + fmtDate(c.completedAt) + '</span>' +
+              '<span class="cert-id">GU-' + c.certId + '</span>' +
+              (c.granted ? '<span><i class="bx bx-gift"></i> Granted</span>' : '') +
+            '</div>' +
+            '<div class="actions">' +
+              '<a class="btn-dl" href="' + downloadUrl + '" target="_blank"><i class="bx bx-download"></i> PDF</a>' +
+              '<a class="btn-verify" href="' + verifyUrl + '" target="_blank"><i class="bx bx-shield-check"></i> Verify</a>' +
+              '<button class="btn-copy" onclick="window._certCopy(this,\'' + c.certId + '\')"><i class="bx bx-copy"></i> Copy ID</button>' +
+              '<button class="btn-share" onclick="window._certShare(this,\'' + c.certId + '\',\'' + c.courseName.replace(/'/g, "\\'") + '\')"><i class="bx bx-share-alt"></i> Share</button>' +
+              '<button class="btn-del" onclick="window._certDelete(this,\'' + c.courseKey + '\')"><i class="bx bx-trash"></i></button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      list.appendChild(card);
+    });
+  }
+
+  // ---- RENDER PENDING (courses with localStorage progress but not yet synced) ----
+  function renderPending(courses) {
+    if (!courses.length) return;
+    var sec = document.getElementById('pendingList');
+    var wrap = document.getElementById('pendingCards');
+    sec.style.display = '';
+    wrap.innerHTML = '';
+    courses.forEach(function(c) {
+      var card = document.createElement('div');
+      card.className = 'cert-card pending-sync';
+      card.innerHTML =
+        '<div class="inner">' +
+          '<div class="icon-col"><i class="bx bx-medal"></i></div>' +
+          '<div class="body">' +
+            '<h3>' + c.courseName + '</h3>' +
+            '<div class="meta"><span><i class="bx bx-check-circle"></i> ' + c.doneCount + ' / ' + c.moduleCount + ' modules complete</span></div>' +
+            '<div class="actions">' +
+              '<a class="btn-sync" href="/course/' + encodeURIComponent(c.courseKey) + '"><i class="bx bx-book-open"></i> View Course & Finish</a>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      wrap.appendChild(card);
+    });
+  }
+
+  // ---- ACTIONS ----
   window._certCopy = function(btn, certId) {
     copyText('GU-' + certId);
     showToast('Copied!', 'bx-check');
@@ -163,11 +212,9 @@
 
   window._certDelete = function(btn, courseKey) {
     if (!confirm('Delete this certificate? You can re-earn it by completing the course again.')) return;
-    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
-    var csrf = csrfMeta ? csrfMeta.content : '';
     fetch('/api/course/' + courseKey + '/delete-cert', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrf() },
       credentials: 'same-origin'
     }).then(function(r) { return r.json(); }).then(function(d) {
       if (d.success) {
@@ -179,94 +226,100 @@
     }).catch(function() { showToast('Network error', 'bx-error'); });
   };
 
-  // --- RENDER ---
-  function renderCerts(certs) {
-    var list = document.getElementById('certList');
-    certs.forEach(function(c, i) { list.appendChild(buildCertCard(c, i)); });
-  }
-
-  function renderPending(courses) {
-    if (!courses.length) return;
-    var sec = document.getElementById('pendingList');
-    var wrap = document.getElementById('pendingCards');
-    sec.style.display = '';
-    courses.forEach(function(c) {
-      var card = document.createElement('div');
-      card.className = 'cert-card pending-sync';
-      card.innerHTML =
-        '<div class="inner">' +
-          '<div class="icon-col"><i class="bx bx-medal"></i></div>' +
-          '<div class="body">' +
-            '<h3>' + c.courseName + '</h3>' +
-            '<div class="meta"><span>Complete all modules, then click Claim below.</span></div>' +
-            '<div class="actions">' +
-              '<a class="btn-dl" href="/course/' + encodeURIComponent(c.courseKey) + '" style="text-decoration:none;"><i class="bx bx-book-open"></i> View Course</a>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-      wrap.appendChild(card);
-    });
-  }
-
-  // --- SYNC CHECK: for each approved course, check localStorage and sync to DB ---
-  function syncPendingCourses() {
-    if (!approvedFromServer.length) return;
+  // ---- SYNC: check localStorage for each course and sync to DB ----
+  function syncAndRender() {
     var pending = [];
     var syncPromises = [];
 
-    approvedFromServer.forEach(function(c) {
-      var key = 'modules_' + c.courseKey;
+    // Check ALL known course keys (not just server-approved) for localStorage completions
+    ALL_COURSE_KEYS.forEach(function(key) {
+      var storageKey = 'gu_completed_' + key;
       var stored = [];
-      try { stored = JSON.parse(localStorage.getItem(key)) || []; } catch(e) {}
-      var allDone = c.moduleCount > 0 && stored.length >= c.moduleCount;
+      try { stored = JSON.parse(localStorage.getItem(storageKey)) || []; } catch(e) {}
 
-      if (allDone) {
-        // All modules complete locally — sync to DB
-        var csrfMeta = document.querySelector('meta[name="csrf-token"]');
-        var csrf = csrfMeta ? csrfMeta.content : '';
-        var p = fetch('/api/course/' + c.courseKey + '/complete', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-          credentials: 'same-origin',
-          body: JSON.stringify({ courseKey: c.courseKey })
-        }).then(function(r) { return r.json(); }).then(function(d) {
-          if (d.success && d.completedAt) {
-            showToast(c.courseName + ' synced!', 'bx-check-circle');
-          }
-        }).catch(function() {});
-        syncPromises.push(p);
+      // Also check the old 'modules_' key for legacy data
+      if (!stored.length) {
+        try { stored = JSON.parse(localStorage.getItem('modules_' + key)) || []; } catch(e) {}
+      }
+
+      if (stored.length === 0) return;
+
+      // Check if this course is in the approved list from server
+      var approvedCourse = approvedFromServer.find(function(c) { return c.courseKey === key; });
+      var completedCourse = completedFromServer.find(function(c) { return c.courseKey === key; });
+
+      // If already shown as completed from server, skip
+      if (completedCourse) return;
+
+      if (approvedCourse) {
+        var allDone = approvedCourse.moduleCount > 0 && stored.length >= approvedCourse.moduleCount;
+        if (allDone) {
+          // Sync to DB
+          var p = fetch('/api/course/' + key + '/complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrf() },
+            credentials: 'same-origin',
+            body: JSON.stringify({ courseKey: key })
+          }).then(function(r) { return r.json(); }).then(function(d) {
+            if (d.success) {
+              showToast(approvedCourse.courseName + ' synced to server!', 'bx-check-circle');
+            } else {
+              console.error('Sync failed for ' + key + ':', d.error);
+            }
+          }).catch(function(e) { console.error('Sync error for ' + key + ':', e); });
+          syncPromises.push(p);
+        } else {
+          pending.push({
+            courseKey: key,
+            courseName: approvedCourse.courseName,
+            moduleCount: approvedCourse.moduleCount,
+            doneCount: stored.length
+          });
+        }
       } else {
-        pending.push(c);
+        // Course not in server data — might be a course the user owns but server didn't return
+        // Show as pending with whatever info we have
+        pending.push({
+          courseKey: key,
+          courseName: key.charAt(0).toUpperCase() + key.slice(1),
+          moduleCount: '?',
+          doneCount: stored.length
+        });
       }
     });
 
+    // If we synced anything, reload after a moment to pick up server state
     if (syncPromises.length) {
-      Promise.all(syncPromises).then(function() { setTimeout(function() { location.reload(); }, 800); });
+      var banner = document.getElementById('syncBanner');
+      var msg = document.getElementById('syncMsg');
+      banner.style.display = '';
+      msg.textContent = 'Syncing ' + syncPromises.length + ' completion(s) to the server...';
+
+      Promise.all(syncPromises).then(function() {
+        msg.textContent = 'Sync complete! Reloading...';
+        setTimeout(function() { location.reload(); }, 1200);
+      });
+      return; // Don't render yet — we'll reload
     }
-    renderPending(pending);
+
+    // Render what we have from server
+    if (completedFromServer.length) {
+      renderCerts(completedFromServer);
+    }
+
+    // Show pending courses
+    if (pending.length) {
+      renderPending(pending);
+    }
+
+    // If nothing at all, show empty state
+    if (!completedFromServer.length && !pending.length) {
+      document.getElementById('emptyState').style.display = '';
+    }
   }
 
-  // --- INIT ---
-  if (completedFromServer.length) {
-    renderCerts(completedFromServer);
-  }
-  syncPendingCourses();
-
-  if (!completedFromServer.length && !approvedFromServer.length) {
-    // No DB data at all — try the API fallback
-    fetch('/api/certificates', { credentials: 'same-origin' })
-      .then(function(r) { return r.json(); })
-      .then(function(d) {
-        if (d.success && d.completed && d.completed.length) {
-          renderCerts(d.completed);
-          document.getElementById('emptyState').style.display = 'none';
-        } else {
-          document.getElementById('emptyState').style.display = '';
-        }
-      })
-      .catch(function() { document.getElementById('emptyState').style.display = ''; });
-    document.getElementById('emptyState').style.display = 'none';
-  }
+  // ---- INIT ----
+  syncAndRender();
 })();
 </script>
 
