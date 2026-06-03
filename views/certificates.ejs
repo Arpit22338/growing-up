@@ -230,46 +230,50 @@
   function syncAndRender() {
     var pending = [];
     var syncPromises = [];
-    var syncAttempted = {}; // prevent re-syncing same course in one page load
+    var syncAttempted = {};
 
-    // Check ALL known course keys for localStorage completions
     ALL_COURSE_KEYS.forEach(function(key) {
       var storageKey = 'gu_completed_' + key;
       var stored = [];
       try { stored = JSON.parse(localStorage.getItem(storageKey)) || []; } catch(e) {}
-
-      // Also check the old 'modules_' key for legacy data
       if (!stored.length) {
         try { stored = JSON.parse(localStorage.getItem('modules_' + key)) || []; } catch(e) {}
       }
-
       if (stored.length === 0) return;
 
       var completedCourse = completedFromServer.find(function(c) { return c.courseKey === key; });
       var modCount = moduleCountsFromServer[key] || 0;
-
-      // If already shown as completed from server, skip
       if (completedCourse) return;
 
       var allDone = modCount > 0 && stored.length >= modCount;
 
       if (allDone && !syncAttempted[key]) {
         syncAttempted[key] = true;
-        // Sync to DB
         var p = fetch('/api/course/' + key + '/complete', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrf() },
           credentials: 'same-origin',
           body: JSON.stringify({ courseKey: key })
-        }).then(function(r) { return r.json(); }).then(function(d) {
+        }).then(function(r) {
+          if (r.status === 401 || r.status === 403) {
+            return r.text().then(function(t) {
+              showToast('Auth error (' + r.status + '): ' + t.substring(0, 100), 'bx-error');
+              return { success: false, error: 'Auth error ' + r.status };
+            });
+          }
+          return r.json();
+        }).then(function(d) {
           if (d.success && d.completedAt) {
             showToast('Synced! Reloading...', 'bx-check-circle');
-            return true; // success
+            return true;
           } else {
-            console.error('Sync failed for ' + key + ':', d.error || d);
+            showToast('Sync error: ' + (d.error || JSON.stringify(d)), 'bx-error');
             return false;
           }
-        }).catch(function(e) { console.error('Sync error for ' + key + ':', e); return false; });
+        }).catch(function(e) {
+          showToast('Network error: ' + e.message, 'bx-error');
+          return false;
+        });
         syncPromises.push(p);
       } else if (!allDone) {
         pending.push({
@@ -281,7 +285,6 @@
       }
     });
 
-    // If we synced anything, wait for results then reload only on success
     if (syncPromises.length) {
       var banner = document.getElementById('syncBanner');
       var msg = document.getElementById('syncMsg');
@@ -294,15 +297,14 @@
           msg.textContent = 'Synced! Reloading...';
           setTimeout(function() { location.reload(); }, 1000);
         } else {
-          msg.textContent = 'Sync failed. Check console for errors.';
+          msg.textContent = 'Sync failed. See toast for details.';
           banner.style.background = '#FEE2E2';
           banner.style.borderColor = '#DC2626';
           banner.style.color = '#991B1B';
-          // Fall through to render normally
           renderFallback(pending);
         }
       });
-      return; // Don't render yet
+      return;
     }
 
     renderFallback(pending);
