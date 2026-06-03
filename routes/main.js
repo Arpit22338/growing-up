@@ -515,7 +515,7 @@ router.post('/api/login', async (req, res) => {
       }
       // Account is pending admin approval — show message on login page
       return res.status(403).json({
-        error: 'Your account is pending approval.',
+        error: 'Your account hasn\'t been activated yet.',
         pending: true
       });
     }
