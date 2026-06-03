@@ -156,7 +156,7 @@
               (c.granted ? '<span><i class="bx bx-gift"></i> Granted</span>' : '') +
             '</div>' +
             '<div class="actions">' +
-              '<a class="btn-dl" href="' + downloadUrl + '" target="_blank"><i class="bx bx-download"></i> PDF</a>' +
+              '<a class="btn-dl" href="' + baseUrl + '/certificate/' + encodeURIComponent(c.courseKey) + '" target="_blank"><i class="bx bx-show"></i> View</a>' +
               '<a class="btn-verify" href="' + verifyUrl + '" target="_blank"><i class="bx bx-shield-check"></i> Verify</a>' +
               '<button class="btn-copy" onclick="window._certCopy(this,\'' + c.certId + '\')"><i class="bx bx-copy"></i> Copy ID</button>' +
               '<button class="btn-share" onclick="window._certShare(this,\'' + c.certId + '\',\'' + c.courseName.replace(/'/g, "\\'") + '\')"><i class="bx bx-share-alt"></i> Share</button>' +
