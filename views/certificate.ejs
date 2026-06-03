@@ -306,6 +306,7 @@
 
   <div class="toast-container" id="toastContainer" style="position:fixed;top:80px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;"></div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
     function copyToClipboard(text, onSuccess, onError) {
       function done() { if (onSuccess) onSuccess(); }
@@ -358,7 +359,29 @@
       var act = e.target.closest('[data-action]');
       if (act) {
         var action = act.getAttribute('data-action');
-        if (action === 'print' || action === 'download') {
+        if (action === 'download') {
+          var cert = document.querySelector('.certificate');
+          if (!cert) return;
+          act.disabled = true;
+          act.innerHTML = '<i class=\'bx bx-loader-alt bx-spin\'></i> Generating PDF...';
+          var opt = {
+            margin: 0,
+            filename: 'GrowingUp-Certificate-<%= certId %>.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+          };
+          html2pdf().set(opt).from(cert).save().then(function() {
+            act.disabled = false;
+            act.innerHTML = '<i class=\'bx bx-download\'></i> Download';
+          }).catch(function() {
+            act.disabled = false;
+            act.innerHTML = '<i class=\'bx bx-download\'></i> Download';
+            showToast('Download failed. Try Print instead.', 'error');
+          });
+          return;
+        }
+        if (action === 'print') {
           window.print();
         }
       }
