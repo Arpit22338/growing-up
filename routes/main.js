@@ -1400,4 +1400,45 @@ router.post('/api/admin/reset-certificates', async (req, res) => {
   }
 });
 
+// DEBUG - Show user's DB state (certificates debug)
+router.get('/api/debug/certs', async (req, res) => {
+  if (!req.session || !req.session.userId) return res.json({ error: 'not logged in' });
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user) return res.json({ error: 'user not found' });
+    const courses = user.purchasedCourses.map(c => ({
+      courseKey: c.courseKey,
+      courseName: c.courseName,
+      status: c.status,
+      completedAt: c.completedAt,
+      completedModules: c.completedModules,
+      hasEntry: true
+    }));
+    return res.json({ email: user.email, role: user.role, courses, total: courses.length });
+  } catch (err) {
+    return res.json({ error: err.message });
+  }
+});
+
+// MANUAL SYNC - Force sync a specific course (for debugging)
+router.post('/api/debug/sync/:key', async (req, res) => {
+  if (!req.session || !req.session.userId) return res.status(401).json({ error: 'not logged in' });
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user) return res.status(404).json({ error: 'user not found' });
+    const courseKey = req.params.key;
+    const entry = user.purchasedCourses.find(c => c.courseKey === courseKey);
+    if (!entry) return res.status(404).json({ error: 'no entry for ' + courseKey, allKeys: user.purchasedCourses.map(c => c.courseKey) });
+    entry.completedAt = new Date();
+    entry.status = 'approved';
+    await user.save();
+    // Re-read to confirm
+    const verify = await User.findById(req.session.userId);
+    const vEntry = verify.purchasedCourses.find(c => c.courseKey === courseKey);
+    return res.json({ success: true, completedAt: vEntry.completedAt, status: vEntry.status });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
