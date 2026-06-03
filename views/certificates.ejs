@@ -103,6 +103,35 @@
   var approved = <%- JSON.stringify(approved || []) %>;
   var dbCompletedKeys = <%- JSON.stringify((completed || []).map(function(c){return c.courseKey})) %>;
 
+  function renderCertCard(c, certId) {
+    var card = document.createElement('div');
+    card.className = 'cert-card';
+    card.id = 'cert-' + c.courseKey;
+    card.innerHTML = '<div class="seal"><i class="bx bx-medal"></i></div>' +
+      '<div class="body"><h3>' + c.courseName + '</h3>' +
+      '<div class="meta">Cert ID: <code>GU-' + certId + '</code></div></div>' +
+      '<div class="actions">' +
+      '<a href="/certificate/' + c.courseKey + '" class="btn btn-gold" target="_blank"><i class="bx bx-show"></i> View</a>' +
+      '<a href="/certificate/' + c.courseKey + '/download" class="btn btn-outline" target="_blank"><i class="bx bx-download"></i> Download</a>' +
+      '<button type="button" class="btn btn-outline" data-copy-text="GU-' + certId + '"><i class="bx bx-copy"></i> Copy ID</button>' +
+      '<a href="/verify/GU-' + certId + '" class="btn btn-outline" target="_blank"><i class="bx bx-shield-check"></i> Verify</a>' +
+      '<button type="button" class="btn btn-danger" onclick="deleteCert(\'' + c.courseKey + '\')"><i class="bx bx-trash"></i> Delete</button></div>';
+    return card;
+  }
+
+  function showCerts(certArray) {
+    var container = document.getElementById('syncedCerts');
+    var empty = document.getElementById('emptyState');
+    if (empty) empty.style.display = 'none';
+    certArray.forEach(function(c) {
+      var ck = c.courseKey.toUpperCase().slice(0, 3);
+      var certId = c.certId || (ck + '-' + short);
+      // Skip if already rendered server-side
+      if (document.getElementById('cert-' + c.courseKey)) return;
+      container.appendChild(renderCertCard(c, certId));
+    });
+  }
+
   // Check localStorage for approved courses that are completed locally
   function checkLocalCompletions() {
     var synced = [];
@@ -115,6 +144,8 @@
         var arr = JSON.parse(raw);
         if (!Array.isArray(arr) || arr.length === 0) return;
       } catch (e) { return; }
+      // Only sync if ALL modules are complete locally (not just some)
+      if (c.moduleCount && arr.length < c.moduleCount) return;
       // All modules complete locally — sync to DB
       pending++;
       fetch('/api/course/' + c.courseKey + '/complete', {
@@ -127,30 +158,23 @@
       }).catch(function() {}).finally(function() {
         pending--;
         if (pending === 0 && synced.length > 0) {
-          // Show newly synced certs and hide empty state
-          var container = document.getElementById('syncedCerts');
-          var empty = document.getElementById('emptyState');
-          if (empty) empty.style.display = 'none';
-          synced.forEach(function(c) {
-            var ck = c.courseKey.toUpperCase().slice(0, 3);
-            var certId = ck + '-' + short;
-            var card = document.createElement('div');
-            card.className = 'cert-card';
-            card.id = 'cert-' + c.courseKey;
-            card.innerHTML = '<div class="seal"><i class="bx bx-medal"></i></div>' +
-              '<div class="body"><h3>' + c.courseName + '</h3>' +
-              '<div class="meta">Cert ID: <code>GU-' + certId + '</code></div></div>' +
-              '<div class="actions">' +
-              '<a href="/certificate/' + c.courseKey + '" class="btn btn-gold" target="_blank"><i class="bx bx-show"></i> View</a>' +
-              '<a href="/certificate/' + c.courseKey + '/download" class="btn btn-outline" target="_blank"><i class="bx bx-download"></i> Download</a>' +
-              '<button type="button" class="btn btn-outline" data-copy-text="GU-' + certId + '"><i class="bx bx-copy"></i> Copy ID</button>' +
-              '<a href="/verify/GU-' + certId + '" class="btn btn-outline" target="_blank"><i class="bx bx-shield-check"></i> Verify</a>' +
-              '<button type="button" class="btn btn-danger" onclick="deleteCert(\'' + c.courseKey + '\')"><i class="bx bx-trash"></i> Delete</button></div>';
-            container.appendChild(card);
-          });
+          showCerts(synced);
         }
       });
     });
+  }
+
+  // Fallback: if server rendered empty, fetch from API to catch any edge cases
+  function apiFallback() {
+    if (dbCompletedKeys.length > 0) return; // server already has certs
+    if (document.querySelectorAll('.cert-card').length > 0) return; // already rendered
+    fetch('/api/certificates', { credentials: 'same-origin' })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.completed && data.completed.length > 0) {
+          showCerts(data.completed);
+        }
+      }).catch(function() {});
   }
 
   function deleteCert(courseKey) {
@@ -173,6 +197,7 @@
 
   // Run on page load
   checkLocalCompletions();
+  apiFallback();
 </script>
 
 <%- include('partials/footer') %>

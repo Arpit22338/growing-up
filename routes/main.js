@@ -961,16 +961,58 @@ router.get('/certificates', async (req, res) => {
         };
       });
 
-    // Also pass all approved courses so the client can check localStorage
-    // for completions that haven't been synced to DB yet.
+    // Also pass ALL purchased courses (approved, not yet completed) so the
+    // client can check localStorage and sync completions that predate the DB
+    // sync feature.
     const approved = (user.purchasedCourses || [])
       .filter(c => c.status === 'approved' && !c.completedAt)
-      .map(c => ({ courseKey: c.courseKey, courseName: c.courseName }));
+      .map(c => ({
+        courseKey: c.courseKey,
+        courseName: c.courseName,
+        moduleCount: getModuleCount(c.courseKey)
+      }));
+
+    // Debug: log what we found (remove after confirming fix)
+    console.log('[certs]', user.email, 'completed:', completed.length, 'approved:', approved.length,
+      'allCourses:', (user.purchasedCourses || []).map(c => c.courseKey + ':' + c.status + ':completedAt=' + !!c.completedAt).join(', '));
 
     res.render('certificates', { user, completed, approved, baseUrl: process.env.BASE_URL });
   } catch (err) {
     console.error('Certificates list error:', err);
     res.status(500).send('Server error');
+  }
+});
+
+// API - Get completed certificates (used by certificates page as fallback).
+router.get('/api/certificates', async (req, res) => {
+  if (!req.session || !req.session.userId) return res.status(401).json({ error: 'Not logged in' });
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const short = String(user._id).slice(-6).toUpperCase();
+    const completed = (user.purchasedCourses || [])
+      .filter(c => c.status === 'approved' && c.completedAt)
+      .map(c => {
+        const ck = (c.courseKey || '').toUpperCase().slice(0, 3);
+        return {
+          courseKey: c.courseKey,
+          courseName: c.courseName,
+          completedAt: c.completedAt,
+          certId: `${ck}-${short}`,
+          granted: !!c.grantedBy
+        };
+      });
+    const approved = (user.purchasedCourses || [])
+      .filter(c => c.status === 'approved' && !c.completedAt)
+      .map(c => ({
+        courseKey: c.courseKey,
+        courseName: c.courseName,
+        moduleCount: getModuleCount(c.courseKey)
+      }));
+    res.json({ completed, approved });
+  } catch (err) {
+    console.error('API certificates error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
