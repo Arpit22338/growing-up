@@ -3,30 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= typeof title !== 'undefined' ? title + ' — ' : '' %>Growing Up — Online Courses & Referral Earnings in Nepal</title>
+  <title><%= typeof title !== 'undefined' && title ? title + ' — ' : '' %>Growing Up — Online Courses & Referral Earnings in Nepal</title>
 
   <!-- SEO Meta Tags -->
   <meta name="description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : 'Growing Up is Nepal\'s leading referral-based course platform. Learn skills, earn 65% referral commission. Starter ₹499, Prime ₹699, Master ₹1599, Everything Bundle ₹1999.' %>">
-  <meta name="keywords" content="Growing Up Nepal, online courses Nepal, referral earnings Nepal, skill development, eSewa Khalti courses, learn and earn Nepal, Nepali education platform, digital skills Nepal">
+  <meta name="keywords" content="<%= typeof keywords !== 'undefined' ? keywords : 'Growing Up Nepal, online courses Nepal, referral earnings Nepal, skill development, eSewa Khalti courses, learn and earn Nepal, Nepali education platform, digital skills Nepal' %>">
   <meta name="author" content="Growing Up">
-  <meta name="robots" content="index, follow">
+  <% var _isNoIndex = (typeof currentPath !== 'undefined' && /^\/(login|register|pending|dashboard|admin)/.test(currentPath)) || (typeof noIndex !== 'undefined' && noIndex); %>
+  <meta name="robots" content="<%= _isNoIndex ? 'noindex, nofollow' : 'index, follow' %>">
   <meta name="theme-color" content="#0B1D3A">
-  <link rel="canonical" href="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://growingup.vercel.app' %>">
+  <% var _host = 'https://growingup.tech'; %>
+  <% var _path = typeof currentPath !== 'undefined' ? currentPath : '/'; %>
+  <% var _canonical = typeof canonicalUrl !== 'undefined' ? canonicalUrl : _host + _path; %>
+  <link rel="canonical" href="<%= _canonical %>">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://growingup.vercel.app' %>">
-  <meta property="og:title" content="<%= typeof title !== 'undefined' ? title + ' — ' : '' %>Growing Up — Learn & Earn in Nepal">
-  <meta property="og:description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : 'Join thousands of Nepali learners building skills and earning through referrals. Courses from ₹499.' %>">
-  <meta property="og:image" content="https://growingup.vercel.app/images/logo-512.png">
+  <meta property="og:url" content="<%= _canonical %>">
+  <meta property="og:title" content="<%= typeof ogTitle !== 'undefined' && ogTitle ? ogTitle : (typeof title !== 'undefined' && title ? title + ' — ' : '') + 'Growing Up — Learn & Earn in Nepal' %>">
+  <meta property="og:description" content="<%= typeof ogDesc !== 'undefined' ? ogDesc : (typeof metaDesc !== 'undefined' ? metaDesc : 'Join thousands of Nepali learners building skills and earning through referrals. Courses from ₹499.') %>">
+  <meta property="og:image" content="<%= typeof ogImage !== 'undefined' ? ogImage : 'https://growingup.tech/images/logo-512.png' %>">
   <meta property="og:site_name" content="Growing Up">
   <meta property="og:locale" content="en_US">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="<%= typeof title !== 'undefined' ? title + ' — ' : '' %>Growing Up — Learn & Earn in Nepal">
-  <meta name="twitter:description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : 'Nepal\'s leading referral-based course platform. Learn skills, earn commissions.' %>">
-  <meta name="twitter:image" content="https://growingup.vercel.app/images/logo-512.png">
+  <meta name="twitter:title" content="<%= typeof ogTitle !== 'undefined' && ogTitle ? ogTitle : (typeof title !== 'undefined' && title ? title + ' — ' : '') + 'Growing Up — Learn & Earn in Nepal' %>">
+  <meta name="twitter:description" content="<%= typeof ogDesc !== 'undefined' ? ogDesc : (typeof metaDesc !== 'undefined' ? metaDesc : 'Nepal\'s leading referral-based course platform. Learn skills, earn commissions.') %>">
+  <meta name="twitter:image" content="<%= typeof ogImage !== 'undefined' ? ogImage : 'https://growingup.tech/images/logo-512.png' %>">
 
   <!-- Favicons (optimized sizes) -->
   <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
@@ -84,32 +88,32 @@
     </a>
     <div id="navLinksDesktop" style="display:flex;align-items:center;gap:16px;">
       <% if (typeof session !== 'undefined' && session.userId) { %>
-        <a href="/" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;">Home</a>
-        <a href="/dashboard" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;"><i class='bx bx-grid-alt'></i> Dashboard</a>
-        <a href="/how-it-works" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;">How It Works</a>
+        <a href="/" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;display:flex;align-items:center;gap:5px;"><i class='bx bx-home'></i> Home</a>
+        <a href="/dashboard" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;display:flex;align-items:center;gap:5px;"><i class='bx bx-grid-alt'></i> Dashboard</a>
+        <a href="/how-it-works" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;display:flex;align-items:center;gap:5px;"><i class='bx bx-info-circle'></i> How It Works</a>
         <% if (session.role === 'superadmin' || session.role === 'financial_secretary') { %>
-          <a href="/admin" style="color:#D4A017;text-decoration:none;font-size:14px;font-weight:600;"><i class='bx bx-shield'></i> Admin</a>
+          <a href="/admin" style="color:#D4A017;text-decoration:none;font-size:14px;font-weight:600;display:flex;align-items:center;gap:5px;"><i class='bx bx-shield'></i> Admin</a>
         <% } %>
         <a href="/profile" style="color:#fff;text-decoration:none;font-size:14px;font-weight:600;display:flex;align-items:center;gap:5px;"><i class='bx bx-user'></i> Profile</a>
         <div style="position:relative;" id="navMoreWrap">
           <button type="button" id="navMoreBtn" style="background:none;border:none;color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;padding:6px 8px;border-radius:6px;">
-            More <i class='bx bx-chevron-down'></i>
+            <i class='bx bx-dots-horizontal-rounded'></i> More <i class='bx bx-chevron-down'></i>
           </button>
-          <div id="navMoreMenu" style="display:none;position:absolute;right:0;top:100%;margin-top:6px;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:180px;z-index:9999;padding:6px 0;">
-            <a href="/#courses" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">Courses</a>
-            <a href="/certificates" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">Certificates</a>
-            <a href="/settings" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">Settings</a>
-            <a href="/verify" style="display:block;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;">Verify Certificate</a>
+          <div id="navMoreMenu" style="display:none;position:absolute;right:0;top:100%;margin-top:6px;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:200px;z-index:9999;padding:6px 0;">
+            <a href="/#courses" style="display:flex;align-items:center;gap:8px;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;"><i class='bx bx-book'></i> Courses</a>
+            <a href="/certificates" style="display:flex;align-items:center;gap:8px;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;"><i class='bx bx-certification'></i> Certificates</a>
+            <a href="/settings" style="display:flex;align-items:center;gap:8px;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;"><i class='bx bx-cog'></i> Settings</a>
+            <a href="/verify" style="display:flex;align-items:center;gap:8px;padding:10px 16px;color:#0A1F44;text-decoration:none;font-size:14px;font-weight:500;"><i class='bx bx-shield-check'></i> Verify Certificate</a>
             <div style="border-top:1px solid #E2E8F0;margin:4px 0;"></div>
-            <a href="/logout" style="display:block;padding:10px 16px;color:#DC2626;text-decoration:none;font-size:14px;font-weight:600;">Logout</a>
+            <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:10px 16px;color:#DC2626;text-decoration:none;font-size:14px;font-weight:600;"><i class='bx bx-log-out'></i> Logout</a>
           </div>
         </div>
       <% } else { %>
-        <a href="/" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;">Home</a>
-        <a href="/#courses" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;">Courses</a>
-        <a href="/how-it-works" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;">How It Works</a>
-        <a href="/login" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;">Login</a>
-        <a href="/register" style="color:#0A1F44;background:#D4A017;padding:8px 18px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">Register</a>
+        <a href="/" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;display:flex;align-items:center;gap:5px;"><i class='bx bx-home'></i> Home</a>
+        <a href="/#courses" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;display:flex;align-items:center;gap:5px;"><i class='bx bx-book'></i> Courses</a>
+        <a href="/how-it-works" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;display:flex;align-items:center;gap:5px;"><i class='bx bx-info-circle'></i> How It Works</a>
+        <a href="/login" style="color:#fff;text-decoration:none;font-size:14px;font-weight:500;display:flex;align-items:center;gap:5px;"><i class='bx bx-log-in'></i> Login</a>
+        <a href="/register" style="color:#0A1F44;background:#D4A017;padding:8px 18px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;display:flex;align-items:center;gap:5px;"><i class='bx bx-user-plus'></i> Register</a>
       <% } %>
     </div>
     <button type="button" id="hamburgerBtn" style="display:none;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;padding:4px;">

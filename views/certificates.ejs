@@ -1,203 +1,273 @@
-<%- include('partials/header', { title: 'My Certificates' }) %>
+<%- include('partials/header') %>
 
 <style>
-  .certs-wrap { max-width: 880px; margin: 0 auto; padding: 24px 16px 64px; font-family: 'Poppins', sans-serif; }
+  body { background: #F1F5F9; }
   .certs-hero {
     background: linear-gradient(135deg, #0A1F44, #1E3A8A);
-    color: #fff; border-radius: 16px; padding: 28px 24px;
-    margin-bottom: 24px; box-shadow: 0 4px 18px rgba(10,31,68,0.18);
+    color: #fff; text-align: center;
+    padding: 52px 20px 36px; margin-bottom: 32px;
   }
-  .certs-hero h1 { font-size: 1.7rem; font-weight: 700; margin: 0 0 6px; }
-  .certs-hero p { color: rgba(255,255,255,0.85); margin: 0; font-size: 0.98rem; }
+  .certs-hero h1 { font-size: 2rem; font-weight: 800; margin: 0 0 10px; }
+  .certs-hero p { color: rgba(255,255,255,0.85); font-size: 1rem; margin: 0; max-width: 540px; margin-left: auto; margin-right: auto; }
+
   .cert-card {
-    background: #fff; border: 1px solid #EEF2F7; border-radius: 14px;
-    padding: 20px 22px; margin-bottom: 14px;
-    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
-    box-shadow: 0 2px 8px rgba(10,31,68,0.05);
+    background: #fff; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 14px rgba(10,31,68,0.08);
+    margin-bottom: 18px; border-left: 5px solid #10B981;
+    animation: fadeIn 0.35s ease;
   }
-  .cert-card .seal {
-    flex-shrink: 0; width: 64px; height: 64px; border-radius: 50%;
-    background: linear-gradient(135deg, #D4A017, #B8860B);
-    color: #0A1F44; display: flex; align-items: center; justify-content: center;
-    font-size: 32px; box-shadow: 0 4px 12px rgba(212,168,67,0.35);
+  .cert-card.pending-sync { border-left-color: #F59E0B; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .cert-card .inner { display: flex; align-items: stretch; gap: 0; }
+  .cert-card .icon-col {
+    flex-shrink: 0; width: 72px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #0A1F44, #1E3A8A); color: #D4A017; font-size: 30px;
   }
-  .cert-card .body { flex: 1; min-width: 200px; }
-  .cert-card h3 { margin: 0 0 4px; color: #0A1F44; font-size: 1.15rem; font-weight: 700; }
-  .cert-card .meta { color: #64748B; font-size: 13px; }
-  .cert-card .meta code { background: #F1F5F9; padding: 2px 8px; border-radius: 4px; font-size: 12px; color: #0A1F44; }
-  .cert-card .granted-badge {
-    display: inline-block; background: #FEF3C7; color: #92400E;
-    padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;
-    margin-left: 6px;
+  .cert-card.pending-sync .icon-col { background: linear-gradient(135deg, #92400E, #D97706); color: #fff; }
+  .cert-card .body { flex: 1; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; }
+  .cert-card .body h3 { margin: 0; font-size: 1.05rem; color: #0A1F44; font-weight: 700; }
+  .cert-card .body .meta { color: #64748B; font-size: 13px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .cert-card .body .meta i { vertical-align: middle; margin-right: 2px; }
+  .cert-card .body .cert-id { font-family: monospace; font-size: 13px; color: #0A1F44; background: #F1F5F9; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+  .cert-card .actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .cert-card .actions a, .cert-card .actions button {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;
+    text-decoration: none; border: none; cursor: pointer; font-family: inherit;
   }
-  .cert-card .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-  .cert-card .btn { padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; border: none; }
-  .cert-card .btn-gold { background: #D4A017; color: #0A1F44; }
-  .cert-card .btn-gold:hover { background: #E5B22A; }
-  .cert-card .btn-outline { background: #fff; color: #0A1F44; border: 1.5px solid #CBD5E1; }
-  .cert-card .btn-outline:hover { background: #F1F5F9; }
-  .cert-card .btn-danger { background: #fff; color: #DC2626; border: 1.5px solid #FCA5A5; }
-  .cert-card .btn-danger:hover { background: #FEF2F2; }
-  .empty {
-    background: #fff; border: 1px dashed #CBD5E1; border-radius: 14px;
-    padding: 40px 20px; text-align: center; color: #64748B;
+  .btn-dl { background: #D4A017; color: #0A1F44; }
+  .btn-dl:hover { background: #E5B22A; }
+  .btn-verify { background: #EEF2FF; color: #3730A3; }
+  .btn-verify:hover { background: #C7D2FE; }
+  .btn-del { background: #FEE2E2; color: #991B1B; }
+  .btn-del:hover { background: #FECACA; }
+  .btn-share { background: #F0F9FF; color: #0369A1; }
+  .btn-share:hover { background: #E0F2FE; }
+  .btn-copy { background: #F1F5F9; color: #475569; }
+  .btn-copy:hover { background: #E2E8F0; }
+
+  .empty-state { text-align: center; padding: 60px 20px; }
+  .empty-state i { font-size: 72px; color: #CBD5E1; }
+  .empty-state h2 { color: #475569; margin: 16px 0 6px; }
+  .empty-state p { color: #94A3B8; font-size: 15px; margin: 0 0 18px; }
+
+  .pending-section { margin-top: 32px; }
+  .pending-section h2 { font-size: 1.2rem; color: #92400E; margin-bottom: 12px; }
+
+  .toast {
+    position: fixed; bottom: 20px; right: 20px; background: #0A1F44; color: #fff;
+    padding: 12px 18px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25); z-index: 9999; opacity: 0;
+    transform: translateY(16px); transition: all 0.25s ease;
+    display: flex; align-items: center; gap: 8px;
   }
-  .empty i { font-size: 56px; color: #CBD5E1; display: block; margin-bottom: 10px; }
-  @media (max-width: 600px) {
-    .certs-hero h1 { font-size: 1.35rem; }
-    .cert-card { padding: 16px; flex-direction: column; align-items: flex-start; }
-    .cert-card .seal { width: 52px; height: 52px; font-size: 24px; }
-    .cert-card .actions { width: 100%; }
-    .cert-card .btn { flex: 1; justify-content: center; }
-  }
+  .toast.show { opacity: 1; transform: translateY(0); }
 </style>
 
-<div class="certs-wrap">
-  <a href="/dashboard" style="display:inline-flex;align-items:center;gap:6px;color:#64748B;font-size:14px;text-decoration:none;margin-bottom:14px;font-weight:500;">
-    <i class='bx bx-arrow-back'></i> Back to Dashboard
-  </a>
-
-  <div class="certs-hero">
-    <h1><i class='bx bx-certification'></i> My Certificates</h1>
-    <p>Complete all modules in a course to earn your Certificate of Completion. Certificates are saved to your account.</p>
-  </div>
-
-  <% if (completed.length === 0) { %>
-    <div class="empty" id="emptyState">
-      <i class='bx bx-award'></i>
-      <h3 style="color:#0A1F44;margin:0 0 6px;">No certificates yet</h3>
-      <p style="margin:0 0 18px;">Complete all modules in a course to earn your Certificate of Completion.</p>
-      <a href="/dashboard" style="background:#D4A017;color:#0A1F44;padding:10px 18px;border-radius:8px;font-weight:700;text-decoration:none;display:inline-block;">Go to Dashboard</a>
-    </div>
-  <% } else { %>
-    <% completed.forEach(function(c) { %>
-      <div class="cert-card" id="cert-<%= c.courseKey %>">
-        <div class="seal"><i class='bx bx-medal'></i></div>
-        <div class="body">
-          <h3><%= c.courseName %><% if (c.granted) { %><span class="granted-badge">Granted</span><% } %></h3>
-          <div class="meta">
-            Completed <%= new Date(c.completedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
-            &middot; Cert ID: <code>GU-<%= c.certId %></code>
-          </div>
-        </div>
-        <div class="actions">
-          <a href="/certificate/<%= c.courseKey %>" class="btn btn-gold" target="_blank"><i class='bx bx-show'></i> View</a>
-          <a href="/certificate/<%= c.courseKey %>/download" class="btn btn-outline" target="_blank"><i class='bx bx-download'></i> Download</a>
-          <button type="button" class="btn btn-outline" data-copy-text="GU-<%= c.certId %>"><i class='bx bx-copy'></i> Copy ID</button>
-          <a href="/verify/GU-<%= c.certId %>" class="btn btn-outline" target="_blank"><i class='bx bx-shield-check'></i> Verify</a>
-          <button type="button" class="btn btn-danger" onclick="deleteCert('<%= c.courseKey %>')"><i class='bx bx-trash'></i> Delete</button>
-        </div>
-      </div>
-    <% }); %>
-  <% } %>
-
-  <div id="syncedCerts"></div>
+<div class="certs-hero">
+  <h1><i class='bx bx-shield-quarter'></i> My Certificates</h1>
+  <p>View, download, and verify your Growing Up course completion certificates.</p>
 </div>
 
-<script>
-  var CSRF = document.querySelector('meta[name="csrf-token"]');
-  CSRF = CSRF ? CSRF.content : '';
-  var userId = '<%= user._id %>';
-  var short = userId.slice(-6).toUpperCase();
-  // Approved courses that don't have completedAt in DB yet
-  var approved = <%- JSON.stringify(approved || []) %>;
-  var dbCompletedKeys = <%- JSON.stringify((completed || []).map(function(c){return c.courseKey})) %>;
+<div class="container" style="max-width:720px; padding-bottom:40px;">
+  <div id="certList"></div>
+  <div id="pendingList" class="pending-section" style="display:none;">
+    <h2><i class='bx bx-loader-circle'></i> Courses Ready to Claim</h2>
+    <div id="pendingCards"></div>
+  </div>
+  <div id="emptyState" class="empty-state" style="display:none;">
+    <i class='bx bx-medal'></i>
+    <h2>No certificates yet</h2>
+    <p>Complete all modules in a course to earn your certificate.</p>
+    <a href="/how-it-works" style="color:#D4A017; font-weight:700;">How certificates work &rarr;</a>
+  </div>
+</div>
 
-  function renderCertCard(c, certId) {
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  var baseUrl = '<%= baseUrl %>';
+  var completedFromServer = <%- JSON.stringify(completed) %>;
+  var approvedFromServer = <%- JSON.stringify(approved) %>;
+
+  var toastTimer = null;
+  function showToast(msg, icon) {
+    var el = document.getElementById('toast');
+    el.innerHTML = '<i class="bx ' + (icon || 'bx-check-circle') + '"></i> ' + msg;
+    el.className = 'toast show';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { el.className = 'toast'; }, 2800);
+  }
+
+  function fmtDate(d) {
+    if (!d) return '';
+    var dt = new Date(d);
+    return dt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard) { navigator.clipboard.writeText(text); return; }
+    var ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+
+  function buildCertCard(cert, idx) {
     var card = document.createElement('div');
-    card.className = 'cert-card';
-    card.id = 'cert-' + c.courseKey;
-    card.innerHTML = '<div class="seal"><i class="bx bx-medal"></i></div>' +
-      '<div class="body"><h3>' + c.courseName + '</h3>' +
-      '<div class="meta">Cert ID: <code>GU-' + certId + '</code></div></div>' +
-      '<div class="actions">' +
-      '<a href="/certificate/' + c.courseKey + '" class="btn btn-gold" target="_blank"><i class="bx bx-show"></i> View</a>' +
-      '<a href="/certificate/' + c.courseKey + '/download" class="btn btn-outline" target="_blank"><i class="bx bx-download"></i> Download</a>' +
-      '<button type="button" class="btn btn-outline" data-copy-text="GU-' + certId + '"><i class="bx bx-copy"></i> Copy ID</button>' +
-      '<a href="/verify/GU-' + certId + '" class="btn btn-outline" target="_blank"><i class="bx bx-shield-check"></i> Verify</a>' +
-      '<button type="button" class="btn btn-danger" onclick="deleteCert(\'' + c.courseKey + '\')"><i class="bx bx-trash"></i> Delete</button></div>';
+    card.className = 'cert-card' + (cert.pendingSync ? ' pending-sync' : '');
+    var iconName = cert.pendingSync ? 'bx-loader-circle' : 'bx-check-circle';
+    var iconColor = cert.pendingSync ? '' : ' style="color:#10B981"';
+    var verifyUrl = baseUrl + '/verify/GU-' + encodeURIComponent(cert.certId);
+    var downloadUrl = baseUrl + '/certificate/' + encodeURIComponent(cert.courseKey) + '/download';
+    card.innerHTML =
+      '<div class="inner">' +
+        '<div class="icon-col"><i class="bx ' + iconName + '"></i></div>' +
+        '<div class="body">' +
+          '<h3>' + cert.courseName + '</h3>' +
+          '<div class="meta">' +
+            '<span><i class="bx bx-calendar"></i> ' + fmtDate(cert.completedAt) + '</span>' +
+            '<span class="cert-id">GU-' + cert.certId + '</span>' +
+            (cert.granted ? '<span><i class="bx bx-gift"></i> Granted</span>' : '') +
+          '</div>' +
+          '<div class="actions">' +
+            '<a class="btn-dl" href="' + downloadUrl + '" target="_blank"><i class="bx bx-download"></i> PDF</a>' +
+            '<a class="btn-verify" href="' + verifyUrl + '" target="_blank"><i class="bx bx-shield-check"></i> Verify</a>' +
+            '<button class="btn-copy" onclick="window._certCopy(this, \'' + cert.certId + '\')"><i class="bx bx-copy"></i> Copy ID</button>' +
+            '<button class="btn-share" onclick="window._certShare(this, \'' + cert.certId + '\', \'' + cert.courseName.replace(/'/g, "\\'") + '\')"><i class="bx bx-share-alt"></i> Share</button>' +
+            '<button class="btn-del" onclick="window._certDelete(this, \'' + cert.courseKey + '\')"><i class="bx bx-trash"></i></button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
     return card;
   }
 
-  function showCerts(certArray) {
-    var container = document.getElementById('syncedCerts');
-    var empty = document.getElementById('emptyState');
-    if (empty) empty.style.display = 'none';
-    certArray.forEach(function(c) {
-      var ck = c.courseKey.toUpperCase().slice(0, 3);
-      var certId = c.certId || (ck + '-' + short);
-      // Skip if already rendered server-side
-      if (document.getElementById('cert-' + c.courseKey)) return;
-      container.appendChild(renderCertCard(c, certId));
-    });
-  }
+  window._certCopy = function(btn, certId) {
+    copyText('GU-' + certId);
+    showToast('Copied!', 'bx-check');
+  };
 
-  // Check localStorage for approved courses that are completed locally
-  function checkLocalCompletions() {
-    var synced = [];
-    var pending = 0;
-    approved.forEach(function(c) {
-      if (dbCompletedKeys.indexOf(c.courseKey) !== -1) return; // already in DB
-      var raw = localStorage.getItem('gu_completed_' + c.courseKey);
-      if (!raw) return;
-      try {
-        var arr = JSON.parse(raw);
-        if (!Array.isArray(arr) || arr.length === 0) return;
-      } catch (e) { return; }
-      // Only sync if ALL modules are complete locally (not just some)
-      if (c.moduleCount && arr.length < c.moduleCount) return;
-      // All modules complete locally — sync to DB
-      pending++;
-      fetch('/api/course/' + c.courseKey + '/complete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF },
-        credentials: 'same-origin',
-        body: JSON.stringify({ courseKey: c.courseKey })
-      }).then(function(r) { return r.json(); }).then(function(d) {
-        if (d.success) synced.push(c);
-      }).catch(function() {}).finally(function() {
-        pending--;
-        if (pending === 0 && synced.length > 0) {
-          showCerts(synced);
-        }
-      });
-    });
-  }
+  window._certShare = function(btn, certId, name) {
+    var url = baseUrl + '/verify/GU-' + certId;
+    var text = 'I earned the ' + name + ' certificate from Growing Up!\nVerify: ' + url;
+    if (navigator.share) {
+      navigator.share({ title: name + ' Certificate', text: text, url: url }).catch(function(){});
+    } else {
+      copyText(text);
+      showToast('Copied share text!', 'bx-check');
+    }
+  };
 
-  // Fallback: if server rendered empty, fetch from API to catch any edge cases
-  function apiFallback() {
-    if (dbCompletedKeys.length > 0) return; // server already has certs
-    if (document.querySelectorAll('.cert-card').length > 0) return; // already rendered
-    fetch('/api/certificates', { credentials: 'same-origin' })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.completed && data.completed.length > 0) {
-          showCerts(data.completed);
-        }
-      }).catch(function() {});
-  }
-
-  function deleteCert(courseKey) {
-    if (!confirm('Remove this certificate? You can earn it again by completing all modules.')) return;
+  window._certDelete = function(btn, courseKey) {
+    if (!confirm('Delete this certificate? You can re-earn it by completing the course again.')) return;
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var csrf = csrfMeta ? csrfMeta.content : '';
     fetch('/api/course/' + courseKey + '/delete-cert', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF },
-      credentials: 'same-origin',
-      body: JSON.stringify({ courseKey: courseKey })
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+      credentials: 'same-origin'
     }).then(function(r) { return r.json(); }).then(function(d) {
       if (d.success) {
-        var card = document.getElementById('cert-' + courseKey);
-        if (card) card.remove();
-        if (!document.querySelector('.cert-card')) location.reload();
+        showToast('Certificate deleted', 'bx-check');
+        setTimeout(function() { location.reload(); }, 600);
       } else {
-        alert(d.error || 'Failed to delete');
+        showToast(d.error || 'Failed', 'bx-error');
       }
-    }).catch(function() { alert('Connection error'); });
+    }).catch(function() { showToast('Network error', 'bx-error'); });
+  };
+
+  // --- RENDER ---
+  function renderCerts(certs) {
+    var list = document.getElementById('certList');
+    certs.forEach(function(c, i) { list.appendChild(buildCertCard(c, i)); });
   }
 
-  // Run on page load
-  checkLocalCompletions();
-  apiFallback();
+  function renderPending(courses) {
+    if (!courses.length) return;
+    var sec = document.getElementById('pendingList');
+    var wrap = document.getElementById('pendingCards');
+    sec.style.display = '';
+    courses.forEach(function(c) {
+      var card = document.createElement('div');
+      card.className = 'cert-card pending-sync';
+      card.innerHTML =
+        '<div class="inner">' +
+          '<div class="icon-col"><i class="bx bx-medal"></i></div>' +
+          '<div class="body">' +
+            '<h3>' + c.courseName + '</h3>' +
+            '<div class="meta"><span>Complete all modules, then click Claim below.</span></div>' +
+            '<div class="actions">' +
+              '<a class="btn-dl" href="/course/' + encodeURIComponent(c.courseKey) + '" style="text-decoration:none;"><i class="bx bx-book-open"></i> View Course</a>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      wrap.appendChild(card);
+    });
+  }
+
+  // --- SYNC CHECK: for each approved course, check localStorage and sync to DB ---
+  function syncPendingCourses() {
+    if (!approvedFromServer.length) return;
+    var pending = [];
+    var syncPromises = [];
+
+    approvedFromServer.forEach(function(c) {
+      var key = 'modules_' + c.courseKey;
+      var stored = [];
+      try { stored = JSON.parse(localStorage.getItem(key)) || []; } catch(e) {}
+      var allDone = c.moduleCount > 0 && stored.length >= c.moduleCount;
+
+      if (allDone) {
+        // All modules complete locally — sync to DB
+        var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        var csrf = csrfMeta ? csrfMeta.content : '';
+        var p = fetch('/api/course/' + c.courseKey + '/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          credentials: 'same-origin',
+          body: JSON.stringify({ courseKey: c.courseKey })
+        }).then(function(r) { return r.json(); }).then(function(d) {
+          if (d.success && d.completedAt) {
+            showToast(c.courseName + ' synced!', 'bx-check-circle');
+          }
+        }).catch(function() {});
+        syncPromises.push(p);
+      } else {
+        pending.push(c);
+      }
+    });
+
+    if (syncPromises.length) {
+      Promise.all(syncPromises).then(function() { setTimeout(function() { location.reload(); }, 800); });
+    }
+    renderPending(pending);
+  }
+
+  // --- INIT ---
+  if (completedFromServer.length) {
+    renderCerts(completedFromServer);
+  }
+  syncPendingCourses();
+
+  if (!completedFromServer.length && !approvedFromServer.length) {
+    // No DB data at all — try the API fallback
+    fetch('/api/certificates', { credentials: 'same-origin' })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d.success && d.completed && d.completed.length) {
+          renderCerts(d.completed);
+          document.getElementById('emptyState').style.display = 'none';
+        } else {
+          document.getElementById('emptyState').style.display = '';
+        }
+      })
+      .catch(function() { document.getElementById('emptyState').style.display = ''; });
+    document.getElementById('emptyState').style.display = 'none';
+  }
+})();
 </script>
 
 <%- include('partials/footer') %>

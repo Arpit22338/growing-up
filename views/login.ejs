@@ -67,6 +67,13 @@
           (result.reason ? '<br><strong>Reason:</strong> ' + result.reason : '') +
           '<br><a href="/register" style="color:var(--gold);font-weight:700;text-decoration:underline;margin-top:8px;display:inline-block;">Register Again</a></div>';
         errDiv.style.display = 'flex';
+      } else if (result.pending) {
+        // Account is pending approval
+        errDiv.innerHTML = '<div style="text-align:left;"><strong><i class="bx bx-time-five"></i> ' + (result.error || 'Your account is pending approval.') + '</strong><br>' +
+          'Your payment is being reviewed. You will be contacted on WhatsApp once your account is approved.<br><br>' +
+          'This usually takes a few hours. Need help? ' +
+          '<a href="https://wa.me/9779808467028?text=Hi%2C%20I%20just%20paid%20for%20a%20Growing%20Up%20course%20and%20need%20help%20with%20my%20account%20approval" target="_blank" rel="noopener" style="color:#10B981;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"><i class="bx bxl-whatsapp" style="font-size:18px;"></i> WhatsApp us</a></div>';
+        errDiv.style.display = 'flex';
       } else {
         errDiv.textContent = result.error || 'Login failed';
         errDiv.style.display = 'flex';

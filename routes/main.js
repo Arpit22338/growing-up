@@ -32,26 +32,39 @@ router.get('/', async (req, res) => {
       loggedInUser = await User.findById(req.session.userId).select('purchasedCourses isActive referralCode profilePicture');
     } catch (e) {}
   }
-  res.render('index', { courses, loggedInUser });
+  res.render('index', {
+    courses, loggedInUser,
+    currentPath: '/',
+    title: '',
+    metaDesc: 'Growing Up is Nepal\'s leading referral-based course platform. Learn skills, earn 65% referral commission. Starter ₹499, Prime ₹699, Master ₹1599, Everything Bundle ₹1999.',
+    ogTitle: 'Growing Up — Learn & Earn in Nepal',
+    ogDesc: 'Join thousands of Nepali learners building skills and earning through referrals. Courses from ₹499.'
+  });
 });
 
 // GET - How It Works (public explainer page)
 router.get('/how-it-works', (req, res) => {
-  res.render('how-it-works');
+  res.render('how-it-works', {
+    currentPath: '/how-it-works',
+    title: 'How It Works — Earn 65% Referral Commission',
+    metaDesc: 'Learn how Growing Up works: register, buy a course, share your referral link, and earn 65% commission on every sale. Step-by-step guide with FAQ.',
+    ogTitle: 'How It Works — Growing Up',
+    ogDesc: 'Step-by-step guide to learning digital skills and earning 65% referral commission on Growing Up.'
+  });
 });
 
 // GET - Sitemap.xml (PSEO)
 router.get('/sitemap.xml', (req, res) => {
-  const baseUrl = process.env.BASE_URL || 'https://growingup.vercel.app';
+  const baseUrl = 'https://growingup.tech';
   const courseKeys = Object.keys(courses);
+  const now = new Date().toISOString().split('T')[0];
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-  xml += `  <url><loc>${baseUrl}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>\n`;
-  xml += `  <url><loc>${baseUrl}/how-it-works</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>\n`;
-  xml += `  <url><loc>${baseUrl}/register</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>\n`;
-  xml += `  <url><loc>${baseUrl}/login</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>\n`;
-  xml += `  <url><loc>${baseUrl}/verify</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>\n`;
+  xml += `  <url><loc>${baseUrl}/</loc><lastmod>${now}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>\n`;
+  xml += `  <url><loc>${baseUrl}/how-it-works</loc><lastmod>${now}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>\n`;
+  xml += `  <url><loc>${baseUrl}/register</loc><lastmod>${now}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>\n`;
+  xml += `  <url><loc>${baseUrl}/verify</loc><lastmod>${now}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>\n`;
   courseKeys.forEach(key => {
-    xml += `  <url><loc>${baseUrl}/course/${key}</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>\n`;
+    xml += `  <url><loc>${baseUrl}/course/${key}</loc><lastmod>${now}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>\n`;
   });
   xml += `</urlset>`;
   res.set('Content-Type', 'application/xml');
@@ -74,7 +87,17 @@ router.get('/course/:key', async (req, res) => {
   }
 
   const baseUrl = process.env.BASE_URL || '';
-  res.render('course', { course, ref, loggedInUser, baseUrl });
+  const courseKey = req.params.key;
+  const courseName = course.name || '';
+  const courseTitle = course.title || '';
+  res.render('course', {
+    course, ref, loggedInUser, baseUrl,
+    currentPath: '/course/' + courseKey,
+    title: courseTitle + ' (' + courseName + ' ₹' + (course.price || '') + ')',
+    metaDesc: courseTitle + ' — ' + courseName + ' by Growing Up Nepal. ' + (course.description || '') + ' Earn 65% referral commission. Enroll now.',
+    ogTitle: courseTitle + ' — ' + courseName + ' — Growing Up',
+    ogDesc: (course.description || '') + ' Enroll in ' + courseName + ' at Growing Up Nepal.'
+  });
 });
 
 // GET - Register page
@@ -88,7 +111,14 @@ router.get('/register', (req, res) => {
   }
   const ref = req.query.ref || '';
   const course = req.query.course || '';
-  res.render('register', { courses, ref, selectedCourse: course });
+  res.render('register', {
+    courses, ref, selectedCourse: course,
+    currentPath: '/register',
+    title: 'Register — Start Earning with Referrals',
+    metaDesc: 'Create your free Growing Up account. Join Nepal\'s best affiliate marketing platform. Buy a course, share your link, earn 65% commission.',
+    ogTitle: 'Register Free — Growing Up Nepal',
+    ogDesc: 'Join Growing Up Nepal — the best affiliate marketing platform. Register free, buy a course, earn 65% referral commission.'
+  });
 });
 
 // POST - Validate referral code (AJAX)
@@ -387,7 +417,13 @@ router.get('/login', (req, res) => {
     }
     return res.redirect('/dashboard');
   }
-  res.render('login');
+  res.render('login', {
+    currentPath: '/login',
+    title: 'Login',
+    metaDesc: 'Login to your Growing Up account. Access your courses, referral earnings, and dashboard.',
+    ogTitle: 'Login — Growing Up',
+    ogDesc: 'Login to your Growing Up account. Access courses, referrals, and earnings dashboard.'
+  });
 });
 
 // POST - Login
@@ -477,7 +513,11 @@ router.post('/api/login', async (req, res) => {
           rejected: true
         });
       }
-      return res.json({ success: true, redirect: '/pending' });
+      // Account is pending admin approval — show message on login page
+      return res.status(403).json({
+        error: 'Your account is pending approval.',
+        pending: true
+      });
     }
 
     // Set session (safe for serverless — avoids regenerate issues)
@@ -976,7 +1016,14 @@ router.get('/certificates', async (req, res) => {
     console.log('[certs]', user.email, 'completed:', completed.length, 'approved:', approved.length,
       'allCourses:', (user.purchasedCourses || []).map(c => c.courseKey + ':' + c.status + ':completedAt=' + !!c.completedAt).join(', '));
 
-    res.render('certificates', { user, completed, approved, baseUrl: process.env.BASE_URL });
+    res.render('certificates', {
+      user, completed, approved, baseUrl: process.env.BASE_URL || 'https://growingup.tech',
+      currentPath: '/certificates',
+      title: 'My Certificates',
+      metaDesc: 'View and download your Growing Up course completion certificates. Verify certificate authenticity with unique IDs.',
+      ogTitle: 'My Certificates — Growing Up',
+      ogDesc: 'View and download your Growing Up course completion certificates.'
+    });
   } catch (err) {
     console.error('Certificates list error:', err);
     res.status(500).send('Server error');
@@ -1036,7 +1083,14 @@ const verifyLimiter = rateLimit({
 });
 
 router.get('/verify', (req, res) => {
-  res.render('verify', { result: null, certId: '' });
+  res.render('verify', {
+    result: null, certId: '',
+    currentPath: '/verify',
+    title: 'Verify Certificate — Growing Up',
+    metaDesc: 'Verify a Growing Up certificate. Enter a certificate ID to confirm course completion and authenticity.',
+    ogTitle: 'Verify Certificate — Growing Up Nepal',
+    ogDesc: 'Verify a Growing Up certificate. Confirm course completion and authenticity instantly.'
+  });
 });
 
 router.get('/verify/:certId', verifyLimiter, async (req, res) => {
@@ -1044,7 +1098,14 @@ router.get('/verify/:certId', verifyLimiter, async (req, res) => {
   const raw = String(req.params.certId || '').trim();
   const certId = raw.toUpperCase().replace(/[^A-Z0-9-]/g, '').substring(0, 32);
   if (!certId) {
-    return res.render('verify', { result: null, certId: '' });
+    return res.render('verify', {
+      result: null, certId: '',
+      currentPath: '/verify',
+      title: 'Verify Certificate — Growing Up',
+      metaDesc: 'Verify a Growing Up certificate. Enter a certificate ID to confirm course completion and authenticity.',
+      ogTitle: 'Verify Certificate — Growing Up Nepal',
+      ogDesc: 'Verify a Growing Up certificate. Confirm course completion and authenticity instantly.'
+    });
   }
 
   try {
@@ -1107,7 +1168,12 @@ router.get('/verify/:certId', verifyLimiter, async (req, res) => {
         issuedAt: entry.completedAt,
         granted: !!entry.grantedBy
       },
-      certId
+      certId,
+      currentPath: '/verify/' + certId,
+      title: 'Certificate Verified — ' + course.title + ' — Growing Up',
+      metaDesc: 'Certificate GU-' + certId + ' verified. ' + match.fullName + ' completed ' + course.name + ' at Growing Up Nepal.',
+      ogTitle: 'Certificate Verified — Growing Up Nepal',
+      ogDesc: match.fullName + ' completed ' + course.name + ' (' + course.title + ') at Growing Up Nepal. Certificate ID: GU-' + certId
     });
   } catch (err) {
     console.error('Verify cert error:', err);
@@ -1149,7 +1215,12 @@ router.get('/course/:key/read', async (req, res) => {
       moduleCount,
       completedCount,
       allComplete,
-      certLocked: req.query.cert === 'locked'
+      certLocked: req.query.cert === 'locked',
+      currentPath: '/course/' + courseKey + '/read',
+      title: 'Learn: ' + (course.title || courseKey) + ' — Growing Up',
+      metaDesc: 'Access ' + (course.name || courseKey) + ' course content. ' + moduleCount + ' modules, lifetime access. Part of Growing Up Nepal — the best affiliate marketing platform.',
+      ogTitle: 'Learn: ' + (course.title || courseKey) + ' — Growing Up',
+      ogDesc: 'Access ' + (course.name || courseKey) + ' course content. ' + moduleCount + ' modules, lifetime access.'
     });
   } catch (err) {
     console.error('course-read error:', err);

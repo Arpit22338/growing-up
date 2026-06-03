@@ -116,16 +116,16 @@
       <p>Enter a Growing Up Certificate ID to confirm it's real. Free, public, no login required.</p>
     </div>
 
-    <form class="verify-form" method="get" action="/verify" autocomplete="off">
-      <label for="certId">Certificate ID</label>
+    <form class="verify-form" id="verifyForm" autocomplete="off">
+      <label for="certIdInput">Certificate ID</label>
       <div class="input-row">
-        <input type="text" id="certId" name="certId" value="<%= certId || '' %>" placeholder="GU-STA-AB12CD" maxlength="32" required>
+        <input type="text" id="certIdInput" value="<%= certId || '' %>" placeholder="GU-STA-AB12CD" maxlength="32" required>
         <button type="submit"><i class='bx bx-search'></i> Verify</button>
       </div>
       <p class="help">The ID is on the certificate, formatted like <code>GU-STA-AB12CD</code>. You can paste the full ID with or without the <code>GU-</code> prefix.</p>
     </form>
 
-    <% if (result) { %>
+    <% if (typeof result !== 'undefined' && result) { %>
       <div class="verify-result <%= result.valid ? 'valid' : 'invalid' %>">
         <div class="head">
           <% if (result.valid) { %>
@@ -187,5 +187,19 @@
       <b>What does this verify?</b> The ID confirms the holder completed every module in the course on the date shown, and the certificate was issued by Growing Up. It does <b>not</b> accredit the holder for jobs, schools, or government bodies — see the certificate's honest text on the <a href="/how-it-works" style="color:#3730A3;">How It Works</a> page.
     </div>
   </div>
+
+  <script>
+    // Fix: form navigates to /verify/:certId (path param) instead of ?certId= (query param)
+    document.getElementById('verifyForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var input = document.getElementById('certIdInput');
+      var val = (input.value || '').trim().toUpperCase().replace(/[^A-Z0-9-]/g, '');
+      if (!val) return;
+      // Strip GU- prefix for the URL (route accepts both formats)
+      if (val.startsWith('GU-')) val = val.substring(3);
+      if (!val) return;
+      window.location.href = '/verify/GU-' + val;
+    });
+  </script>
 </body>
 </html>
