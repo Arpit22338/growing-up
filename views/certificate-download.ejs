@@ -76,111 +76,36 @@
     </div>
   </div>
 
+  <script src="/js/html2canvas.min.js"></script>
+  <script src="/js/jspdf.umd.min.js"></script>
   <script>
     var certEl = document.getElementById('certificate');
     var msgEl = document.getElementById('msg');
     var format = '<%= typeof format !== "undefined" ? format : "pdf" %>';
 
-    function imgToBase64(url) {
-      return fetch(url).then(function(r) {
-        if (!r.ok) throw new Error('Failed to fetch ' + url);
-        return r.blob();
-      }).then(function(blob) {
-        return new Promise(function(resolve, reject) {
-          var reader = new FileReader();
-          reader.onloadend = function() { resolve(reader.result); };
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-      });
-    }
-
-    function convertImagesToBase64() {
-      var imgs = certEl.querySelectorAll('img');
-      var promises = [];
-      for (var i = 0; i < imgs.length; i++) {
-        (function(img) {
-          var src = img.getAttribute('src');
-          if (!src || src.indexOf('data:') === 0) return;
-          var fullUrl = src.indexOf('http') === 0 ? src : location.origin + src;
-          promises.push(
-            imgToBase64(fullUrl).then(function(dataUrl) {
-              img.src = dataUrl;
-            }).catch(function(e) {
-              console.warn('Image convert failed:', src, e);
-            })
-          );
-        })(imgs[i]);
-      }
-      return Promise.all(promises);
-    }
-
-    function waitForFonts() {
-      return document.fonts ? document.fonts.ready : Promise.resolve();
-    }
-
-    function waitForImages() {
-      var imgs = certEl.querySelectorAll('img');
-      var promises = [];
-      for (var i = 0; i < imgs.length; i++) {
-        (function(img) {
-          if (img.complete && img.naturalWidth > 0) {
-            promises.push(img.decode ? img.decode().catch(function() {}) : Promise.resolve());
-            return;
-          }
-          promises.push(new Promise(function(resolve) {
-            img.onload = function() {
-              if (img.decode) { img.decode().then(resolve).catch(resolve); }
-              else { resolve(); }
-            };
-            img.onerror = resolve;
-          }));
-        })(imgs[i]);
-      }
-      return Promise.all(promises);
-    }
-
-    function runCapture() {
+    function go() {
       if (typeof html2canvas === 'undefined') {
-        msgEl.innerHTML = 'Error: html2canvas not loaded. <a href="javascript:location.reload()" style="color:#D4A017;">Retry</a>';
+        msgEl.innerHTML = 'html2canvas not loaded. <a href="javascript:location.reload()" style="color:#D4A017;">Retry</a>';
         return;
       }
-      if (typeof window.jspdf === 'undefined' && format === 'pdf') {
-        msgEl.innerHTML = 'Error: jsPDF not loaded. <a href="javascript:location.reload()" style="color:#D4A017;">Retry</a>';
-        return;
-      }
-      msgEl.textContent = 'Loading images...';
-      return convertImagesToBase64();
-    }).then(function() {
-      return waitForFonts();
-    }).then(function() {
-      msgEl.textContent = 'Capturing certificate...';
-      return new Promise(function(resolve) { setTimeout(resolve, 500); });
-    }).then(function() {
-        return html2canvas(certEl, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: false,
-          backgroundColor: '#FFFEF7',
-          logging: true,
-          width: 1122,
-          height: 793,
-          imageTimeout: 15000
-        });
+      msgEl.textContent = 'Capturing...';
+      html2canvas(certEl, {
+        scale: 2,
+        backgroundColor: '#FFFEF7',
+        logging: false,
+        width: 1122,
+        height: 793
       }).then(function(canvas) {
         if (format === 'png') {
-          msgEl.textContent = 'Saving PNG...';
           var link = document.createElement('a');
           link.download = 'GrowingUp-Certificate-<%= certId %>.png';
           link.href = canvas.toDataURL('image/png');
           link.click();
           msgEl.textContent = 'PNG saved!';
         } else {
-          msgEl.textContent = 'Generating PDF...';
           var jsPDF = window.jspdf.jsPDF;
           var pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-          var imgData = canvas.toDataURL('image/jpeg', 0.95);
-          pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
+          pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 297, 210);
           pdf.save('GrowingUp-Certificate-<%= certId %>.pdf');
           msgEl.textContent = 'PDF downloaded!';
         }
@@ -189,25 +114,9 @@
       });
     }
 
-    function loadScript(url) {
-      return new Promise(function(resolve, reject) {
-        var s = document.createElement('script');
-        s.src = url;
-        s.onload = resolve;
-        s.onerror = reject;
-        document.head.appendChild(s);
-      });
-    }
-
-    msgEl.textContent = 'Loading scripts...';
-    loadScript('/js/html2canvas.min.js')
-      .then(function() { return loadScript('/js/jspdf.umd.min.js'); })
-      .then(function() {
-        setTimeout(runCapture, 300);
-      })
-      .catch(function(err) {
-        msgEl.innerHTML = 'Failed to load scripts. Check your connection.<br><br><a href="javascript:location.reload()" style="color:#D4A017;">Retry</a> or <a href="/certificates" style="color:#D4A017;">Go back</a>';
-      });
+    if (document.readyState === 'complete') { setTimeout(go, 300); }
+    else { window.addEventListener('load', function() { setTimeout(go, 300); }); }
+  </script>
   </script>
 </body>
 </html>
